@@ -59,6 +59,9 @@ let username = null;
 let a, b, operator, correctAnswer;
 let gkQuestions = [];
 
+// restore saved subject (applied early)
+let savedSubject = localStorage.getItem('quiz_subject') || null;
+
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
 const submitBtn = document.getElementById('submitBtn');
@@ -70,6 +73,13 @@ const nextEl = document.getElementById('pointsToNext');
 const feedbackEl = document.getElementById('feedback');
 const leaderboardList = document.getElementById('leaderboardList');
 const loginArea = document.getElementById('loginArea');
+
+/* If we have a saved subject, set it now so generateQuestion uses it after ranks load */
+if (savedSubject) {
+  // only set if the option exists (safety)
+  const opt = Array.from(subjectSelect.options).find(o => o.value === savedSubject);
+  if (opt) subjectSelect.value = savedSubject;
+}
 
 /* ===== Helpers ===== */
 function setUIEnabled(enabled){
@@ -127,8 +137,8 @@ function generateQuestion() {
 
   if (subject === 'math') {
     // set answer input to numeric mode
-    answerInput.type = 'number';
-    answerInput.inputMode = 'numeric';
+    try { answerInput.type = 'number'; } catch(e){}
+    try { answerInput.inputMode = 'numeric'; } catch(e){}
 
     // difficulty scaling
     let maxNumber = 10 + (currentRankIndex * 5);
@@ -154,13 +164,15 @@ function generateQuestion() {
   } 
   else if (subject === 'gk') {
     // set answer input to text mode for GK answers
-    answerInput.type = 'text';
-    answerInput.inputMode = 'text';
+    try { answerInput.type = 'text'; } catch(e){}
+    try { answerInput.inputMode = 'text'; } catch(e){}
 
     // General Knowledge questions
     if (!Array.isArray(gkQuestions) || gkQuestions.length === 0) {
       questionEl.textContent = "GK questions loading...";
       correctAnswer = null;
+      answerInput.value = '';
+      feedbackEl.textContent = '';
       return;
     }
 
@@ -205,13 +217,13 @@ function checkAnswer(){
     score++;
     feedbackEl.textContent = '✅ Correct!';
   } else {
-    feedbackEl.textContent = `❌ Wrong! The answer was ${ (subject === 'math') ? correctAnswer : correctAnswer }`;
+    // show correct answer (for text answers it's already a lowercase string)
+    const displayAnswer = (subject === 'math') ? correctAnswer : correctAnswer;
+    feedbackEl.textContent = `❌ Wrong! The answer was ${displayAnswer}`;
   }
 
   // update high score & local storage
-  if (score > highScore) {
-    highScore = score;
-  }
+  if (score > highScore) highScore = score;
 
   // ensure persistence both local and server
   localStorage.setItem('score', String(score));
@@ -298,6 +310,11 @@ function fetchRanksThenStart(){
       if (!Array.isArray(data) || data.length === 0) throw new Error('ranks.json invalid');
       ranks = data;
       sanitizeRankIndex();
+      // restore saved subject here too (in case it was set earlier)
+      const saved = localStorage.getItem('quiz_subject');
+      if (saved && Array.from(subjectSelect.options).some(o => o.value === saved)) {
+        subjectSelect.value = saved;
+      }
       setUIEnabled(true);
       updateDisplay();
       generateQuestion();
@@ -368,6 +385,16 @@ function createLoginControls(){
   loginArea.appendChild(clearBtn);
 }
 
+/* ===== Subject change persistence ===== */
+// Save subject when the user changes it, and regenerate a question if UI is enabled.
+subjectSelect.addEventListener('change', () => {
+  localStorage.setItem('quiz_subject', subjectSelect.value);
+  // only regenerate if UI is enabled (avoids running before ranks loaded)
+  if (!answerInput.disabled) {
+    generateQuestion();
+  }
+});
+
 /* ===== Initialization ===== */
 (function init(){
   setUIEnabled(false); // start disabled until ranks & login
@@ -397,6 +424,9 @@ function createLoginControls(){
         updateDisplay();
         fetchRanksThenStart();
       });
+  } else {
+    // no saved username — still fetch ranks so the UI becomes available (user can then login)
+    fetchRanksThenStart();
   }
 })();
 
