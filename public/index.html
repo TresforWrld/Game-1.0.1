@@ -280,22 +280,24 @@ function loadLeaderboard() {
       leaderboardList.innerHTML = '';
 
       list.forEach((item, index) => {
-        // get rank name from ranks array, fallback to '—' if missing
-        const rankName = (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
-        const li = document.createElement('li');
-        li.textContent = `${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-        leaderboardList.appendChild(li);
+  // get rank name from ranks array, fallback to '—' if missing
+  const rankName = (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
+  
+  // create leaderboard entry
+  const li = document.createElement('li');
+  li.textContent = `${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
+  leaderboardList.appendChild(li);
 
-        // Add separator after each item except the last one
-        if (index < list.length - 1) {
-          const sep = document.createElement('li');
-          sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
-          sep.style.textAlign = 'center';
-          sep.style.color = '#888';
-          leaderboardList.appendChild(sep);
-        }
-      });
-    })
+  // Add separator as a div (not li) after each item except the last one
+  if (index < list.length - 1) {
+    const sep = document.createElement('div');
+    sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
+    sep.style.textAlign = 'center';
+    sep.style.color = '#888';
+    sep.style.margin = '4px 0';
+    leaderboardList.appendChild(sep);
+  }
+});
     .catch(err => {
       console.error('Leaderboard error:', err);
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
