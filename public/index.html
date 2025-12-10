@@ -274,27 +274,27 @@ function loadLeaderboard() {
           highScore: Number.isFinite(stats.highScore) ? stats.highScore : 0,
           currentRankIndex: Number.isFinite(stats.currentRankIndex) ? stats.currentRankIndex : 0
         }))
-        .sort((a, b) => b.highScore - a.highScore); // show ALL users
+        .sort((a, b) => b.highScore - a.highScore); // ← NO SLICE HERE!
 
       leaderboardList.innerHTML = '';
 
       list.forEach((item, index) => {
-        // medals for top 3
+        // medals
         let medal = '';
         if (index === 0) medal = '🥇 ';
         else if (index === 1) medal = '🥈 ';
         else if (index === 2) medal = '🥉 ';
 
-        // get rank name from ranks array
+        // rank name
         const rankName =
           (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
 
-        // create leaderboard entry
+        // entry
         const li = document.createElement('li');
         li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
         leaderboardList.appendChild(li);
 
-        // separator (not after last)
+        // separator
         if (index < list.length - 1) {
           const sep = document.createElement('div');
           sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
