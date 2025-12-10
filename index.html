@@ -1,25 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Quick Quiz Game</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      text-align: center; 
-      margin-top: 50px; 
-      background-color: #f0f8ff; 
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+      background-color: #f0f8ff;
       color: #333;
+      padding-bottom: 90px; /* make room for fixed footer */
     }
-    button, select { 
-      padding: 10px 20px; 
-      font-size: 16px; 
-      margin-top: 10px; 
+    button, select {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
       cursor: pointer;
     }
-    input { font-size: 16px; padding: 5px; width: 80px; }
-    #score, #highScore { font-weight: bold; }
+    input { font-size: 16px; padding: 5px; width: 120px; }
+    #score, #highScore, #rank, #pointsToNext { font-weight: bold; }
+    footer {
+      background-color: #808080;
+      color: white;
+      padding: 15px;
+      font-size: 14px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #feedback { min-height: 1.4em; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -27,120 +39,232 @@
   <h1>Quick Quiz Game</h1>
 
   <label for="subject">Choose subject:</label>
-  <select id="subject" onchange="generateQuestion()">
+  <select id="subject" disabled>
     <option value="math">Math</option>
-    <!-- You can add more subjects here later -->
-    <!-- <option value="science">Science</option> -->
+    <!-- additional subjects can be added later -->
   </select>
 
   <p id="questionTitle">Solve the problem:</p>
-  <h2 id="question"></h2>
-  <input type="number" id="answer" placeholder="Your answer">
+  <h2 id="question">Loading...</h2>
+
+  <input type="number" id="answer" placeholder="Your answer" disabled>
   <br>
-  <button onclick="checkAnswer()">Submit</button>
+  <button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
 
   <p id="feedback"></p>
-  <p>Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></p>
 
-  <script>
-    let ranks = [];
-let currentRankIndex = 0;
+  <p>
+    Score: <span id="score">0</span>
+    &nbsp;|&nbsp;
+    High Score: <span id="highScore">0</span>
+  </p>
+
+  <p>
+    Rank: <span id="rank">—</span>
+    &nbsp;|&nbsp;
+    Points to next: <span id="pointsToNext">—</span>
+  </p>
+
+<script>
+/* ====== State & DOM refs ====== */
+let ranks = [];
+let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
 let score = parseInt(localStorage.getItem('score')) || 0;
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 
-document.getElementById('score').textContent = score;
-document.getElementById('highScore').textContent = highScore;
+let a, b, operator, correctAnswer;
 
-// Load ranks from ranks.json
-fetch('ranks.json')
-  .then(response => response.json())
-  .then(data => {
-    ranks = data;
-    console.log('Ranks loaded:', ranks);
-    generateQuestion(); // generate first question only after ranks are loaded
-  })
-  function getCurrentRank() {
+const questionEl = document.getElementById('question');
+const answerInput = document.getElementById('answer');
+const submitBtn = document.getElementById('submitBtn');
+const subjectSelect = document.getElementById('subject');
+const scoreEl = document.getElementById('score');
+const highScoreEl = document.getElementById('highScore');
+const rankEl = document.getElementById('rank');
+const nextEl = document.getElementById('pointsToNext');
+const feedbackEl = document.getElementById('feedback');
+
+scoreEl.textContent = score;
+highScoreEl.textContent = highScore;
+
+/* ====== Helper functions ====== */
+function getCurrentRank() {
+  if (!Array.isArray(ranks) || ranks.length === 0) return '—';
   return ranks[currentRankIndex].name;
 }
 
 function pointsNeeded(rankIndex) {
-  return ranks[rankIndex].points;
+  if (!Array.isArray(ranks) || ranks.length === 0) return Infinity;
+  // make sure rankIndex in bounds
+  const idx = Math.min(Math.max(0, rankIndex), ranks.length - 1);
+  return ranks[idx].points;
 }
 
+function updateRankDisplay() {
+  rankEl.textContent = getCurrentRank();
+  if (!Array.isArray(ranks) || ranks.length === 0) {
+    nextEl.textContent = '—';
+    return;
+  }
+  // if at final rank, show dash
+  if (currentRankIndex >= ranks.length) {
+    nextEl.textContent = '—';
+    return;
+  }
+  const needed = pointsNeeded(currentRankIndex);
+  const remaining = Math.max(0, needed - score);
+  nextEl.textContent = remaining;
+}
+
+/* check and apply level ups (handles multi-rank up if score big) */
 function checkLevelUp() {
-  if(score >= pointsNeeded(currentRankIndex)) {
+  if (!Array.isArray(ranks) || ranks.length === 0) return;
+  let leveled = false;
+
+  // Loop while player has enough points for current rank threshold
+  while (currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)) {
+    leveled = true;
     currentRankIndex++;
-    if(currentRankIndex >= ranks.length) {
-      alert(`🎉 You reached the ultimate rank: ${ranks[ranks.length-1].name}!`);
+    // If currentRankIndex reaches length -> player exceeded final threshold
+    if (currentRankIndex >= ranks.length) {
+      alert(`🎉 You reached the ultimate rank: ${ranks[ranks.length - 1].name}!`);
+      // Reset for replay but keep highscore
       score = 0;
+      localStorage.setItem('score', score);
       currentRankIndex = 0;
+      break;
     } else {
+      // show the new rank name (currentRankIndex now points to next rank)
       alert(`⭐ Congrats! You ranked up to: ${getCurrentRank()}`);
     }
   }
-    }
-  .catch(error => console.error('Error loading ranks:', error));
-    let score = parseInt(localStorage.getItem('score')) || 0;
-    let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 
-    document.getElementById('score').textContent = score;
-    document.getElementById('highScore').textContent = highScore;
+  // persist the rank index
+  localStorage.setItem('rankIndex', currentRankIndex);
+  updateRankDisplay();
+  return leveled;
+}
 
-    let a, b, operator, correctAnswer;
-
-    function generateQuestion() {
-  // Scale numbers with current rank
-  let maxNumber = 10 + currentRankIndex * 5; // higher rank = bigger numbers
-  a = Math.floor(Math.random() * maxNumber) + 1;
-  b = Math.floor(Math.random() * maxNumber) + 1;
-
-  const operators = ['+', '-', '*', '/'];
-  operator = operators[Math.floor(Math.random() * operators.length)];
-
-  if(operator === '+') correctAnswer = a + b;
-  if(operator === '-') correctAnswer = a - b;
-  if(operator === '*') correctAnswer = a * b;
-  if(operator === '/') {
-    a = a * b; // ensures division is exact
-    correctAnswer = a / b;
+/* ====== Question generation ====== */
+function generateQuestion() {
+  // ensure ranks loaded
+  if (!Array.isArray(ranks) || ranks.length === 0) {
+    questionEl.textContent = 'Waiting for ranks...';
+    return;
   }
 
-  document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
-  document.getElementById('answer').value = '';
-  document.getElementById('feedback').textContent = '';
+  const subject = subjectSelect.value || 'math';
+
+  if (subject === 'math') {
+    // difficulty scales with rank
+    let maxNumber = 10 + currentRankIndex * 5;
+    // keep maxNumber at least 10
+    maxNumber = Math.max(10, maxNumber);
+
+    a = Math.floor(Math.random() * maxNumber) + 1;
+    b = Math.floor(Math.random() * maxNumber) + 1;
+
+    const operators = ['+', '-', '*', '/'];
+    operator = operators[Math.floor(Math.random() * operators.length)];
+
+    if (operator === '+') correctAnswer = a + b;
+    else if (operator === '-') correctAnswer = a - b;
+    else if (operator === '*') correctAnswer = a * b;
+    else { // '/'
+      // make division exact
+      a = a * b;
+      correctAnswer = a / b;
+    }
+
+    questionEl.textContent = `${a} ${operator} ${b} = ?`;
+  } else {
+    // placeholder for other subjects
+    questionEl.textContent = 'No questions available for this subject yet.';
+    correctAnswer = null;
   }
-      // Add other subjects here with else if(subject === 'science') etc.
 
-      document.getElementById('answer').value = '';
-      document.getElementById('feedback').textContent = '';
+  answerInput.value = '';
+  feedbackEl.textContent = '';
+}
+
+/* ====== Answer checking ====== */
+function checkAnswer() {
+  if (!correctAnswer && correctAnswer !== 0) {
+    feedbackEl.textContent = 'No question ready yet.';
+    return;
+  }
+
+  const raw = answerInput.value;
+  const userAnswer = raw === '' ? NaN : parseFloat(raw);
+
+  if (isNaN(userAnswer)) {
+    feedbackEl.textContent = 'Please enter a valid number.';
+    return;
+  }
+
+  if (userAnswer === correctAnswer) {
+    score++;
+    feedbackEl.textContent = '✅ Correct!';
+  } else {
+    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+  }
+
+  // update high score and save
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('highScore', highScore);
+  }
+
+  scoreEl.textContent = score;
+  highScoreEl.textContent = highScore;
+  localStorage.setItem('score', score);
+
+  checkLevelUp();
+  generateQuestion();
+}
+
+/* Allow pressing Enter to submit */
+answerInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkAnswer();
+});
+
+/* ====== Load ranks.json then enable UI and start ====== */
+function enableUI() {
+  answerInput.disabled = false;
+  submitBtn.disabled = false;
+  subjectSelect.disabled = false;
+}
+
+/* Fetch ranks.json (must be in same repo/public folder) */
+fetch('ranks.json')
+  .then(response => {
+    if (!response.ok) throw new Error('Failed to load ranks.json: ' + response.status);
+    return response.json();
+  })
+  .then(data => {
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('ranks.json must contain a non-empty array');
     }
+    ranks = data;
+    // sanitize currentRankIndex if out of bounds
+    if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
 
-    function checkAnswer() {
-      const userAnswer = parseFloat(document.getElementById('answer').value);
-
-      if(userAnswer === correctAnswer) {
-        score++;
-        document.getElementById('feedback').textContent = '✅ Correct!';
-      } else {
-        document.getElementById('feedback').textContent = `❌ Wrong! The answer was ${correctAnswer}`;
-      }
-
-      if(score > highScore) {
-        highScore = score;
-        localStorage.setItem('highScore', highScore);
-      }
-
-      document.getElementById('score').textContent = score;
-      document.getElementById('highScore').textContent = highScore;
-      localStorage.setItem('score', score);
-
-      generateQuestion();
-    }
-
+    enableUI();
+    updateRankDisplay();
     generateQuestion();
-  </script>
-<footer style="background-color: #808080; color: white; padding: 15px; font-size: 14px; position: fixed; bottom: 0; width: 100%;">
-©2025 ANICADE⛩️ Productions (ANICADE's ELEVATE)
+    console.log('Ranks loaded:', ranks);
+  })
+  .catch(error => {
+    console.error(error);
+    questionEl.textContent = 'Error loading ranks configuration.';
+    feedbackEl.textContent = 'Check ranks.json and the browser console.';
+  });
+
+</script>
+
+<footer>
+  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
 </footer>
+
 </body>
 </html>
