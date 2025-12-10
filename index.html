@@ -59,6 +59,26 @@ fetch('ranks.json')
     console.log('Ranks loaded:', ranks);
     generateQuestion(); // generate first question only after ranks are loaded
   })
+  function getCurrentRank() {
+  return ranks[currentRankIndex].name;
+}
+
+function pointsNeeded(rankIndex) {
+  return ranks[rankIndex].points;
+}
+
+function checkLevelUp() {
+  if(score >= pointsNeeded(currentRankIndex)) {
+    currentRankIndex++;
+    if(currentRankIndex >= ranks.length) {
+      alert(`🎉 You reached the ultimate rank: ${ranks[ranks.length-1].name}!`);
+      score = 0;
+      currentRankIndex = 0;
+    } else {
+      alert(`⭐ Congrats! You ranked up to: ${getCurrentRank()}`);
+    }
+  }
+    }
   .catch(error => console.error('Error loading ranks:', error));
     let score = parseInt(localStorage.getItem('score')) || 0;
     let highScore = parseInt(localStorage.getItem('highScore')) || 0;
