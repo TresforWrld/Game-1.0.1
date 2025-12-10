@@ -1,0 +1,23 @@
+[
+  {"name": "Novice", "points": 5},
+  {"name": "Apprentice", "points": 8},
+  {"name": "Skilled", "points": 12},
+  {"name": "Adept", "points": 18},
+  {"name": "Proficient", "points": 27},
+  {"name": "Expert", "points": 40},
+  {"name": "Master", "points": 60},
+  {"name": "Grandmaster", "points": 90},
+  {"name": "Elite", "points": 135},
+  {"name": "Hero", "points": 200},
+  {"name": "Champion", "points": 300},
+  {"name": "Legend", "points": 450},
+  {"name": "Mythic", "points": 675},
+  {"name": "Divine", "points": 1000},
+  {"name": "Supreme", "points": 1500},
+  {"name": "Immortal", "points": 2250},
+  {"name": "Eternal", "points": 3400},
+  {"name": "Cosmic", "points": 5100},
+  {"name": "Galactic", "points": 7700},
+  {"name": "Universal", "points": 11500},
+  {"name": "Transcendent", "points": 17000}
+]
