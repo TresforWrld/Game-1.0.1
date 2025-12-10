@@ -26,6 +26,7 @@
     <label for="subject">Choose subject:</label>
     <select id="subject" disabled>
       <option value="math">Math</option>
+<option value="gk">General Knowledge</option>
     </select>
   </div>
 
@@ -55,6 +56,7 @@ let score = 0;
 let highScore = 0;
 let username = null;
 let a, b, operator, correctAnswer;
+  let gkQuestions = [];
 
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
@@ -114,35 +116,57 @@ function checkLevelUp(){
 }
 
 /* ===== Question generation ===== */
-function generateQuestion(){
+function generateQuestion() {
   if (!Array.isArray(ranks) || ranks.length === 0) {
     questionEl.textContent = 'Waiting for ranks...';
     return;
   }
 
-  // difficulty scaling
-  let maxNumber = 10 + (currentRankIndex * 5);
-  maxNumber = Math.max(10, Math.floor(maxNumber));
+  const subject = subjectSelect.value || 'math';
 
-  a = Math.floor(Math.random() * maxNumber) + 1;
-  b = Math.floor(Math.random() * maxNumber) + 1;
+  if (subject === 'math') {
+    // difficulty scaling
+    let maxNumber = 10 + (currentRankIndex * 5);
+    maxNumber = Math.max(10, Math.floor(maxNumber));
 
-  const operators = ['+', '-', '*', '/'];
-  operator = operators[Math.floor(Math.random() * operators.length)];
+    a = Math.floor(Math.random() * maxNumber) + 1;
+    b = Math.floor(Math.random() * maxNumber) + 1;
 
-  if(operator === '+') correctAnswer = a + b;
-  else if(operator === '-') correctAnswer = a - b;
-  else if(operator === '*') correctAnswer = a * b;
-  else { // '/'
-    a = a * b; // make division exact
-    correctAnswer = a / b;
+    const operators = ['+', '-', '*', '/'];
+    operator = operators[Math.floor(Math.random() * operators.length)];
+
+    if (operator === '+') correctAnswer = a + b;
+    else if (operator === '-') correctAnswer = a - b;
+    else if (operator === '*') correctAnswer = a * b;
+    else { // '/'
+      a = a * b; // make division exact
+      correctAnswer = a / b;
+    }
+
+    questionEl.textContent = `${a} ${operator} ${b} = ?`;
+    answerInput.value = '';
+    feedbackEl.textContent = '';
+  } 
+  else if (subject === 'gk') {
+    // General Knowledge questions
+    if (!Array.isArray(gkQuestions) || gkQuestions.length === 0) {
+      questionEl.textContent = "GK questions loading...";
+      correctAnswer = null;
+      return;
+    }
+
+    const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
+    questionEl.textContent = q.question;
+    correctAnswer = q.answer;
+    answerInput.value = '';
+    feedbackEl.textContent = '';
+  } 
+  else {
+    // fallback
+    questionEl.textContent = 'No questions available for this subject yet.';
+    correctAnswer = null;
   }
-
-  questionEl.textContent = `${a} ${operator} ${b} = ?`;
-  answerInput.value = '';
-  feedbackEl.textContent = '';
-}
-
+                          }
 /* ===== Answer checking ===== */
 function checkAnswer(){
   if (correctAnswer === undefined || correctAnswer === null) {
@@ -188,7 +212,7 @@ function saveUser(){
   }).catch(err => console.error('Save user failed:', err));
 }
 
-/* ===== Leaderboard ===== */
+/* ===== Leaderboard 📊 ===== */
 function loadLeaderboard(){
   fetch('/users')
     .then(res => {
@@ -213,7 +237,14 @@ function loadLeaderboard(){
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 }
-
+// Load General Knowledge questions
+fetch('gk.json')
+  .then(res => res.json())
+  .then(data => {
+    gkQuestions = data;
+    console.log("GK questions loaded:", gkQuestions.length);
+  })
+  .catch(err => console.error('Failed to load GK questions:', err));
 /* ===== Load ranks then user ===== */
 function fetchRanksThenStart(){
   // ranks.json must be in /public/ranks.json so static server serves it at /ranks.json
@@ -239,6 +270,7 @@ function fetchRanksThenStart(){
     });
 }
 
+  
 /* ===== Login / Load user ===== */
 function createLoginControls(){
   const saved = localStorage.getItem('quiz_username');
