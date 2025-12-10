@@ -261,39 +261,41 @@ function saveUser(){
 }
 
 /* ===== Leaderboard ===== */
-function loadLeaderboard(){
+function loadLeaderboard() {
   fetch('/users')
     .then(res => {
       if (!res.ok) throw new Error('Failed to load users');
       return res.json();
     })
-  .then(data => {
-  const list = Object.entries(data || {})
-    .map(([user, stats]) => ({
-      user,
-      highScore: Number.isFinite(stats.highScore) ? stats.highScore : 0,
-      currentRankIndex: Number.isFinite(stats.currentRankIndex) ? stats.currentRankIndex : 0
-    }))
-    .sort((a,b) => b.highScore - a.highScore)
-    .slice(0,10);
+    .then(data => {
+      const list = Object.entries(data || {})
+        .map(([user, stats]) => ({
+          user,
+          highScore: Number.isFinite(stats.highScore) ? stats.highScore : 0,
+          currentRankIndex: Number.isFinite(stats.currentRankIndex) ? stats.currentRankIndex : 0
+        }))
+        .sort((a, b) => b.highScore - a.highScore)
+        .slice(0, 10);
 
-  leaderboardList.innerHTML = '';
-  list.forEach((item, index) => {
-  // get rank name from ranks array, fallback to '—' if missing
-  const rankName = (ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
-  const li = document.createElement('li');
-  li.textContent = `${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-  leaderboardList.appendChild(li);
+      leaderboardList.innerHTML = '';
 
-  // Add separator after each item except the last one
-  if (index < list.length - 1) {
-    const sep = document.createElement('li');
-    sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
-    sep.style.textAlign = 'center';
-    sep.style.color = '#888';
-    leaderboardList.appendChild(sep);
-  }
-});
+      list.forEach((item, index) => {
+        // get rank name from ranks array, fallback to '—' if missing
+        const rankName = (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
+        const li = document.createElement('li');
+        li.textContent = `${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
+        leaderboardList.appendChild(li);
+
+        // Add separator after each item except the last one
+        if (index < list.length - 1) {
+          const sep = document.createElement('li');
+          sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
+          sep.style.textAlign = 'center';
+          sep.style.color = '#888';
+          leaderboardList.appendChild(sep);
+        }
+      });
+    })
     .catch(err => {
       console.error('Leaderboard error:', err);
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
