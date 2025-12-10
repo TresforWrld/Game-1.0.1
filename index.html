@@ -43,6 +43,23 @@
   <p>Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></p>
 
   <script>
+    let ranks = [];
+let currentRankIndex = 0;
+let score = parseInt(localStorage.getItem('score')) || 0;
+let highScore = parseInt(localStorage.getItem('highScore')) || 0;
+
+document.getElementById('score').textContent = score;
+document.getElementById('highScore').textContent = highScore;
+
+// Load ranks from ranks.json
+fetch('ranks.json')
+  .then(response => response.json())
+  .then(data => {
+    ranks = data;
+    console.log('Ranks loaded:', ranks);
+    generateQuestion(); // generate first question only after ranks are loaded
+  })
+  .catch(error => console.error('Error loading ranks:', error));
     let score = parseInt(localStorage.getItem('score')) || 0;
     let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 
