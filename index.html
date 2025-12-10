@@ -29,42 +29,44 @@
   <p>Score: <span id="score">0</span></p>
 
   <script>
-    let score = 0;
-    let a, b, operator, correctAnswer;
+let score = parseInt(localStorage.getItem('score')) || 0; // load saved score
+document.getElementById('score').textContent = score;
 
-    function generateQuestion() {
-      a = Math.floor(Math.random() * 20) + 1;
-      b = Math.floor(Math.random() * 20) + 1;
-      const operators = ['+', '-', '*', '/'];
-      operator = operators[Math.floor(Math.random() * operators.length)];
+let a, b, operator, correctAnswer;
 
-      if(operator === '+') correctAnswer = a + b;
-      if(operator === '-') correctAnswer = a - b;
-      if(operator === '*') correctAnswer = a * b;
-      if(operator === '/') {
-        a = a * b; // ensures a divisible by b
-        correctAnswer = a / b;
-      }
+function generateQuestion() {
+  a = Math.floor(Math.random() * 20) + 1;
+  b = Math.floor(Math.random() * 20) + 1;
+  const operators = ['+', '-', '*', '/'];
+  operator = operators[Math.floor(Math.random() * operators.length)];
 
-      document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
-      document.getElementById('answer').value = '';
-      document.getElementById('feedback').textContent = '';
-    }
+  if(operator === '+') correctAnswer = a + b;
+  if(operator === '-') correctAnswer = a - b;
+  if(operator === '*') correctAnswer = a * b;
+  if(operator === '/') {
+    a = a * b; // ensures a divisible by b
+    correctAnswer = a / b;
+  }
 
-    function checkAnswer() {
-      const userAnswer = parseFloat(document.getElementById('answer').value);
-      if(userAnswer === correctAnswer) {
-        score++;
-        document.getElementById('feedback').textContent = '✅ Correct!';
-      } else {
-        document.getElementById('feedback').textContent = `❌ Wrong! The answer was ${correctAnswer}`;
-      }
-      document.getElementById('score').textContent = score;
-      generateQuestion();
-    }
+  document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
+  document.getElementById('answer').value = '';
+  document.getElementById('feedback').textContent = '';
+}
 
-    generateQuestion(); // first question
+function checkAnswer() {
+  const userAnswer = parseFloat(document.getElementById('answer').value);
+  if(userAnswer === correctAnswer) {
+    score++;
+    document.getElementById('feedback').textContent = '✅ Correct!';
+  } else {
+    document.getElementById('feedback').textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+  }
+  document.getElementById('score').textContent = score;
+  localStorage.setItem('score', score); // save score
+  generateQuestion();
+}
+
+generateQuestion(); // first question
   </script>
-
 </body>
 </html>
