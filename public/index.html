@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Quiz Game</title>
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  text-align: center; 
+  margin-top: 50px; 
+  background-color: #f0f8ff; 
+  color: #333;
+}
+button, select { 
+  padding: 10px 20px; 
+  font-size: 16px; 
+  margin-top: 10px; 
+  cursor: pointer;
+}
+input { font-size: 16px; padding: 5px; width: 80px; }
+#score, #highScore { font-weight: bold; }
+#leaderboard { margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Quick Quiz Game</h1>
+
+<p id="loginPrompt"></p>
+
+<label for="subject">Choose subject:</label>
+<select id="subject" onchange="generateQuestion()">
+  <option value="math">Math</option>
+</select>
+
+<p id="questionTitle">Solve the problem:</p>
+<h2 id="question"></h2>
+<input type="number" id="answer" placeholder="Your answer">
+<br>
+<button onclick="checkAnswer()">Submit</button>
+
+<p id="feedback"></p>
+<p>Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></p>
+
+<div id="leaderboard">
+  <h3>Leaderboard</h3>
+  <ol id="leaderboardList"></ol>
+</div>
+
+<script>
+const backendUrl = "https://game-1-0-1.onrender.com";
+
+let username = '';
+let ranks = [];
+let currentRankIndex = 0;
+let score = 0;
+let highScore = 0;
+let a, b, operator, correctAnswer;
+
+// Ask for username
+function askUsername() {
+  username = prompt("Enter your username:");
+  if(!username) username = "Guest" + Math.floor(Math.random()*1000);
+  document.getElementById('loginPrompt').textContent = `Logged in as: ${username}`;
+  loadUser();
+}
+
+function loadUser() {
+  fetch(`${backendUrl}/user/${username}`)
+    .then(res => res.json())
+    .then(data => {
+      score = data.score;
+      highScore = data.highScore;
+      currentRankIndex = data.currentRankIndex;
+      updateDisplay();
+      fetchRanks();
+    })
+    .catch(err => {
+      // New user
+      score = 0;
+      highScore = 0;
+      currentRankIndex = 0;
+      updateDisplay();
+      fetchRanks();
+    });
+}
+
+function fetchRanks() {
+  fetch(`${backendUrl}/ranks.json`)
+    .then(res => res.json())
+    .then(data => {
+      ranks = data;
+      generateQuestion();
+      loadLeaderboard();
+    })
+    .catch(err => console.error("Error loading ranks:", err));
+}
+
+function updateDisplay() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('highScore').textContent = highScore;
+}
+
+function getCurrentRank() {
+  return ranks[currentRankIndex]?.name || "Novice";
+}
+
+function pointsNeeded(rankIndex) {
+  return ranks[rankIndex]?.points || 10;
+}
+
+function checkLevelUp() {
+  if(score >= pointsNeeded(currentRankIndex)) {
+    currentRankIndex++;
+    if(currentRankIndex >= ranks.length) {
+      alert(`🎉 You reached the ultimate rank: ${ranks[ranks.length-1].name}!`);
+      score = 0;
+      currentRankIndex = 0;
+    } else {
+      alert(`⭐ Congrats! You ranked up to: ${getCurrentRank()}`);
+    }
+    saveUser();
+  }
+}
+
+function generateQuestion() {
+  const maxNumber = 10 + currentRankIndex*5;
+  a = Math.floor(Math.random()*maxNumber)+1;
+  b = Math.floor(Math.random()*maxNumber)+1;
+  const operators = ['+', '-', '*', '/'];
+  operator = operators[Math.floor(Math.random()*operators.length)];
+  if(operator === '+') correctAnswer = a+b;
+  if(operator === '-') correctAnswer = a-b;
+  if(operator === '*') correctAnswer = a*b;
+  if(operator === '/') {
+    a = a*b; // exact division
+    correctAnswer = a/b;
+  }
+  document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
+  document.getElementById('answer').value = '';
+  document.getElementById('feedback').textContent = '';
+}
+
+function checkAnswer() {
+  const userAnswer = parseFloat(document.getElementById('answer').value);
+  if(userAnswer === correctAnswer) {
+    score++;
+    document.getElementById('feedback').textContent = '✅ Correct!';
+  } else {
+    document.getElementById('feedback').textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+  }
+  if(score > highScore) highScore = score;
+  updateDisplay();
+  checkLevelUp();
+  saveUser();
+  generateQuestion();
+  loadLeaderboard();
+}
+
+function saveUser() {
+  fetch(`${backendUrl}/user/${username}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({score, highScore, currentRankIndex})
+  });
+}
+
+function loadLeaderboard() {
+  fetch(`${backendUrl}/users`)
+    .then(res => res.json())
+    .then(data => {
+      const sorted = Object.entries(data)
+        .sort((a,b)=>b[1].highScore-a[1].highScore)
+        .slice(0,10);
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      sorted.forEach(([user, stats])=>{
+        const li = document.createElement('li');
+        li.textContent = `${user} - ${stats.highScore} pts`;
+        list.appendChild(li);
+      });
+    });
+}
+
+// Start game
+askUsername();
+</script>
+
+<footer style="background-color: #808080; color: white; padding: 15px; font-size: 14px; position: fixed; bottom: 0; width: 100%;">
+©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
+</footer>
+</body>
+</html>
