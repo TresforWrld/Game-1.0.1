@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Math Game</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      margin-top: 50px; 
+      background-color: #f0f8ff; /* New background color */
+      color: #333;
+    }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
     input { font-size: 16px; padding: 5px; width: 60px; }
     #score { font-weight: bold; }
   </style>
@@ -29,12 +35,16 @@
     function generateQuestion() {
       a = Math.floor(Math.random() * 20) + 1;
       b = Math.floor(Math.random() * 20) + 1;
-      const operators = ['+', '-', '*'];
+      const operators = ['+', '-', '*', '/'];
       operator = operators[Math.floor(Math.random() * operators.length)];
 
       if(operator === '+') correctAnswer = a + b;
       if(operator === '-') correctAnswer = a - b;
       if(operator === '*') correctAnswer = a * b;
+      if(operator === '/') {
+        a = a * b; // ensures a divisible by b
+        correctAnswer = a / b;
+      }
 
       document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
       document.getElementById('answer').value = '';
@@ -42,7 +52,7 @@
     }
 
     function checkAnswer() {
-      const userAnswer = parseInt(document.getElementById('answer').value);
+      const userAnswer = parseFloat(document.getElementById('answer').value);
       if(userAnswer === correctAnswer) {
         score++;
         document.getElementById('feedback').textContent = '✅ Correct!';
@@ -53,8 +63,7 @@
       generateQuestion();
     }
 
-    // Generate the first question
-    generateQuestion();
+    generateQuestion(); // first question
   </script>
 
 </body>
