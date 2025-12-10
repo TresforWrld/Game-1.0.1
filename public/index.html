@@ -274,21 +274,27 @@ function loadLeaderboard() {
           highScore: Number.isFinite(stats.highScore) ? stats.highScore : 0,
           currentRankIndex: Number.isFinite(stats.currentRankIndex) ? stats.currentRankIndex : 0
         }))
-        .sort((a, b) => b.highScore - a.highScore)
-        .slice(0, 10);
+        .sort((a, b) => b.highScore - a.highScore); // show ALL users
 
       leaderboardList.innerHTML = '';
 
       list.forEach((item, index) => {
-        // get rank name from ranks array, fallback to '—' if missing
-        const rankName = (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
+        // medals for top 3
+        let medal = '';
+        if (index === 0) medal = '🥇 ';
+        else if (index === 1) medal = '🥈 ';
+        else if (index === 2) medal = '🥉 ';
+
+        // get rank name from ranks array
+        const rankName =
+          (ranks && ranks[item.currentRankIndex] && ranks[item.currentRankIndex].name) || '—';
 
         // create leaderboard entry
         const li = document.createElement('li');
-        li.textContent = `${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
+        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
         leaderboardList.appendChild(li);
 
-        // Add separator as a div (not li) after each item except the last one
+        // separator (not after last)
         if (index < list.length - 1) {
           const sep = document.createElement('div');
           sep.textContent = '━━━━━━━━━━━━━━━━━━━━━━━━';
@@ -299,6 +305,11 @@ function loadLeaderboard() {
         }
       });
     })
+    .catch(err => {
+      console.error('Leaderboard error:', err);
+      leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
+    });
+}
     .catch(err => {
       console.error('Leaderboard error:', err);
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
