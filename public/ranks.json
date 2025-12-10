@@ -1,0 +1,22 @@
+[
+  {"name":"Novice","points":5},
+  {"name":"Apprentice","points":10},
+  {"name":"Journeyman","points":20},
+  {"name":"Adept","points":35},
+  {"name":"Expert","points":50},
+  {"name":"Master","points":70},
+  {"name":"Grandmaster","points":100},
+  {"name":"Legend","points":150},
+  {"name":"Hero","points":200},
+  {"name":"Champion","points":300},
+  {"name":"Elite","points":400},
+  {"name":"Ace","points":500},
+  {"name":"Prodigy","points":650},
+  {"name":"Virtuoso","points":800},
+  {"name":"Sage","points":1000},
+  {"name":"Oracle","points":1250},
+  {"name":"Mythic","points":1500},
+  {"name":"Immortal","points":2000},
+  {"name":"Ascendant","points":3000},
+  {"name":"Ultimate","points":5000}
+]
