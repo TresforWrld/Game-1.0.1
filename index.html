@@ -89,26 +89,26 @@ function checkLevelUp() {
     let a, b, operator, correctAnswer;
 
     function generateQuestion() {
-      const subject = document.getElementById('subject').value;
+  // Scale numbers with current rank
+  let maxNumber = 10 + currentRankIndex * 5; // higher rank = bigger numbers
+  a = Math.floor(Math.random() * maxNumber) + 1;
+  b = Math.floor(Math.random() * maxNumber) + 1;
 
-      if(subject === 'math') {
-        a = Math.floor(Math.random() * 20) + 1;
-        b = Math.floor(Math.random() * 20) + 1;
-        const operators = ['+', '-', '*', '/'];
-        operator = operators[Math.floor(Math.random() * operators.length)];
+  const operators = ['+', '-', '*', '/'];
+  operator = operators[Math.floor(Math.random() * operators.length)];
 
-        if(operator === '+') correctAnswer = a + b;
-        if(operator === '-') correctAnswer = a - b;
-        if(operator === '*') correctAnswer = a * b;
-        if(operator === '/') {
-          a = a * b; // ensures a divisible by b
-          correctAnswer = a / b;
-        }
+  if(operator === '+') correctAnswer = a + b;
+  if(operator === '-') correctAnswer = a - b;
+  if(operator === '*') correctAnswer = a * b;
+  if(operator === '/') {
+    a = a * b; // ensures division is exact
+    correctAnswer = a / b;
+  }
 
-        document.getElementById('questionTitle').textContent = 'Solve the problem:';
-        document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
-      }
-
+  document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
+  document.getElementById('answer').value = '';
+  document.getElementById('feedback').textContent = '';
+  }
       // Add other subjects here with else if(subject === 'science') etc.
 
       document.getElementById('answer').value = '';
