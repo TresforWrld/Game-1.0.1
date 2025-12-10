@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Math Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
+    input { font-size: 16px; padding: 5px; width: 60px; }
+    #score { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Quick Math Game</h1>
+  <p>Solve the problem:</p>
+  <h2 id="question"></h2>
+  <input type="number" id="answer" placeholder="Your answer">
+  <br>
+  <button onclick="checkAnswer()">Submit</button>
+  <p id="feedback"></p>
+  <p>Score: <span id="score">0</span></p>
+
+  <script>
+    let score = 0;
+    let a, b, operator, correctAnswer;
+
+    function generateQuestion() {
+      a = Math.floor(Math.random() * 20) + 1;
+      b = Math.floor(Math.random() * 20) + 1;
+      const operators = ['+', '-', '*'];
+      operator = operators[Math.floor(Math.random() * operators.length)];
+
+      if(operator === '+') correctAnswer = a + b;
+      if(operator === '-') correctAnswer = a - b;
+      if(operator === '*') correctAnswer = a * b;
+
+      document.getElementById('question').textContent = `${a} ${operator} ${b} = ?`;
+      document.getElementById('answer').value = '';
+      document.getElementById('feedback').textContent = '';
+    }
+
+    function checkAnswer() {
+      const userAnswer = parseInt(document.getElementById('answer').value);
+      if(userAnswer === correctAnswer) {
+        score++;
+        document.getElementById('feedback').textContent = '✅ Correct!';
+      } else {
+        document.getElementById('feedback').textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+      }
+      document.getElementById('score').textContent = score;
+      generateQuestion();
+    }
+
+    // Generate the first question
+    generateQuestion();
+  </script>
+
+</body>
+</html>
