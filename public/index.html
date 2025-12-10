@@ -8,13 +8,13 @@
   body { font-family: Arial, sans-serif; text-align:center; margin:40px 10px 110px; background:#f0f8ff; color:#222; }
   h1 { margin-bottom:6px; }
   button, select { padding:10px 18px; font-size:15px; margin-top:10px; cursor:pointer; }
-  input[type="number"]{ font-size:16px; padding:6px; width:120px; }
+  input[type="text"], input[type="number"]{ font-size:16px; padding:6px; width:120px; }
   #score,#highScore,#rank,#pointsToNext{ font-weight:700; }
   #feedback{ min-height:1.4em; margin-top:10px; }
   #leaderboard{ margin-top:18px; text-align:left; display:inline-block; width:260px; }
   footer{ background:#808080; color:#fff; padding:12px; font-size:13px; position:fixed; bottom:0; left:0; right:0; box-sizing:border-box; }
   .top-row{ display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap; }
-  @media (max-width:420px){ #leaderboard{ width:92%; } input[type="number"]{ width:86%; } }
+  @media (max-width:420px){ #leaderboard{ width:92%; } input[type="text"], input[type="number"]{ width:86%; } }
 </style>
 </head>
 <body>
@@ -26,14 +26,15 @@
     <label for="subject">Choose subject:</label>
     <select id="subject" disabled>
       <option value="math">Math</option>
-<option value="gk">General Knowledge</option>
+      <option value="gk">General Knowledge</option>
     </select>
   </div>
 
   <p id="questionTitle">Solve the problem:</p>
   <h2 id="question">Loading…</h2>
 
-  <input type="number" id="answer" placeholder="Your answer" disabled>
+  <!-- note: type will be switched dynamically between number/text -->
+  <input id="answer" placeholder="Your answer" disabled>
   <br>
   <button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
 
@@ -51,12 +52,12 @@
 <script>
 /* ===== State & DOM refs ===== */
 let ranks = [];
-let currentRankIndex = 0;
-let score = 0;
-let highScore = 0;
+let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
+let score = parseInt(localStorage.getItem('score')) || 0;
+let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let username = null;
 let a, b, operator, correctAnswer;
-  let gkQuestions = [];
+let gkQuestions = [];
 
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
@@ -81,7 +82,7 @@ function updateDisplay(){
   scoreEl.textContent = score;
   highScoreEl.textContent = highScore;
   rankEl.textContent = (ranks[currentRankIndex] && ranks[currentRankIndex].name) || '—';
-  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points) || '—';
+  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points);
   nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
 }
 
@@ -125,6 +126,10 @@ function generateQuestion() {
   const subject = subjectSelect.value || 'math';
 
   if (subject === 'math') {
+    // set answer input to numeric mode
+    answerInput.type = 'number';
+    answerInput.inputMode = 'numeric';
+
     // difficulty scaling
     let maxNumber = 10 + (currentRankIndex * 5);
     maxNumber = Math.max(10, Math.floor(maxNumber));
@@ -148,6 +153,10 @@ function generateQuestion() {
     feedbackEl.textContent = '';
   } 
   else if (subject === 'gk') {
+    // set answer input to text mode for GK answers
+    answerInput.type = 'text';
+    answerInput.inputMode = 'text';
+
     // General Knowledge questions
     if (!Array.isArray(gkQuestions) || gkQuestions.length === 0) {
       questionEl.textContent = "GK questions loading...";
@@ -157,7 +166,8 @@ function generateQuestion() {
 
     const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
     questionEl.textContent = q.question;
-    correctAnswer = q.answer;
+    // store expected answer as string (lowercase trimmed)
+    correctAnswer = (typeof q.answer === 'string') ? q.answer.trim().toLowerCase() : String(q.answer).trim().toLowerCase();
     answerInput.value = '';
     feedbackEl.textContent = '';
   } 
@@ -166,34 +176,54 @@ function generateQuestion() {
     questionEl.textContent = 'No questions available for this subject yet.';
     correctAnswer = null;
   }
-                          }
+}
+
 /* ===== Answer checking ===== */
 function checkAnswer(){
   if (correctAnswer === undefined || correctAnswer === null) {
     feedbackEl.textContent = 'No question ready.';
     return;
   }
-  const raw = answerInput.value;
+  const subject = subjectSelect.value || 'math';
+  let raw = (answerInput.value || '').toString().trim();
   if (raw === '') { feedbackEl.textContent = 'Please enter an answer.'; return; }
-  const userAnswer = Number(raw);
-  if (Number.isNaN(userAnswer)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
 
-  if (userAnswer === correctAnswer) {
+  let correct = false;
+
+  if (subject === 'math') {
+    // numeric comparison (allow numeric string input)
+    const userVal = Number(raw);
+    if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
+    if (userVal === correctAnswer) correct = true;
+  } else {
+    // textual comparison, case-insensitive
+    const userText = raw.toLowerCase();
+    if (userText === correctAnswer) correct = true;
+  }
+
+  if (correct) {
     score++;
     feedbackEl.textContent = '✅ Correct!';
   } else {
-    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+    feedbackEl.textContent = `❌ Wrong! The answer was ${ (subject === 'math') ? correctAnswer : correctAnswer }`;
   }
 
+  // update high score & local storage
   if (score > highScore) {
     highScore = score;
   }
 
+  // ensure persistence both local and server
+  localStorage.setItem('score', String(score));
+  localStorage.setItem('highScore', String(highScore));
+  localStorage.setItem('rankIndex', String(currentRankIndex));
+
   updateDisplay();
   checkLevelUp();
-  saveUser();       // persist to server
+  // save to server (if logged in) and refresh leaderboard
+  saveUser();
   generateQuestion();
-  loadLeaderboard(); // refresh leaderboard view
+  loadLeaderboard();
 }
 
 /* ===== Persistence: server calls =====
@@ -204,7 +234,13 @@ function checkAnswer(){
    (ranks.json should be served statically under /ranks.json)
 */
 function saveUser(){
-  if (!username) return;
+  // always update localStorage
+  localStorage.setItem('score', String(score));
+  localStorage.setItem('highScore', String(highScore));
+  localStorage.setItem('rankIndex', String(currentRankIndex));
+
+  if (!username) return; // do not post to server without username
+
   fetch(`/user/${encodeURIComponent(username)}`, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -221,7 +257,7 @@ function loadLeaderboard(){
     })
     .then(data => {
       const list = Object.entries(data || {})
-        .map(([user, stats]) => ({ user, highScore: stats.highScore || 0 }))
+        .map(([user, stats]) => ({ user, highScore: Number.isFinite(stats.highScore) ? stats.highScore : (stats.highScore ? Number(stats.highScore) : 0) }))
         .sort((a,b) => b.highScore - a.highScore)
         .slice(0,10);
 
@@ -237,14 +273,19 @@ function loadLeaderboard(){
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 }
-// Load General Knowledge questions
+
+/* ===== Load GK questions (large pool) ===== */
 fetch('gk.json')
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error('gk.json not found: ' + res.status);
+    return res.json();
+  })
   .then(data => {
-    gkQuestions = data;
+    if (Array.isArray(data)) gkQuestions = data;
     console.log("GK questions loaded:", gkQuestions.length);
   })
-  .catch(err => console.error('Failed to load GK questions:', err));
+  .catch(err => console.warn('Failed to load GK questions:', err));
+
 /* ===== Load ranks then user ===== */
 function fetchRanksThenStart(){
   // ranks.json must be in /public/ranks.json so static server serves it at /ranks.json
@@ -270,7 +311,6 @@ function fetchRanksThenStart(){
     });
 }
 
-  
 /* ===== Login / Load user ===== */
 function createLoginControls(){
   const saved = localStorage.getItem('quiz_username');
@@ -295,15 +335,18 @@ function createLoginControls(){
         return res.json();
       })
       .then(data => {
-        score = Number.isFinite(data.score) ? data.score : 0;
-        highScore = Number.isFinite(data.highScore) ? data.highScore : 0;
-        currentRankIndex = Number.isFinite(data.currentRankIndex) ? data.currentRankIndex : 0;
+        // prefer server values, but validate them
+        score = Number.isFinite(data.score) ? data.score : (parseInt(localStorage.getItem('score')) || 0);
+        highScore = Number.isFinite(data.highScore) ? data.highScore : (parseInt(localStorage.getItem('highScore')) || 0);
+        currentRankIndex = Number.isFinite(data.currentRankIndex) ? data.currentRankIndex : (parseInt(localStorage.getItem('rankIndex')) || 0);
         updateDisplay();
         fetchRanksThenStart();
       })
       .catch(() => {
-        // New user — start fresh, then fetch ranks
-        score = 0; highScore = 0; currentRankIndex = 0;
+        // New user or server missing — use localStorage fallback
+        score = parseInt(localStorage.getItem('score')) || 0;
+        highScore = parseInt(localStorage.getItem('highScore')) || 0;
+        currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
         updateDisplay();
         fetchRanksThenStart();
       });
@@ -325,18 +368,6 @@ function createLoginControls(){
   loginArea.appendChild(clearBtn);
 }
 
-/* helper to enable UI elements */
-function setUIEnabled(enabled){
-  setUIEnabled = function(v){ // replace with noop to avoid redefinition in loops
-    answerInput.disabled = !v;
-    submitBtn.disabled = !v;
-    subjectSelect.disabled = !v;
-  };
-  answerInput.disabled = !enabled;
-  submitBtn.disabled = !enabled;
-  subjectSelect.disabled = !enabled;
-}
-
 /* ===== Initialization ===== */
 (function init(){
   setUIEnabled(false); // start disabled until ranks & login
@@ -353,15 +384,16 @@ function setUIEnabled(enabled){
         return res.json();
       })
       .then(data => {
-        score = Number.isFinite(data.score) ? data.score : 0;
-        highScore = Number.isFinite(data.highScore) ? data.highScore : 0;
-        currentRankIndex = Number.isFinite(data.currentRankIndex) ? data.currentRankIndex : 0;
+        score = Number.isFinite(data.score) ? data.score : (parseInt(localStorage.getItem('score')) || 0);
+        highScore = Number.isFinite(data.highScore) ? data.highScore : (parseInt(localStorage.getItem('highScore')) || 0);
+        currentRankIndex = Number.isFinite(data.currentRankIndex) ? data.currentRankIndex : (parseInt(localStorage.getItem('rankIndex')) || 0);
         updateDisplay();
         fetchRanksThenStart();
       })
       .catch(() => {
-        // saved username exists but no server record: just fetch ranks and start fresh
-        score = 0; highScore = 0; currentRankIndex = 0;
+        score = parseInt(localStorage.getItem('score')) || 0;
+        highScore = parseInt(localStorage.getItem('highScore')) || 0;
+        currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
         updateDisplay();
         fetchRanksThenStart();
       });
@@ -377,4 +409,4 @@ answerInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') chec
   ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
 </footer>
 </body>
-  </html>
+</html>
