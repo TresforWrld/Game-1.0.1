@@ -189,7 +189,7 @@ function generateQuestion(){
     if(operator==='+') correctAnswer=a+b;
     else if(operator==='-') correctAnswer=a-b;
     else if(operator==='*') correctAnswer=a*b;
-    else { correctAnswer=(a*b)/b; } 
+    else { correctAnswer=a; } // ensures no divide by zero
     questionEl.textContent=`${a} ${operator} ${b} = ?`;
     answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false;
     return;
@@ -252,9 +252,16 @@ function saveUser(){
 
 /* ===== LOAD JSONS ===== */
 async function loadAllQuestions(){
-  gkQuestions=await fetchJSON(`${API_BASE}/gk.json`);
-  for(const sub of subjectsList){ subjectQuestions[sub]=await fetchJSON(`${API_BASE}/${sub}.json`); }
-  setUIEnabled(true); generateQuestion();
+  // GK in public folder
+  gkQuestions = await fetchJSON('gk.json');
+
+  // Other subjects in questions.json folder
+  for(const sub of subjectsList){
+    subjectQuestions[sub] = await fetchJSON(`questions.json/${sub}.json`);
+  }
+
+  setUIEnabled(true);
+  generateQuestion();
 }
 
 async function fetchJSON(path){
@@ -264,9 +271,9 @@ async function fetchJSON(path){
 
 /* ===== LOAD RANKS ===== */
 async function fetchRanksThenStart(){
-  ranks=await fetchJSON('ranks.json');
+  ranks = await fetchJSON('ranks.json');
   sanitizeRankIndex();
-  if(localStorage.getItem('quiz_subject')) subjectSelect.value=localStorage.getItem('quiz_subject');
+  if(localStorage.getItem('quiz_subject')) subjectSelect.value = localStorage.getItem('quiz_subject');
   updateDisplay();
   loadAllQuestions();
   loadLeaderboard();
@@ -294,20 +301,30 @@ subjectSelect.addEventListener('change',()=>{ localStorage.setItem('quiz_subject
 
 /* ===== LOAD LEADERBOARD ===== */
 async function loadLeaderboard(){
-  try{
-    const res=await fetch(`${API_BASE}/users.json`);
+  try {
+    const res = await fetch('../users.json'); // root
     if(!res.ok) throw new Error("Users file not found");
-    const data=await res.json();
-    if(!data||Object.keys(data).length===0){ leaderboardList.innerHTML="<li>No leaderboard data</li>"; return; }
-    const list=Object.entries(data).map(([u,s])=>({user:u,highScore:Number(s?.highScore)||0,currentRankIndex:Number(s?.currentRankIndex)||0}))
-                   .sort((a,b)=>b.highScore-a.highScore);
-    leaderboardList.innerHTML='';
+    const data = await res.json();
+
+    if(!data || Object.keys(data).length===0){ leaderboardList.innerHTML="<li>No leaderboard data</li>"; return; }
+
+    const list = Object.entries(data)
+      .map(([u,s]) => ({ user: u, highScore: Number(s?.highScore)||0, currentRankIndex: Number(s?.currentRankIndex)||0 }))
+      .sort((a,b) => b.highScore - a.highScore);
+
+    leaderboardList.innerHTML = '';
     list.forEach((item,i)=>{
-      const medal=i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
-      const li=document.createElement('li'); li.textContent=`${medal}${item.user} — ${item.highScore} pts — Rank: ${ranks[item.currentRankIndex]?.name||'—'}`;
+      const medal = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+      const li = document.createElement('li');
+      li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${ranks[item.currentRankIndex]?.name||'—'}`;
       leaderboardList.appendChild(li);
+
       if(i<list.length-1){
-        const sep=document.createElement('div'); sep.textContent="━━━━━━━━━━━━━━━━"; sep.style.textAlign='center'; sep.style.color='#888'; sep.style.margin='4px 0';
+        const sep = document.createElement('div');
+        sep.textContent = "━━━━━━━━━━━━━━━━";
+        sep.style.textAlign = 'center';
+        sep.style.color = '#888';
+        sep.style.margin = '4px 0';
         leaderboardList.appendChild(sep);
       }
     });
