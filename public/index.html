@@ -360,17 +360,7 @@ function loadLeaderboard() {
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 }
-/* ===== Load GK questions (large pool) ===== */
-fetch('gk.json')
-  .then(res => {
-    if (!res.ok) throw new Error('gk.json not found: ' + res.status);
-    return res.json();
-  })
-  .then(data => {
-    if (Array.isArray(data)) gkQuestions = data;
-    console.log("GK questions loaded:", gkQuestions.length);
-  })
-  .catch(err => console.warn('Failed to load GK questions:', err));
+let gkQuestions = [];
 let subjectQuestions = {}; // cache for each subject
 
 const subjectsList = [
@@ -385,16 +375,44 @@ const subjectsList = [
   'psychologyfacts'
 ];
 
-// Load all subject JSONs dynamically (GK is handled separately if needed)
-subjectsList.forEach(sub => {
-  fetch(`/questions/${sub}.json`)
-    .then(res => res.json())
-    .then(data => {
-      if (Array.isArray(data)) subjectQuestions[sub] = data;
-      console.log(`${sub} questions loaded:`, data.length);
+// Helper to fetch JSON safely
+function fetchJSON(path) {
+  return fetch(path)
+    .then(res => {
+      if (!res.ok) throw new Error(`${path} not found: ${res.status}`);
+      return res.json();
     })
-    .catch(err => console.warn(`Failed to load ${sub}:`, err));
-});
+    .catch(err => {
+      console.warn(err);
+      return []; // fallback to empty array
+    });
+}
+
+// Load GK questions and other subjects
+function loadAllQuestions() {
+  const allFetches = [
+    fetchJSON('gk.json').then(data => { gkQuestions = data; console.log('GK loaded:', gkQuestions.length); })
+  ];
+
+  subjectsList.forEach(sub => {
+    allFetches.push(
+      fetchJSON(`/questions/${sub}.json`).then(data => {
+        subjectQuestions[sub] = data;
+        console.log(`${sub} loaded:`, data.length);
+      })
+    );
+  });
+
+  // Enable UI only after all questions are loaded
+  return Promise.all(allFetches).then(() => {
+    console.log('All subjects loaded.');
+    setUIEnabled(true);
+    generateQuestion();
+  });
+}
+
+// Call this once on page load
+loadAllQuestions();
   
 /* ===== Load ranks then user ===== */
 function fetchRanksThenStart(){
