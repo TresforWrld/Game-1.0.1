@@ -88,7 +88,7 @@
   {"question":"Which of these is used to detect viruses?","options":["Antivirus","CPU","RAM","Monitor"],"answer":"Antivirus"},
   {"question":"Which of these is used to backup data?","options":["Cloud Backup","CPU","RAM","Monitor"],"answer":"Cloud Backup"},
   {"question":"Which of these is used to measure network speed?","options":["Speed Test","CPU","RAM","Monitor"],"answer":"Speed Test"},
-  {"question":"Which of these is a database query language?","options":["SQL","CPU","RAM","Monitor"],"answer":"SQL",
+  {"question":"Which of these is a database query language?","options":["SQL","CPU","RAM","Monitor"],"answer":"SQL"},
   {"question":"Which of these is a programming paradigm?","options":["Procedural","Binary","HTML","CSS"],"answer":"Procedural"},
   {"question":"Which of these is used to connect computers in a network?","options":["Router","Keyboard","Monitor","Printer"],"answer":"Router"},
   {"question":"Which of these is a wireless communication standard?","options":["Bluetooth","Ethernet","HDMI","USB"],"answer":"Bluetooth"},
