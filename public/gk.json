@@ -113,8 +113,7 @@
   {"question":"What is the capital of Argentina?","options":["Buenos Aires","Córdoba","Rosario","Mendoza"],"answer":"Buenos Aires"},
   {"question":"Which is the most spoken language in the world?","options":["Mandarin","English","Spanish","Hindi"],"answer":"Mandarin"},
   {"question":"Which planet is tilted on its axis?","options":["Uranus","Earth","Mars","Jupiter"],"answer":"Uranus"},
-  {"question":"Which animal is known as the ship of the desert?","options":["Camel","Horse","Elephant","Donkey"],"answer":"Camel"}
-
+  {"question":"Which animal is known as the ship of the desert?","options":["Camel","Horse","Elephant","Donkey"],"answer":"Camel"},
   {"question":"What is the tallest building in the United States?","options":["One World Trade Center","Empire State Building","Willis Tower","Chrysler Building"],"answer":"One World Trade Center"},
   {"question":"Who wrote 'The Great Gatsby'?","options":["F. Scott Fitzgerald","Ernest Hemingway","Mark Twain","John Steinbeck"],"answer":"F. Scott Fitzgerald"},
   {"question":"Which is the largest planet in the Solar System?","options":["Jupiter","Saturn","Neptune","Earth"],"answer":"Jupiter"},
