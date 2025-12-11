@@ -144,12 +144,11 @@ function generateQuestion() {
 
   const subject = subjectSelect.value || 'math';
 
+  // ----- MATH -----
   if (subject === 'math') {
-    // set answer input to numeric mode
     try { answerInput.type = 'number'; } catch(e){}
     try { answerInput.inputMode = 'numeric'; } catch(e){}
 
-    // difficulty scaling
     let maxNumber = 10 + (currentRankIndex * 5);
     maxNumber = Math.max(10, Math.floor(maxNumber));
 
@@ -162,21 +161,19 @@ function generateQuestion() {
     if (operator === '+') correctAnswer = a + b;
     else if (operator === '-') correctAnswer = a - b;
     else if (operator === '*') correctAnswer = a * b;
-    else { // '/'
-      a = a * b; // make division exact
-      correctAnswer = a / b;
-    }
+    else { a = a * b; correctAnswer = a / b; }
 
     questionEl.textContent = `${a} ${operator} ${b} = ?`;
     answerInput.value = '';
     feedbackEl.textContent = '';
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
   } 
+  // ----- GENERAL KNOWLEDGE -----
   else if (subject === 'gk') {
-    // set answer input to text mode for GK answers
     try { answerInput.type = 'text'; } catch(e){}
     try { answerInput.inputMode = 'text'; } catch(e){}
 
-    // General Knowledge questions
     if (!Array.isArray(gkQuestions) || gkQuestions.length === 0) {
       questionEl.textContent = "GK questions loading...";
       correctAnswer = null;
@@ -187,63 +184,145 @@ function generateQuestion() {
 
     const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
     questionEl.textContent = q.question;
-    // store expected answer as string (lowercase trimmed)
     correctAnswer = (typeof q.answer === 'string') ? q.answer.trim().toLowerCase() : String(q.answer).trim().toLowerCase();
     answerInput.value = '';
     feedbackEl.textContent = '';
-  } 
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
+  }
+  // ----- OTHER SUBJECTS -----
   else {
-    // fallback
-    questionEl.textContent = 'No questions available for this subject yet.';
-    correctAnswer = null;
+    const pool = subjectQuestions[subject];
+    if (!Array.isArray(pool) || pool.length === 0) {
+      questionEl.textContent = `No questions available for ${subject}.`;
+      correctAnswer = null;
+      answerInput.disabled = true;
+      submitBtn.disabled = true;
+      feedbackEl.innerHTML = '';
+      return;
+    }
+
+    const q = pool[Math.floor(Math.random() * pool.length)];
+    questionEl.textContent = q.question;
+
+    if (Array.isArray(q.options) && q.options.length > 0) {
+      // multiple-choice
+      correctAnswer = q.answer;
+      answerInput.disabled = true;
+      submitBtn.disabled = false;
+
+      feedbackEl.innerHTML = q.options
+        .map(opt => `<button class="optionBtn">${opt}</button>`).join(' ');
+
+      document.querySelectorAll('.optionBtn').forEach(btn => {
+        btn.onclick = () => checkAnswer(btn.textContent);
+      });
+    } else {
+      // text answer
+      correctAnswer = q.answer.toString().trim().toLowerCase();
+      answerInput.disabled = false;
+      submitBtn.disabled = false;
+      feedbackEl.innerHTML = '';
+    }
   }
 }
 
 /* ===== Answer checking ===== */
-function checkAnswer(){
+function checkAnswer(selectedOption = null){
   if (correctAnswer === undefined || correctAnswer === null) {
     feedbackEl.textContent = 'No question ready.';
     return;
   }
+
   const subject = subjectSelect.value || 'math';
-  let raw = (answerInput.value || '').toString().trim();
-  if (raw === '') { feedbackEl.textContent = 'Please enter an answer.'; return; }
+  let raw;
+
+  if (selectedOption !== null) raw = selectedOption;
+  else raw = (answerInput.value || '').trim();
+
+  if (!raw) { feedbackEl.textContent = 'Please enter an answer.'; return; }
 
   let correct = false;
 
   if (subject === 'math') {
-    // numeric comparison (allow numeric string input)
     const userVal = Number(raw);
     if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
     if (userVal === correctAnswer) correct = true;
   } else {
-    // textual comparison, case-insensitive
-    const userText = raw.toLowerCase();
-    if (userText === correctAnswer) correct = true;
+    if (raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
   }
 
   if (correct) {
     score++;
     feedbackEl.textContent = '✅ Correct!';
   } else {
-    // show correct answer (for text answers it's already a lowercase string)
-    const displayAnswer = (subject === 'math') ? correctAnswer : correctAnswer;
-    feedbackEl.textContent = `❌ Wrong! The answer was ${displayAnswer}`;
+    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
   }
 
-  // update high score & local storage
   if (score > highScore) highScore = score;
-
-  // ensure persistence both local and server
   localStorage.setItem('score', String(score));
   localStorage.setItem('highScore', String(highScore));
   localStorage.setItem('rankIndex', String(currentRankIndex));
 
   updateDisplay();
   checkLevelUp();
-  // save to server (if logged in) and refresh leaderboard
   saveUser();
+
+  // remove old option buttons
+  if (feedbackEl.querySelectorAll('.optionBtn').length > 0) feedbackEl.innerHTML = '';
+
   generateQuestion();
+  }
+
+/* ===== Answer checking ===== */
+function checkAnswer(){
+function checkAnswer(selectedOption = null){
+  if (correctAnswer === undefined || correctAnswer === null) {
+    feedbackEl.textContent = 'No question ready.';
+    return;
+  }
+
+  const subject = subjectSelect.value || 'math';
+  let raw;
+
+  if (selectedOption !== null) {
+    raw = selectedOption;
+  } else {
+    raw = (answerInput.value || '').trim();
+    if (raw === '') { feedbackEl.textContent = 'Please enter an answer.'; return; }
+  }
+
+  let correct = false;
+
+  if (subject === 'math') {
+    const userVal = Number(raw);
+    if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
+    if (userVal === correctAnswer) correct = true;
+  } else {
+    if (raw.toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
+  }
+
+  if (correct) {
+    score++;
+    feedbackEl.textContent = '✅ Correct!';
+  } else {
+    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
+  }
+
+  if (score > highScore) highScore = score;
+  localStorage.setItem('score', String(score));
+  localStorage.setItem('highScore', String(highScore));
+  localStorage.setItem('rankIndex', String(currentRankIndex));
+
+  updateDisplay();
+  checkLevelUp();
+  saveUser();
+
+  // remove old option buttons if any
+  if (feedbackEl.querySelectorAll('.optionBtn').length > 0) feedbackEl.innerHTML = '';
+
+  generateQuestion();
+}
   loadLeaderboard();
 }
 
