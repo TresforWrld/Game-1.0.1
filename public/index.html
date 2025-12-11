@@ -23,11 +23,20 @@
   <div id="loginArea" class="top-row"></div>
 
   <div class="top-row">
-    <label for="subject">Choose subject:</label>
-    <select id="subject" disabled>
-      <option value="math">Math</option>
-      <option value="gk">General Knowledge</option>
-    </select>
+  <label for="subject">Choose subject:</label>
+  <select id="subject" disabled>
+    <option value="advancedmathematics">Advanced Mathematics</option>
+    <option value="biology">Biology</option>
+    <option value="chemistry">Chemistry</option>
+    <option value="geography">Geography</option>
+    <option value="history">History</option>
+    <option value="ict">ICT</option>
+    <option value="literature">Literature</option>
+    <option value="physics">Physics</option>
+    <option value="psychologyfacts">Psychology Facts</option>
+    <option value="gk">General Knowledge</option>
+    <option value="math">Math</option>
+  </select>
   </div>
 
   <p id="questionTitle">Solve the problem:</p>
@@ -332,7 +341,31 @@ fetch('gk.json')
     console.log("GK questions loaded:", gkQuestions.length);
   })
   .catch(err => console.warn('Failed to load GK questions:', err));
+let subjectQuestions = {}; // cache for each subject
 
+const subjectsList = [
+  'advancedmathematics',
+  'biology',
+  'chemistry',
+  'geography',
+  'history',
+  'ict',
+  'literature',
+  'physics',
+  'psychologyfacts'
+];
+
+// Load all subject JSONs dynamically (GK is handled separately if needed)
+subjectsList.forEach(sub => {
+  fetch(`/questions/${sub}.json`)
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) subjectQuestions[sub] = data;
+      console.log(`${sub} questions loaded:`, data.length);
+    })
+    .catch(err => console.warn(`Failed to load ${sub}:`, err));
+});
+  
 /* ===== Load ranks then user ===== */
 function fetchRanksThenStart(){
   // ranks.json must be in /public/ranks.json so static server serves it at /ranks.json
