@@ -100,9 +100,6 @@
 
   <!-- Rank display -->
   <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
-
-  <!-- Leaderboard -->
-  
   <!-- Footer -->
   <footer>
     ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
@@ -409,6 +406,57 @@ subjectSelect.addEventListener('change', ()=>{
       }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
   } else fetchRanksThenStart();
 })();
+      <!-- Leaderboard -->
+  function loadLeaderboard() {
+  fetch(`${API_BASE}/users.json`)
+    .then(res => {
+      if (!res.ok) throw new Error("Users file not found");
+      return res.json();
+    })
+    .then(data => {
+      if (!data || Object.keys(data).length === 0) {
+        leaderboardList.innerHTML = "<li>No leaderboard data</li>";
+        return;
+      }
+
+      // convert object to array and sort by highScore descending
+      const list = Object.entries(data)
+        .map(([username, stats]) => ({
+          user: username,
+          highScore: Number(stats?.highScore) || 0,
+          currentRankIndex: Number(stats?.currentRankIndex) || 0
+        }))
+        .sort((a, b) => b.highScore - a.highScore);
+
+      // clear old list
+      leaderboardList.innerHTML = "";
+
+      list.forEach((item, index) => {
+        const medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
+
+        const rankName = ranks[item.currentRankIndex]?.name || "—";
+
+        // create list item
+        const li = document.createElement("li");
+        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
+        leaderboardList.appendChild(li);
+
+        // add separator after each user except last
+        if (index < list.length - 1) {
+          const sep = document.createElement("div");
+          sep.textContent = "━━━━━━━━━━━━━━━━━━━━━━━━";
+          sep.style.textAlign = "center";
+          sep.style.color = "#888";
+          sep.style.margin = "4px 0";
+          leaderboardList.appendChild(sep);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Leaderboard error:", err);
+      leaderboardList.innerHTML = "<li>Error loading leaderboard</li>";
+    });
+    }
 </script>
 
 </body>
