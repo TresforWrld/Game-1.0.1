@@ -1,11 +1,19 @@
 {
   "name": "quick-quiz-game",
   "version": "1.0.0",
+  "description": "A quick quiz game with user scores and ranks",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
-  }
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["quiz", "game", "express", "mongoose"],
+  "author": "Tresfor Wrld",
+  "license": "MIT"
 }
