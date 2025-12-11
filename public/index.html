@@ -273,13 +273,8 @@ function checkAnswer(selectedOption = null){
 
   generateQuestion();
   }
-
 /* ===== Answer checking ===== */
-answerInput.addEventListener('keydown', function(e){
-  if(e.key === 'Enter') checkAnswer();
-});
-
-function checkAnswer(selectedOption = null){
+function checkAnswer(selectedOption = null) {
   if (correctAnswer === undefined || correctAnswer === null) {
     feedbackEl.textContent = 'No question ready.';
     return;
@@ -288,16 +283,24 @@ function checkAnswer(selectedOption = null){
   const subject = subjectSelect.value || 'math';
   let raw;
 
-  if (selectedOption !== null) raw = selectedOption;
-  else raw = (answerInput.value || '').trim();
-
-  if (!raw) { feedbackEl.textContent = 'Please enter an answer.'; return; }
+  if (selectedOption !== null) {
+    raw = selectedOption;
+  } else {
+    raw = (answerInput.value || '').trim();
+    if (!raw) {
+      feedbackEl.textContent = 'Please enter an answer.';
+      return;
+    }
+  }
 
   let correct = false;
 
   if (subject === 'math') {
     const userVal = Number(raw);
-    if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
+    if (Number.isNaN(userVal)) {
+      feedbackEl.textContent = 'Enter a valid number.';
+      return;
+    }
     if (userVal === correctAnswer) correct = true;
   } else {
     if (raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
@@ -311,6 +314,7 @@ function checkAnswer(selectedOption = null){
   }
 
   if (score > highScore) highScore = score;
+
   localStorage.setItem('score', String(score));
   localStorage.setItem('highScore', String(highScore));
   localStorage.setItem('rankIndex', String(currentRankIndex));
@@ -319,11 +323,16 @@ function checkAnswer(selectedOption = null){
   checkLevelUp();
   saveUser();
 
-  // remove old option buttons if any
-  if (feedbackEl.querySelectorAll('.optionBtn').length > 0) feedbackEl.innerHTML = '';
+  // Remove old option buttons if any
+  feedbackEl.innerHTML = '';
 
   generateQuestion();
-  }
+}
+
+// Allow Enter key to submit the answer
+answerInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkAnswer();
+});
 
 /* ===== Persistence: server calls =====
    Endpoints required on server:
