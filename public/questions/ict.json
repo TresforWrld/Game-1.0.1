@@ -177,5 +177,5 @@
   {"question":"Which of these is a front-end web development technology?","options":["HTML & CSS","CPU","RAM","Monitor"],"answer":"HTML & CSS"},
   {"question":"Which of these is a back-end web development technology?","options":["Node.js","CPU","RAM","Monitor"],"answer":"Node.js"},
   {"question":"Which of these is a markup language for documents?","options":["HTML","CPU","RAM","Monitor"],"answer":"HTML"},
-  {"question":"Which of these is a type of cloud deployment?","options":["Public Cloud","CPU","RAM","Monitor"],"answer":"Public Cloud"},
+  {"question":"Which of these is a type of cloud deployment?","options":["Public Cloud","CPU","RAM","Monitor"],"answer":"Public Cloud"}
   ]
