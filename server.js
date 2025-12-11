@@ -1,61 +1,59 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const cors = require('cors');
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Render MUST use process.env.PORT
 const PORT = process.env.PORT || 3000;
 
-// Use JSON parser and allow CORS
-app.use(express.json());
-app.use(cors());
+// Serve public folder
+app.use(express.static(path.join(__dirname, "public")));
 
-// File to store user scores
-const usersFile = path.join(__dirname, 'users.json');
+// USERS FILE
+const usersPath = path.join(__dirname, "users.json");
 
-// Helper: Read users.json
-function readUsers() {
-  if (!fs.existsSync(usersFile)) return {};
-  const data = fs.readFileSync(usersFile, 'utf8');
-  try { return JSON.parse(data); } catch { return {}; }
+// Ensure users.json exists
+if (!fs.existsSync(usersPath)) {
+  fs.writeFileSync(usersPath, JSON.stringify({}, null, 2));
 }
 
-// Helper: Write users.json
-function writeUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
-
-// Submit score
-app.post('/submit-score', (req, res) => {
-  const { username, score, highScore, currentRankIndex } = req.body;
-  if (!username) return res.status(400).json({ error: 'Username required' });
-
-  const users = readUsers();
-  users[username] = {
-    score: score || 0,
-    highScore: highScore || 0,
-    currentRankIndex: currentRankIndex || 0
-  };
-  writeUsers(users);
-  res.json({ success: true });
+// GET leaderboard
+app.get("/leaderboard", (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(usersPath, "utf8"));
+    res.json(data);
+  } catch (err) {
+    console.error("Leaderboard error:", err);
+    res.status(500).json({ error: "Cannot read users" });
+  }
 });
 
-// Get leaderboard
-app.get('/leaderboard', (req, res) => {
-  const users = readUsers();
-  // Convert to array and sort by highScore descending
-  const list = Object.entries(users)
-    .map(([user, stats]) => ({
-      user,
-      highScore: Number(stats.highScore) || 0,
-      currentRankIndex: Number(stats.currentRankIndex) || 0
-    }))
-    .sort((a, b) => b.highScore - a.highScore);
+// SAVE / UPDATE user
+app.post("/save", (req, res) => {
+  try {
+    const { username, highScore, currentRankIndex } = req.body;
+    if (!username) return res.status(400).json({ error: "Missing username" });
 
-  res.json(list);
+    let users = JSON.parse(fs.readFileSync(usersPath, "utf8"));
+
+    users[username] = {
+      highScore: Number(highScore) || 0,
+      currentRankIndex: Number(currentRankIndex) || 0
+    };
+
+    fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Save error:", err);
+    res.status(500).json({ error: "Save failed" });
+  }
 });
 
-// Serve static files (like index.html)
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// START SERVER
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
