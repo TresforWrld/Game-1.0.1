@@ -228,7 +228,6 @@ function generateQuestion() {
 }
   
 /* ===== Answer checking ===== */
-/* ===== Answer checking ===== */
 function checkAnswer(selectedOption = null) {
   if (correctAnswer == null) {
     feedbackEl.textContent = 'No question ready.';
@@ -270,11 +269,12 @@ function checkAnswer(selectedOption = null) {
   checkLevelUp();
   saveUser();
 
+// Show feedback briefly before moving to next question
+setTimeout(() => {
   // Clear previous option buttons if any
   feedbackEl.innerHTML = '';
-
   generateQuestion();
-}
+}, 2000); // 2-second delay
 
 // Allow Enter key to submit the answer
 answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
