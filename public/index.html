@@ -1,586 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quick Quiz Game</title>
 <style>
-  body { font-family: Arial, sans-serif; text-align:center; margin:40px 10px 110px; background:#f0f8ff; color:#222; }
-  h1 { margin-bottom:6px; }
-  button, select { padding:10px 18px; font-size:15px; margin-top:10px; cursor:pointer; }
-  input[type="text"], input[type="number"]{ font-size:16px; padding:6px; width:120px; }
-  #score,#highScore,#rank,#pointsToNext{ font-weight:700; }
-  #feedback{ min-height:1.4em; margin-top:10px; }
-  #leaderboard{ margin-top:18px; text-align:left; display:inline-block; width:260px; }
-  footer{ background:#808080; color:#fff; padding:12px; font-size:13px; position:fixed; bottom:0; left:0; right:0; box-sizing:border-box; }
-  .top-row{ display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap; }
-  @media (max-width:420px){ #leaderboard{ width:92%; } input[type="text"], input[type="number"]{ width:86%; } }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 40px 10px 110px;
+    background: #f0f8ff;
+    color: #222;
+  }
+  h1 { margin-bottom: 6px; }
+  button, select {
+    padding: 10px 18px;
+    font-size: 15px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  input[type="text"], input[type="number"] {
+    font-size: 16px;
+    padding: 6px;
+    width: 120px;
+  }
+  #score, #highScore, #rank, #pointsToNext {
+    font-weight: 700;
+  }
+  #feedback { min-height: 1.4em; margin-top: 10px; }
+  #leaderboard {
+    margin-top: 18px;
+    text-align: left;
+    display: inline-block;
+    width: 260px;
+  }
+  footer {
+    background: #808080;
+    color: #fff;
+    padding: 12px;
+    font-size: 13px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+  }
+  .top-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 420px) {
+    #leaderboard { width: 92%; }
+    input[type="text"], input[type="number"] { width: 86%; }
+  }
 </style>
 </head>
 <body>
 
   <h1>Quick Quiz Game</h1>
+
+  <!-- Login area -->
   <div id="loginArea" class="top-row"></div>
 
+  <!-- Subject selection -->
   <div class="top-row">
-  <label for="subject">Choose subject:</label>
-  <select id="subject" disabled>
-    <option value="advancedmathematics">Advanced Mathematics</option>
-    <option value="biology">Biology</option>
-    <option value="chemistry">Chemistry</option>
-    <option value="geography">Geography</option>
-    <option value="history">History</option>
-    <option value="ict">ICT</option>
-    <option value="literature">Literature</option>
-    <option value="physics">Physics</option>
-    <option value="psychologyfacts">Psychology Facts</option>
-    <option value="gk">General Knowledge</option>
-    <option value="math">Math</option>
-  </select>
+    <label for="subject">Choose subject:</label>
+    <select id="subject" disabled>
+      <option value="advancedmathematics">Advanced Mathematics</option>
+      <option value="biology">Biology</option>
+      <option value="chemistry">Chemistry</option>
+      <option value="geography">Geography</option>
+      <option value="history">History</option>
+      <option value="ict">ICT</option>
+      <option value="literature">Literature</option>
+      <option value="physics">Physics</option>
+      <option value="psychologyfacts">Psychology Facts</option>
+      <option value="gk">General Knowledge</option>
+      <option value="math">Math</option>
+    </select>
   </div>
 
+  <!-- Question display -->
   <p id="questionTitle">Solve the problem:</p>
   <h2 id="question">Loading…</h2>
 
-  <!-- note: type will be switched dynamically between number/text -->
+  <!-- Answer input -->
   <input id="answer" placeholder="Your answer" disabled>
   <br>
   <button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
 
+  <!-- Feedback -->
   <p id="feedback"></p>
 
+  <!-- Score display -->
   <p>Score: <span id="score">0</span> &nbsp;|&nbsp; High Score: <span id="highScore">0</span></p>
 
+  <!-- Rank display -->
   <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
 
+  <!-- Leaderboard -->
   <div id="leaderboard">
     <h3 style="margin:6px 0 8px 0;">Leaderboard</h3>
     <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
   </div>
-             
-<script>
-/* ===== State & DOM refs ===== */
-const API_BASE = "https://game-1-0-1.onrender.com";
 
-let ranks = [];
-let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
-let score = parseInt(localStorage.getItem('score')) || 0;
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let username = null;
-let a, b, operator, correctAnswer;
-let gkQuestions = [];
-let subjectQuestions = {};
+  <!-- Footer -->
+  <footer>
+    ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
+  </footer>
 
-let savedSubject = localStorage.getItem('quiz_subject') || null;
+  <!-- All JS goes here -->
+  <script>
+    /* ===== PLACE YOUR CLEANED JS HERE ===== */
+  </script>
 
-const questionEl = document.getElementById('question');
-const answerInput = document.getElementById('answer');
-const submitBtn = document.getElementById('submitBtn');
-const subjectSelect = document.getElementById('subject');
-const scoreEl = document.getElementById('score');
-const highScoreEl = document.getElementById('highScore');
-const rankEl = document.getElementById('rank');
-const nextEl = document.getElementById('pointsToNext');
-const feedbackEl = document.getElementById('feedback');
-const leaderboardList = document.getElementById('leaderboardList');
-const loginArea = document.getElementById('loginArea');
-
-if (savedSubject) {
-  const opt = [...subjectSelect.options].find(o => o.value === savedSubject);
-  if (opt) subjectSelect.value = savedSubject;
-}
-
-function setUIEnabled(en){
-  answerInput.disabled = !en;
-  submitBtn.disabled = !en;
-  subjectSelect.disabled = !en;
-}
-
-function updateDisplay(){
-  scoreEl.textContent = score;
-  highScoreEl.textContent = highScore;
-  rankEl.textContent = ranks[currentRankIndex]?.name || "—";
-  nextEl.textContent = ranks[currentRankIndex] ? Math.max(0, ranks[currentRankIndex].points - score) : "—";
-}
-
-function sanitizeRankIndex(){
-  if (!Array.isArray(ranks) || ranks.length === 0) currentRankIndex = 0;
-  if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
-}
-
-function pointsNeeded(i){
-  if (!ranks[i]) return Infinity;
-  return ranks[i].points;
-}
-
-function checkLevelUp(){
-  if (!ranks.length) return;
-
-  let changed = false;
-  while (currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)) {
-    currentRankIndex++;
-    changed = true;
-    if (currentRankIndex >= ranks.length) {
-      alert("🎉 You reached the ultimate rank!");
-      score = 0;
-      currentRankIndex = 0;
-      break;
-    } else {
-      alert("⭐ Rank Up: " + ranks[currentRankIndex].name);
-    }
-  }
-  if (changed) saveUser();
-  updateDisplay();
-}
-
-function generateQuestion(){
-  if (!ranks.length){
-    questionEl.textContent = "Waiting for ranks...";
-    return;
-  }
-
-  const subject = subjectSelect.value || "math";
-
-  /* MATH */
-  if (subject === 'math'){
-    answerInput.type = "number";
-    answerInput.inputMode = "numeric";
-
-    let maxNumber = Math.max(10, 10 + currentRankIndex * 5);
-
-    a = Math.floor(Math.random()*maxNumber)+1;
-    b = Math.floor(Math.random()*maxNumber)+1;
-
-    const ops = ['+','-','*','/'];
-    operator = ops[Math.floor(Math.random()*ops.length)];
-
-    if (operator === '+') correctAnswer = a + b;
-    else if (operator === '-') correctAnswer = a - b;
-    else if (operator === '*') correctAnswer = a * b;
-    else { a = a * b; correctAnswer = a / b; }
-
-    questionEl.textContent = `${a} ${operator} ${b} = ?`;
-    answerInput.value = "";
-    feedbackEl.textContent = "";
-    answerInput.disabled = false;
-    submitBtn.disabled = false;
-    return;
-  }
-
-  /* GK */
-  if (subject === 'gk'){
-    answerInput.type = "text";
-    answerInput.inputMode = "text";
-
-    if (!gkQuestions.length){
-      questionEl.textContent = "GK questions loading...";
-      return;
-    }
-
-    const q = gkQuestions[Math.floor(Math.random()*gkQuestions.length)];
-    questionEl.textContent = q.question;
-    correctAnswer = q.answer.toString().trim().toLowerCase();
-    answerInput.value = "";
-    feedbackEl.textContent = "";
-    answerInput.disabled = false;
-    submitBtn.disabled = false;
-    return;
-  }
-
-  
-/* ===== LOAD GK ===== */
-fetch(`${API_BASE}/gk.json`)
-  .then(r=>r.json())
-  .then(j=> gkQuestions = Array.isArray(j) ? j : [])
-  .catch(()=>console.warn("Failed loading GK"));
-
-/* ===== LOAD SUBJECT QUESTIONS ===== */
-const subjectsList=[
-  'advancedmathematics','biology','chemistry','geography','history',
-  'ict','literature','physics','psychologyfacts'
-];
-
-subjectsList.forEach(sub=>{
-  fetch(`${API_BASE}/questions/${sub}.json`)
-    .then(r=>r.json())
-    .then(j=>{
-      if (Array.isArray(j)) subjectQuestions[sub] = j;
-    })
-    .catch(()=>console.warn("Missing subject:", sub));
-});
-
-/* ===== LOAD RANKS THEN START ===== */
-function fetchRanksThenStart(){
-  fetch(`${API_BASE}/ranks.json`)
-    .then(r=>r.json())
-    .then(j=>{
-      ranks = j;
-      sanitizeRankIndex();
-      if (savedSubject) subjectSelect.value = savedSubject;
-
-      setUIEnabled(true);
-      updateDisplay();
-      generateQuestion();
-      loadLeaderboard();
-    })
-    .catch(err=>{
-      console.error("Ranks error:", err);
-      questionEl.textContent = "Error loading ranks.";
-    });
-}
-
-/* ===== LOGIN ===== */
-function createLoginControls(){
-  const saved = localStorage.getItem('quiz_username');
-
-  const input=document.createElement('input');
-  input.placeholder="username";
-  input.value=saved||"";
-  input.style.padding="8px";
-
-  const btn=document.createElement('button');
-  btn.textContent = saved ? "Use saved / Switch" : "Login";
-
-  btn.onclick = ()=>{
-    const v=input.value.trim();
-    if (!v){ alert("Enter username"); return; }
-
-    username = v;
-    localStorage.setItem('quiz_username', username);
-
-    loginArea.innerHTML = `Logged in as: <strong>${username}</strong>`;
-
-    fetch(`${API_BASE}/user/${encodeURIComponent(username)}`)
-      .then(r=>r.json())
-      .then(d=>{
-        score = d.score ?? score;
-        highScore = d.highScore ?? highScore;
-        currentRankIndex = d.currentRankIndex ?? currentRankIndex;
-        updateDisplay();
-        fetchRanksThenStart();
-      })
-      .catch(()=>{
-        updateDisplay();
-        fetchRanksThenStart();
-      });
-  };
-
-  const clearBtn=document.createElement('button');
-  clearBtn.textContent="Clear saved";
-  clearBtn.onclick=()=>{
-    localStorage.removeItem('quiz_username');
-<script>
-/* ===== CONFIG ===== */
-const API_BASE = ''; // '' if JSONs are in root, or '/questions' if in folder
-
-/* ===== GLOBALS ===== */
-let ranks = [];
-let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
-let score = parseInt(localStorage.getItem('score')) || 0;
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let username = null;
-let a, b, operator, correctAnswer;
-
-let gkQuestions = [];
-let subjectQuestions = {}; // cache for each subject
-
-const subjectsList = [
-  'advancedmathematics','biology','chemistry','geography','history',
-  'ict','literature','physics','psychologyfacts'
-];
-
-const questionEl = document.getElementById('question');
-const answerInput = document.getElementById('answer');
-const submitBtn = document.getElementById('submitBtn');
-const subjectSelect = document.getElementById('subject');
-const scoreEl = document.getElementById('score');
-const highScoreEl = document.getElementById('highScore');
-const rankEl = document.getElementById('rank');
-const nextEl = document.getElementById('pointsToNext');
-const feedbackEl = document.getElementById('feedback');
-const leaderboardList = document.getElementById('leaderboardList');
-const loginArea = document.getElementById('loginArea');
-
-const savedSubject = localStorage.getItem('quiz_subject');
-if (savedSubject) {
-  const opt = Array.from(subjectSelect.options).find(o => o.value === savedSubject);
-  if (opt) subjectSelect.value = savedSubject;
-}
-
-/* ===== HELPERS ===== */
-function setUIEnabled(enabled){
-  answerInput.disabled = !enabled;
-  submitBtn.disabled = !enabled;
-  subjectSelect.disabled = !enabled;
-}
-
-function updateDisplay(){
-  scoreEl.textContent = score;
-  highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex]?.name) || '—';
-  const needed = ranks[currentRankIndex]?.points;
-  nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
-}
-
-function sanitizeRankIndex(){
-  if (!Array.isArray(ranks) || ranks.length === 0) { currentRankIndex = 0; return; }
-  if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
-}
-
-function pointsNeeded(idx){
-  return ranks[idx]?.points ?? Infinity;
-}
-
-function checkLevelUp(){
-  if (!Array.isArray(ranks) || ranks.length === 0) return;
-  let changed = false;
-  while (currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)){
-    currentRankIndex++;
-    changed = true;
-    if (currentRankIndex >= ranks.length){
-      alert(`🎉 You reached the ultimate rank: ${ranks[ranks.length-1].name}!`);
-      score = 0; currentRankIndex = 0; break;
-    } else {
-      alert(`⭐ Congrats! You ranked up to: ${ranks[currentRankIndex].name}`);
-    }
-  }
-  if (changed) saveUser();
-  updateDisplay();
-}
-
-/* ===== QUESTION GENERATION ===== */
-function generateQuestion() {
-  if (!Array.isArray(ranks) || ranks.length === 0) {
-    questionEl.textContent = 'Waiting for ranks...';
-    return;
-  }
-
-  const subject = subjectSelect.value || 'math';
-
-  // ----- MATH -----
-  if (subject === 'math') {
-    answerInput.type = 'number';
-    answerInput.inputMode = 'numeric';
-    const maxNumber = Math.max(10, 10 + currentRankIndex * 5);
-    a = Math.floor(Math.random() * maxNumber) + 1;
-    b = Math.floor(Math.random() * maxNumber) + 1;
-    const operators = ['+', '-', '*', '/'];
-    operator = operators[Math.floor(Math.random() * operators.length)];
-    if (operator === '+') correctAnswer = a + b;
-    else if (operator === '-') correctAnswer = a - b;
-    else if (operator === '*') correctAnswer = a * b;
-    else { a = a * b; correctAnswer = a / b; }
-    questionEl.textContent = `${a} ${operator} ${b} = ?`;
-    answerInput.value = ''; feedbackEl.textContent = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
-    return;
-  }
-
-  // ----- GENERAL KNOWLEDGE -----
-  if (subject === 'gk') {
-    answerInput.type = 'text';
-    answerInput.inputMode = 'text';
-    if (!Array.isArray(gkQuestions) || gkQuestions.length === 0){
-      questionEl.textContent = "GK questions loading...";
-      correctAnswer = null; answerInput.value = ''; feedbackEl.textContent = '';
-      return;
-    }
-    const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
-    questionEl.textContent = q.question;
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    answerInput.value = ''; feedbackEl.textContent = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
-    return;
-  }
-
-  // ----- OTHER SUBJECTS -----
-  const pool = subjectQuestions[subject];
-  if (!Array.isArray(pool) || !pool.length){
-    questionEl.textContent = "No questions for " + subject;
-    correctAnswer = null;
-    answerInput.disabled = true; submitBtn.disabled = true; feedbackEl.innerHTML = "";
-    return;
-  }
-
-  const q = pool[Math.floor(Math.random() * pool.length)];
-  questionEl.textContent = q.question;
-
-  if (Array.isArray(q.options) && q.options.length){
-    correctAnswer = q.answer;
-    feedbackEl.innerHTML = q.options.map(o => `<button class="optionBtn">${o}</button>`).join(" ");
-    answerInput.disabled = true; submitBtn.disabled = false;
-    document.querySelectorAll('.optionBtn').forEach(btn => {
-      btn.onclick = () => checkAnswer(btn.textContent);
-    });
-  } else {
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    feedbackEl.innerHTML = "";
-    answerInput.disabled = false; submitBtn.disabled = false;
-  }
-}
-
-/* ===== CHECK ANSWER ===== */
-function checkAnswer(opt=null){
-  if (correctAnswer == null){
-    feedbackEl.textContent = "No question ready."; return;
-  }
-
-  const subject = subjectSelect.value || "math";
-  const raw = opt ?? answerInput.value.trim();
-  if (!raw){ feedbackEl.textContent = "Please enter an answer."; return; }
-
-  let correct = false;
-  if (subject === 'math'){
-    const val = Number(raw);
-    if (isNaN(val)){ feedbackEl.textContent="Enter a valid number."; return; }
-    correct = val === correctAnswer;
-  } else {
-    correct = raw.toLowerCase() === correctAnswer.toLowerCase();
-  }
-
-  feedbackEl.textContent = correct ? "✅ Correct!" : `❌ Wrong! Answer: ${correctAnswer}`;
-  if (correct) score++;
-  highScore = Math.max(highScore, score);
-
-  localStorage.setItem("score", score);
-  localStorage.setItem("highScore", highScore);
-  localStorage.setItem("rankIndex", currentRankIndex);
-
-  updateDisplay(); checkLevelUp(); saveUser();
-
-  setTimeout(()=>{
-    feedbackEl.innerHTML = "";
-    generateQuestion();
-  }, 2000);
-}
-
-answerInput.addEventListener('keydown', e=>{
-  if (e.key === 'Enter') checkAnswer();
-});
-
-/* ===== SAVE USER ===== */
-function saveUser(){
-  localStorage.setItem('score', score);
-  localStorage.setItem('highScore', highScore);
-  localStorage.setItem('rankIndex', currentRankIndex);
-
-  if (!username) return;
-
-  fetch(`${API_BASE}/user/${encodeURIComponent(username)}`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({score, highScore, currentRankIndex})
-  }).catch(err=>console.error("Save user failed:", err));
-}
-
-/* ===== LEADERBOARD ===== */
-function loadLeaderboard(){
-  fetch(`${API_BASE}/users`)
-    .then(r=>r.json())
-    .then(data=>{
-      if (!data) { leaderboardList.innerHTML = "<li>No data</li>"; return; }
-      const list = Object.entries(data).map(([u,s])=>({
-        user:u, highScore:Number(s?.highScore)||0, currentRankIndex:Number(s?.currentRankIndex)||0
-      })).sort((a,b)=>b.highScore-a.highScore);
-
-      leaderboardList.innerHTML = "";
-      list.forEach((item,i)=>{
-        const medal = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
-        const rankName = ranks[item.currentRankIndex]?.name || "—";
-        const li = document.createElement('li');
-        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-        leaderboardList.appendChild(li);
-      });
-    })
-    .catch(err=>{ console.error("Leaderboard error:", err); leaderboardList.innerHTML="<li>Error loading leaderboard</li>"; });
-}
-
-/* ===== LOAD JSON FILES ===== */
-function fetchJSON(path){
-  return fetch(path)
-    .then(r=>{ if(!r.ok) throw new Error(`${path} not found`); return r.json(); })
-    .catch(err=>{ console.warn(err); return []; });
-}
-
-function loadAllQuestions(){
-  const fetches = [fetchJSON('gk.json').then(data=>{ gkQuestions=data; console.log('GK loaded', gkQuestions.length); })];
-  subjectsList.forEach(sub=>{
-    fetches.push(fetchJSON(`/questions/${sub}.json`).then(data=>{ subjectQuestions[sub]=data; console.log(`${sub} loaded`, data.length); }));
-  });
-  return Promise.all(fetches).then(()=>{ console.log('All subjects loaded'); setUIEnabled(true); generateQuestion(); });
-}
-
-/* ===== LOAD RANKS ===== */
-function fetchRanksThenStart(){
-  fetchJSON('ranks.json').then(j=>{
-    ranks = j;
-    sanitizeRankIndex();
-    if (savedSubject) subjectSelect.value = savedSubject;
-    setUIEnabled(true);
-    updateDisplay();
-    generateQuestion();
-    loadLeaderboard();
-  }).catch(err=>{
-    console.error("Ranks error:", err); questionEl.textContent="Error loading ranks.";
-  });
-}
-
-/* ===== LOGIN ===== */
-function createLoginControls(){
-  const saved = localStorage.getItem('quiz_username');
-
-  const input = document.createElement('input');
-  input.placeholder="username"; input.value=saved||""; input.style.padding="8px";
-
-  const btn = document.createElement('button');
-  btn.textContent = saved ? "Use saved / Switch" : "Login";
-
-  btn.onclick = ()=>{
-    const v = input.value.trim();
-    if(!v){ alert("Enter username"); return; }
-    username=v; localStorage.setItem('quiz_username', username);
-    loginArea.innerHTML=`Logged in as: <strong>${username}</strong>`;
-    fetch(`${API_BASE}/user/${encodeURIComponent(username)}`).then(r=>r.json())
-      .then(d=>{
-        score=d.score??score; highScore=d.highScore??highScore; currentRankIndex=d.currentRankIndex??currentRankIndex;
-        updateDisplay(); fetchRanksThenStart();
-      }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
-  };
-
-  const clearBtn=document.createElement('button');
-  clearBtn.textContent="Clear saved"; clearBtn.onclick=()=>{
-    localStorage.removeItem('quiz_username'); loginArea.innerHTML=""; username=null; createLoginControls(); setUIEnabled(false);
-  };
-
-  loginArea.appendChild(input); loginArea.appendChild(btn); loginArea.appendChild(clearBtn);
-}
-
-/* ===== SUBJECT CHANGE ===== */
-subjectSelect.addEventListener('change', ()=>{
-  localStorage.setItem('quiz_subject', subjectSelect.value);
-  if (!answerInput.disabled) generateQuestion();
-});
-
-/* ===== INIT ===== */
-(function init(){
-  setUIEnabled(false); createLoginControls();
-
-  const s = localStorage.getItem('quiz_username');
-  if (s){
-    username=s; loginArea.innerHTML=`Logged in as: <strong>${username}</strong>`;
-    fetch(`${API_BASE}/user/${encodeURIComponent(username)}`).then(r=>r.json())
-      .then(d=>{
-        score=d.score??score; highScore=d.highScore??highScore; currentRankIndex=d.currentRankIndex??currentRankIndex;
-        updateDisplay(); fetchRanksThenStart();
-      }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
-  } else fetchRanksThenStart();
-})();
-  window.onerror = function(msg, src, line, col, err) {
-  alert("JS ERROR: " + msg + "\n" + src + ":" + line);
-};
-</script>
-<footer>
-  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
-</footer>
 </body>
 </html>
