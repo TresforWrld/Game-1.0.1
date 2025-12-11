@@ -49,7 +49,7 @@
   {"question":"Which element has atomic number 1?","options":["Hydrogen","Helium","Lithium","Beryllium"],"answer":"Hydrogen"},
   {"question":"Which is the heaviest naturally occurring element?","options":["Uranium","Lead","Gold","Platinum"],"answer":"Uranium"},
   {"question":"Which is the main component of natural gas?","options":["Methane","Propane","Butane","Ethane"],"answer":"Methane"},
-  {"question":"Which element is used to make stainless steel?","options":["Chromium","Iron","Aluminum","Copper"],"answer":"Chromium"}
+  {"question":"Which element is used to make stainless steel?","options":["Chromium","Iron","Aluminum","Copper"],"answer":"Chromium"},
   {"question":"Which element has the symbol 'Mg'?","options":["Magnesium","Manganese","Mercury","Molybdenum"],"answer":"Magnesium"},
   {"question":"Which acid is found in car batteries?","options":["Sulfuric acid","Hydrochloric acid","Nitric acid","Acetic acid"],"answer":"Sulfuric acid"},
   {"question":"Which element is used in antiseptics?","options":["Iodine","Iron","Zinc","Copper"],"answer":"Iodine"},
@@ -102,7 +102,7 @@
   {"question":"Which element is used in making aircraft engines?","options":["Titanium","Aluminum","Iron","Copper"],"answer":"Titanium"},
   {"question":"Which is a halogen element?","options":["Fluorine","Oxygen","Nitrogen","Sodium"],"answer":"Fluorine"},
   {"question":"Which element is essential for DNA synthesis?","options":["Phosphorus","Carbon","Nitrogen","Oxygen"],"answer":"Phosphorus"},
-  {"question":"Which gas is used in neon signs?","options":["Neon","Argon","Helium","Krypton"],"answer":"Neon"}
+  {"question":"Which gas is used in neon signs?","options":["Neon","Argon","Helium","Krypton"],"answer":"Neon"},
   {"question":"Which element is used in balloons instead of hydrogen for safety?","options":["Helium","Oxygen","Nitrogen","Carbon Dioxide"],"answer":"Helium"},
   {"question":"Which acid is found in vinegar?","options":["Acetic acid","Sulfuric acid","Nitric acid","Hydrochloric acid"],"answer":"Acetic acid"},
   {"question":"Which element is used in light bulb filaments?","options":["Tungsten","Copper","Iron","Aluminum"],"answer":"Tungsten"},
