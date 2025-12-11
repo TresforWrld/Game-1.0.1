@@ -60,70 +60,62 @@
 </head>
 <body>
 
-  <h1>Quick Quiz Game</h1>
+<h1>Quick Quiz Game</h1>
 
-  <!-- Login area -->
-  <div id="loginArea" class="top-row"></div>
+<!-- Login area -->
+<div id="loginArea" class="top-row"></div>
 
-  <!-- Subject selection -->
-  <div class="top-row">
-    <label for="subject">Choose subject:</label>
-    <select id="subject" disabled>
-      <option value="advancedmathematics">Advanced Mathematics</option>
-      <option value="biology">Biology</option>
-      <option value="chemistry">Chemistry</option>
-      <option value="geography">Geography</option>
-      <option value="history">History</option>
-      <option value="ict">ICT</option>
-      <option value="literature">Literature</option>
-      <option value="physics">Physics</option>
-      <option value="psychologyfacts">Psychology Facts</option>
-      <option value="gk">General Knowledge</option>
-      <option value="math">Math</option>
-    </select>
-  </div>
+<!-- Subject selection -->
+<div class="top-row">
+  <label for="subject">Choose subject:</label>
+  <select id="subject" disabled>
+    <option value="advancedmathematics">Advanced Mathematics</option>
+    <option value="biology">Biology</option>
+    <option value="chemistry">Chemistry</option>
+    <option value="geography">Geography</option>
+    <option value="history">History</option>
+    <option value="ict">ICT</option>
+    <option value="literature">Literature</option>
+    <option value="physics">Physics</option>
+    <option value="psychologyfacts">Psychology Facts</option>
+    <option value="gk">General Knowledge</option>
+    <option value="math">Math</option>
+  </select>
+</div>
 
-  <!-- Question display -->
-  <p id="questionTitle">Solve the problem:</p>
-  <h2 id="question">Loading…</h2>
+<!-- Question display -->
+<p id="questionTitle">Solve the problem:</p>
+<h2 id="question">Loading…</h2>
 
-  <!-- Answer input -->
-  <input id="answer" placeholder="Your answer" disabled>
-  <br>
-  <button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
+<!-- Answer input -->
+<input id="answer" placeholder="Your answer" disabled>
+<br>
+<button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
 
-  <!-- Feedback -->
-  <p id="feedback"></p>
+<!-- Feedback -->
+<p id="feedback"></p>
 
-  <!-- Score display -->
-  <p>Score: <span id="score">0</span> &nbsp;|&nbsp; High Score: <span id="highScore">0</span></p>
+<!-- Score display -->
+<p>Score: <span id="score">0</span> &nbsp;|&nbsp; High Score: <span id="highScore">0</span></p>
 
-  <!-- Rank display -->
-  <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
-  <!-- Footer -->
-  <footer>
-    ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
-  </footer>
+<!-- Rank display -->
+<p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
 
-  <!-- All JS goes here -->
-  <script>
-const API_BASE = "questions.json"; // folder where your JSONs are
+<!-- Leaderboard -->
+<div id="leaderboard">
+  <h3 style="margin:6px 0 8px 0;">Leaderboard</h3>
+  <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
+</div>
 
-/* ===== GLOBALS & DOM ===== */
-let ranks = [];
-let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
-let score = parseInt(localStorage.getItem('score')) || 0;
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let username = null;
-let a, b, operator, correctAnswer;
-let gkQuestions = [];
-let subjectQuestions = {};
+<!-- Footer -->
+<footer>
+  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
+</footer>
 
-const subjectsList = [
-  'advancedmathematics','biology','chemistry','geography','history',
-  'ict','literature','physics','psychologyfacts'
-];
+<script>
+const API_BASE = "questions.json";
 
+/* ===== DOM ===== */
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
 const submitBtn = document.getElementById('submitBtn');
@@ -136,295 +128,202 @@ const feedbackEl = document.getElementById('feedback');
 const leaderboardList = document.getElementById('leaderboardList');
 const loginArea = document.getElementById('loginArea');
 
-const savedSubject = localStorage.getItem('quiz_subject');
-if (savedSubject) {
-  const opt = Array.from(subjectSelect.options).find(o => o.value === savedSubject);
-  if (opt) subjectSelect.value = savedSubject;
-}
+/* ===== GLOBALS ===== */
+let ranks = [];
+let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
+let score = parseInt(localStorage.getItem('score')) || 0;
+let highScore = parseInt(localStorage.getItem('highScore')) || 0;
+let username = null;
+let correctAnswer = null;
+let gkQuestions = [];
+let subjectQuestions = {};
+const subjectsList = ['advancedmathematics','biology','chemistry','geography','history','ict','literature','physics','psychologyfacts'];
 
 /* ===== HELPERS ===== */
-function setUIEnabled(enabled) {
+function setUIEnabled(enabled){
   answerInput.disabled = !enabled;
   submitBtn.disabled = !enabled;
   subjectSelect.disabled = !enabled;
 }
 
-function updateDisplay() {
+function updateDisplay(){
   scoreEl.textContent = score;
   highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex]?.name) || '—';
+  rankEl.textContent = ranks[currentRankIndex]?.name || '—';
   const needed = ranks[currentRankIndex]?.points;
   nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
 }
 
-function sanitizeRankIndex() {
-  if (!Array.isArray(ranks) || ranks.length === 0) { currentRankIndex = 0; return; }
-  if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
+function sanitizeRankIndex(){
+  if(!Array.isArray(ranks) || ranks.length===0) { currentRankIndex=0; return; }
+  if(currentRankIndex<0||currentRankIndex>=ranks.length) currentRankIndex=0;
 }
 
-function pointsNeeded(idx){
-  return ranks[idx]?.points ?? Infinity;
-}
+function pointsNeeded(idx){ return ranks[idx]?.points ?? Infinity; }
 
 function checkLevelUp(){
-  if (!Array.isArray(ranks) || ranks.length === 0) return;
-  let changed = false;
-  while (currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)){
-    currentRankIndex++;
-    changed = true;
-    if (currentRankIndex >= ranks.length){
-      alert(`🎉 Ultimate rank reached!`);
-      score = 0; currentRankIndex = 0; break;
-    } else {
-      alert(`⭐ Rank Up: ${ranks[currentRankIndex].name}`);
-    }
+  if(!Array.isArray(ranks) || ranks.length===0) return;
+  let changed=false;
+  while(currentRankIndex<ranks.length && score>=pointsNeeded(currentRankIndex)){
+    currentRankIndex++; changed=true;
+    if(currentRankIndex>=ranks.length){
+      alert('🎉 Ultimate rank reached!'); score=0; currentRankIndex=0; break;
+    } else { alert(`⭐ Rank Up: ${ranks[currentRankIndex].name}`); }
   }
-  if (changed) saveUser();
+  if(changed) saveUser();
   updateDisplay();
 }
 
-/* ===== GENERATE QUESTION ===== */
-function generateQuestion() {
-  if (!Array.isArray(ranks) || ranks.length === 0) {
-    questionEl.textContent = 'Waiting for ranks...';
-    return;
-  }
-
+/* ===== QUESTION GENERATION ===== */
+function generateQuestion(){
   const subject = subjectSelect.value || 'math';
 
   // MATH
-  if (subject === 'math') {
-    answerInput.type = 'number'; answerInput.inputMode = 'numeric';
-    const maxNumber = Math.max(10, 10 + currentRankIndex * 5);
-    a = Math.floor(Math.random() * maxNumber) + 1;
-    b = Math.floor(Math.random() * maxNumber) + 1;
-    const operators = ['+', '-', '*', '/'];
-    operator = operators[Math.floor(Math.random() * operators.length)];
-    if (operator === '+') correctAnswer = a + b;
-    else if (operator === '-') correctAnswer = a - b;
-    else if (operator === '*') correctAnswer = a * b;
-    else { a = a * b; correctAnswer = a / b; }
-    questionEl.textContent = `${a} ${operator} ${b} = ?`;
-    answerInput.value = ''; feedbackEl.textContent = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
+  if(subject==='math'){
+    answerInput.type='number'; answerInput.inputMode='numeric';
+    const maxNumber=10+currentRankIndex*5;
+    const a=Math.floor(Math.random()*maxNumber)+1;
+    const b=Math.floor(Math.random()*maxNumber)+1;
+    const operators=['+','-','*','/'];
+    const operator=operators[Math.floor(Math.random()*operators.length)];
+    if(operator==='+') correctAnswer=a+b;
+    else if(operator==='-') correctAnswer=a-b;
+    else if(operator==='*') correctAnswer=a*b;
+    else { correctAnswer=(a*b)/b; } 
+    questionEl.textContent=`${a} ${operator} ${b} = ?`;
+    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false;
     return;
   }
 
   // GK
-  if (subject === 'gk') {
-    answerInput.type = 'text'; answerInput.inputMode = 'text';
-    if (!Array.isArray(gkQuestions) || gkQuestions.length === 0){
-      questionEl.textContent = "GK questions loading...";
-      correctAnswer = null; answerInput.value = ''; feedbackEl.textContent = '';
-      return;
-    }
-    const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
-    questionEl.textContent = q.question;
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    answerInput.value = ''; feedbackEl.textContent = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
+  if(subject==='gk'){
+    answerInput.type='text'; answerInput.inputMode='text';
+    if(!gkQuestions.length){ questionEl.textContent="GK questions loading..."; correctAnswer=null; return; }
+    const q=gkQuestions[Math.floor(Math.random()*gkQuestions.length)];
+    questionEl.textContent=q.question; correctAnswer=String(q.answer).trim().toLowerCase();
+    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false;
     return;
   }
 
   // OTHER SUBJECTS
-  const pool = subjectQuestions[subject];
-  if (!Array.isArray(pool) || !pool.length){
-    questionEl.textContent = "No questions for " + subject;
-    correctAnswer = null;
-    answerInput.disabled = true; submitBtn.disabled = true; feedbackEl.innerHTML = "";
-    return;
-  }
-
-  const q = pool[Math.floor(Math.random() * pool.length)];
-  questionEl.textContent = q.question;
-
-  if (Array.isArray(q.options) && q.options.length){
-    correctAnswer = q.answer;
-    feedbackEl.innerHTML = q.options.map(o => `<button class="optionBtn">${o}</button>`).join(" ");
-    answerInput.disabled = true; submitBtn.disabled = false;
-    document.querySelectorAll('.optionBtn').forEach(btn => {
-      btn.onclick = () => checkAnswer(btn.textContent);
-    });
+  const pool=subjectQuestions[subject]||[];
+  if(!pool.length){ questionEl.textContent=`No questions for ${subject}`; correctAnswer=null; answerInput.disabled=true; submitBtn.disabled=true; feedbackEl.innerHTML=''; return; }
+  const q=pool[Math.floor(Math.random()*pool.length)];
+  questionEl.textContent=q.question;
+  if(Array.isArray(q.options)&&q.options.length){
+    correctAnswer=q.answer;
+    feedbackEl.innerHTML=q.options.map(o=>`<button class="optionBtn">${o}</button>`).join(" ");
+    answerInput.disabled=true; submitBtn.disabled=false;
+    document.querySelectorAll('.optionBtn').forEach(btn=>{ btn.onclick=()=>checkAnswer(btn.textContent); });
   } else {
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    feedbackEl.innerHTML = "";
-    answerInput.disabled = false; submitBtn.disabled = false;
+    correctAnswer=String(q.answer).trim().toLowerCase();
+    feedbackEl.innerHTML=''; answerInput.disabled=false; submitBtn.disabled=false;
   }
 }
 
 /* ===== CHECK ANSWER ===== */
 function checkAnswer(opt=null){
-  if (correctAnswer == null){ feedbackEl.textContent = "No question ready."; return; }
-  const subject = subjectSelect.value || "math";
-  const raw = opt ?? answerInput.value.trim();
-  if (!raw){ feedbackEl.textContent = "Please enter an answer."; return; }
+  if(correctAnswer==null){ feedbackEl.textContent="No question ready."; return; }
+  const raw=opt??answerInput.value.trim();
+  if(!raw){ feedbackEl.textContent="Please enter an answer."; return; }
 
-  let correct = false;
-  if (subject === 'math'){
-    const val = Number(raw); if (isNaN(val)){ feedbackEl.textContent="Enter a valid number."; return; }
-    correct = val === correctAnswer;
-  } else {
-    correct = raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase();
-  }
+  let correct=false;
+  if(subjectSelect.value==='math'){
+    const val=Number(raw); if(isNaN(val)){ feedbackEl.textContent="Enter a valid number."; return; }
+    correct=val===correctAnswer;
+  } else { correct=raw.toString().trim().toLowerCase()===correctAnswer.toString().trim().toLowerCase(); }
 
   feedbackEl.textContent = correct ? "✅ Correct!" : `❌ Wrong! Answer: ${correctAnswer}`;
-  if (correct) score++;
-  highScore = Math.max(highScore, score);
-
-  localStorage.setItem("score", score);
-  localStorage.setItem("highScore", highScore);
-  localStorage.setItem("rankIndex", currentRankIndex);
+  if(correct) score++;
+  highScore=Math.max(highScore,score);
 
   updateDisplay(); checkLevelUp(); saveUser();
 
-  setTimeout(()=>{ feedbackEl.innerHTML=""; generateQuestion(); }, 2000);
+  setTimeout(()=>{ feedbackEl.innerHTML=''; generateQuestion(); },2000);
 }
-
-answerInput.addEventListener('keydown', e=>{ if (e.key==='Enter') checkAnswer(); });
 
 /* ===== SAVE USER ===== */
 function saveUser(){
-  localStorage.setItem('score', score);
-  localStorage.setItem('highScore', highScore);
-  localStorage.setItem('rankIndex', currentRankIndex);
-
-  if (!username) return;
-
-  fetch(`${API_BASE}/user/${encodeURIComponent(username)}`, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({score, highScore, currentRankIndex})
-  }).catch(err=>console.error("Save user failed:", err));
+  localStorage.setItem('score',score);
+  localStorage.setItem('highScore',highScore);
+  localStorage.setItem('rankIndex',currentRankIndex);
+  if(!username) return;
 }
 
 /* ===== LOAD JSONS ===== */
-function fetchJSON(path){
-  return fetch(path)
-    .then(r=>{ if(!r.ok) throw new Error(`${path} not found`); return r.json(); })
-    .catch(err=>{ console.warn(err); return []; });
+async function loadAllQuestions(){
+  gkQuestions=await fetchJSON(`${API_BASE}/gk.json`);
+  for(const sub of subjectsList){ subjectQuestions[sub]=await fetchJSON(`${API_BASE}/${sub}.json`); }
+  setUIEnabled(true); generateQuestion();
 }
 
-function loadAllQuestions(){
-  const fetches = [fetchJSON(`${API_BASE}/gk.json`).then(data=>{ gkQuestions=data; })];
-  subjectsList.forEach(sub=>{
-    fetches.push(fetchJSON(`${API_BASE}/${sub}.json`).then(data=>{ subjectQuestions[sub]=data; }));
-  });
-  return Promise.all(fetches).then(()=>{ setUIEnabled(true); generateQuestion(); });
+async function fetchJSON(path){
+  try{ const res=await fetch(path); if(!res.ok) throw new Error(`${path} not found`); return await res.json(); } 
+  catch(err){ console.warn(err); return []; }
 }
 
 /* ===== LOAD RANKS ===== */
-function fetchRanksThenStart(){
-  fetchJSON('ranks.json').then(j=>{
-    ranks = j;
-    sanitizeRankIndex();
-    if (savedSubject) subjectSelect.value = savedSubject;
-    setUIEnabled(true);
-    updateDisplay();
-    generateQuestion();
-    loadLeaderboard();
-  }).catch(err=>{
-    console.error("Ranks error:", err);
-    questionEl.textContent="Error loading ranks.";
-  });
+async function fetchRanksThenStart(){
+  ranks=await fetchJSON('ranks.json');
+  sanitizeRankIndex();
+  if(localStorage.getItem('quiz_subject')) subjectSelect.value=localStorage.getItem('quiz_subject');
+  updateDisplay();
+  loadAllQuestions();
+  loadLeaderboard();
 }
 
 /* ===== LOGIN ===== */
 function createLoginControls(){
-  const saved = localStorage.getItem('quiz_username');
-  const input = document.createElement('input'); input.placeholder="username"; input.value=saved||""; input.style.padding="8px";
-  const btn = document.createElement('button'); btn.textContent = saved ? "Use saved / Switch" : "Login";
-
-  btn.onclick = ()=>{
-    const v = input.value.trim();
-    if(!v){ alert("Enter username"); return; }
-    username=v; localStorage.setItem('quiz_username', username);
+  loginArea.innerHTML='';
+  const saved=localStorage.getItem('quiz_username')||'';
+  const input=document.createElement('input'); input.placeholder="username"; input.value=saved; input.style.padding="8px";
+  const btn=document.createElement('button'); btn.textContent=saved?"Use saved / Switch":"Login";
+  btn.onclick=()=>{
+    const v=input.value.trim(); if(!v){ alert("Enter username"); return; }
+    username=v; localStorage.setItem('quiz_username',username);
     loginArea.innerHTML=`Logged in as: <strong>${username}</strong>`;
-    fetch(`${API_BASE}/user/${encodeURIComponent(username)}`).then(r=>r.json())
-      .then(d=>{
-        score=d.score??score; highScore=d.highScore??highScore; currentRankIndex=d.currentRankIndex??currentRankIndex;
-        updateDisplay(); fetchRanksThenStart();
-      }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
+    fetchRanksThenStart();
   };
-
   const clearBtn=document.createElement('button'); clearBtn.textContent="Clear saved";
-  clearBtn.onclick=()=>{
-    localStorage.removeItem('quiz_username'); loginArea.innerHTML=""; username=null; createLoginControls(); setUIEnabled(false);
-  };
-
+  clearBtn.onclick=()=>{ localStorage.removeItem('quiz_username'); username=null; createLoginControls(); setUIEnabled(false); };
   loginArea.appendChild(input); loginArea.appendChild(btn); loginArea.appendChild(clearBtn);
 }
 
 /* ===== SUBJECT CHANGE ===== */
-subjectSelect.addEventListener('change', ()=>{
-  localStorage.setItem('quiz_subject', subjectSelect.value);
-  if (!answerInput.disabled) generateQuestion();
-});
+subjectSelect.addEventListener('change',()=>{ localStorage.setItem('quiz_subject',subjectSelect.value); generateQuestion(); });
+
+/* ===== LOAD LEADERBOARD ===== */
+async function loadLeaderboard(){
+  try{
+    const res=await fetch(`${API_BASE}/users.json`);
+    if(!res.ok) throw new Error("Users file not found");
+    const data=await res.json();
+    if(!data||Object.keys(data).length===0){ leaderboardList.innerHTML="<li>No leaderboard data</li>"; return; }
+    const list=Object.entries(data).map(([u,s])=>({user:u,highScore:Number(s?.highScore)||0,currentRankIndex:Number(s?.currentRankIndex)||0}))
+                   .sort((a,b)=>b.highScore-a.highScore);
+    leaderboardList.innerHTML='';
+    list.forEach((item,i)=>{
+      const medal=i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+      const li=document.createElement('li'); li.textContent=`${medal}${item.user} — ${item.highScore} pts — Rank: ${ranks[item.currentRankIndex]?.name||'—'}`;
+      leaderboardList.appendChild(li);
+      if(i<list.length-1){
+        const sep=document.createElement('div'); sep.textContent="━━━━━━━━━━━━━━━━"; sep.style.textAlign='center'; sep.style.color='#888'; sep.style.margin='4px 0';
+        leaderboardList.appendChild(sep);
+      }
+    });
+  } catch(err){ console.error(err); leaderboardList.innerHTML="<li>Error loading leaderboard</li>"; }
+}
 
 /* ===== INIT ===== */
 (function init(){
-  setUIEnabled(false); createLoginControls();
-
-  const s = localStorage.getItem('quiz_username');
-  if (s){
-    username=s; loginArea.innerHTML=`Logged in as: <strong>${username}</strong>`;
-    fetch(`${API_BASE}/user/${encodeURIComponent(username)}`).then(r=>r.json())
-      .then(d=>{
-        score=d.score??score; highScore=d.highScore??highScore; currentRankIndex=d.currentRankIndex??currentRankIndex;
-        updateDisplay(); fetchRanksThenStart();
-      }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
-  } else fetchRanksThenStart();
+  setUIEnabled(false);
+  createLoginControls();
+  const s=localStorage.getItem('quiz_username');
+  if(s){ username=s; loginArea.innerHTML=`Logged in as: <strong>${username}</strong>`; }
+  fetchRanksThenStart();
 })();
-      <!-- Leaderboard -->
-  function loadLeaderboard() {
-  fetch(`${API_BASE}/users.json`)
-    .then(res => {
-      if (!res.ok) throw new Error("Users file not found");
-      return res.json();
-    })
-    .then(data => {
-      if (!data || Object.keys(data).length === 0) {
-        leaderboardList.innerHTML = "<li>No leaderboard data</li>";
-        return;
-      }
 
-      // convert object to array and sort by highScore descending
-      const list = Object.entries(data)
-        .map(([username, stats]) => ({
-          user: username,
-          highScore: Number(stats?.highScore) || 0,
-          currentRankIndex: Number(stats?.currentRankIndex) || 0
-        }))
-        .sort((a, b) => b.highScore - a.highScore);
-
-      // clear old list
-      leaderboardList.innerHTML = "";
-
-      list.forEach((item, index) => {
-        const medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
-
-        const rankName = ranks[item.currentRankIndex]?.name || "—";
-
-        // create list item
-        const li = document.createElement("li");
-        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-        leaderboardList.appendChild(li);
-
-        // add separator after each user except last
-        if (index < list.length - 1) {
-          const sep = document.createElement("div");
-          sep.textContent = "━━━━━━━━━━━━━━━━━━━━━━━━";
-          sep.style.textAlign = "center";
-          sep.style.color = "#888";
-          sep.style.margin = "4px 0";
-          leaderboardList.appendChild(sep);
-        }
-      });
-    })
-    .catch(err => {
-      console.error("Leaderboard error:", err);
-      leaderboardList.innerHTML = "<li>Error loading leaderboard</li>";
-    });
-    }
+answerInput.addEventListener('keydown',e=>{ if(e.key==='Enter') checkAnswer(); });
 </script>
 
 </body>
