@@ -226,71 +226,21 @@ function generateQuestion() {
     }
   }
 }
-
+  
 /* ===== Answer checking ===== */
-function checkAnswer(selectedOption = null){
-  if (correctAnswer === undefined || correctAnswer === null) {
-    feedbackEl.textContent = 'No question ready.';
-    return;
-  }
-
-  const subject = subjectSelect.value || 'math';
-  let raw;
-
-  if (selectedOption !== null) raw = selectedOption;
-  else raw = (answerInput.value || '').trim();
-
-  if (!raw) { feedbackEl.textContent = 'Please enter an answer.'; return; }
-
-  let correct = false;
-
-  if (subject === 'math') {
-    const userVal = Number(raw);
-    if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
-    if (userVal === correctAnswer) correct = true;
-  } else {
-    if (raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
-  }
-
-  if (correct) {
-    score++;
-    feedbackEl.textContent = '✅ Correct!';
-  } else {
-    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
-  }
-
-  if (score > highScore) highScore = score;
-  localStorage.setItem('score', String(score));
-  localStorage.setItem('highScore', String(highScore));
-  localStorage.setItem('rankIndex', String(currentRankIndex));
-
-  updateDisplay();
-  checkLevelUp();
-  saveUser();
-
-  // remove old option buttons
-  if (feedbackEl.querySelectorAll('.optionBtn').length > 0) feedbackEl.innerHTML = '';
-
-  generateQuestion();
-  }
 /* ===== Answer checking ===== */
 function checkAnswer(selectedOption = null) {
-  if (correctAnswer === undefined || correctAnswer === null) {
+  if (correctAnswer == null) {
     feedbackEl.textContent = 'No question ready.';
     return;
   }
 
   const subject = subjectSelect.value || 'math';
-  let raw;
+  const raw = selectedOption ?? answerInput.value.trim();
 
-  if (selectedOption !== null) {
-    raw = selectedOption;
-  } else {
-    raw = (answerInput.value || '').trim();
-    if (!raw) {
-      feedbackEl.textContent = 'Please enter an answer.';
-      return;
-    }
+  if (!raw) {
+    feedbackEl.textContent = 'Please enter an answer.';
+    return;
   }
 
   let correct = false;
@@ -301,38 +251,33 @@ function checkAnswer(selectedOption = null) {
       feedbackEl.textContent = 'Enter a valid number.';
       return;
     }
-    if (userVal === correctAnswer) correct = true;
+    correct = userVal === correctAnswer;
   } else {
-    if (raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
+    correct = raw.toLowerCase() === correctAnswer.toString().toLowerCase();
   }
 
-  if (correct) {
-    score++;
-    feedbackEl.textContent = '✅ Correct!';
-  } else {
-    feedbackEl.textContent = `❌ Wrong! The answer was ${correctAnswer}`;
-  }
+  feedbackEl.textContent = correct ? '✅ Correct!' : `❌ Wrong! The answer was ${correctAnswer}`;
+  if (correct) score++;
 
-  if (score > highScore) highScore = score;
+  highScore = Math.max(highScore, score);
 
-  localStorage.setItem('score', String(score));
-  localStorage.setItem('highScore', String(highScore));
-  localStorage.setItem('rankIndex', String(currentRankIndex));
+  // Save scores
+  localStorage.setItem('score', score);
+  localStorage.setItem('highScore', highScore);
+  localStorage.setItem('rankIndex', currentRankIndex);
 
   updateDisplay();
   checkLevelUp();
   saveUser();
 
-  // Remove old option buttons if any
+  // Clear previous option buttons if any
   feedbackEl.innerHTML = '';
 
   generateQuestion();
 }
 
 // Allow Enter key to submit the answer
-answerInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') checkAnswer();
-});
+answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
 
 /* ===== Persistence: server calls =====
    Endpoints required on server:
