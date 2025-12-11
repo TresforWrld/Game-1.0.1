@@ -102,29 +102,7 @@
   <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
 
   <!-- Leaderboard -->
-  function loadLeaderboard() {
-  fetch('users.json')
-    .then(r => r.json())
-    .then(data => {
-      if (!data) { leaderboardList.innerHTML = "<li>No data</li>"; return; }
-      const list = Object.entries(data).map(([u,s]) => ({
-        user: u,
-        highScore: Number(s?.highScore) || 0,
-        currentRankIndex: Number(s?.currentRankIndex) || 0
-      })).sort((a,b) => b.highScore - a.highScore);
-
-      leaderboardList.innerHTML = "";
-      list.forEach((item, i) => {
-        const medal = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
-        const rankName = ranks[item.currentRankIndex]?.name || "—";
-        const li = document.createElement('li');
-        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-        leaderboardList.appendChild(li);
-      });
-    })
-    .catch(err => { console.error("Leaderboard error:", err); leaderboardList.innerHTML="<li>Error loading leaderboard</li>"; });
-}
-
+  
   <!-- Footer -->
   <footer>
     ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
