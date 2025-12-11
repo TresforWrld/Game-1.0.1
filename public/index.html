@@ -297,38 +297,6 @@ function saveUser(){
   }).catch(err=>console.error("Save user failed:", err));
 }
 
-/* ===== LOAD LEADERBOARD ===== */
-function loadLeaderboard(){
-  fetch('users.json')
-    .then(r=>r.json())
-    .then(data=>{
-      if (!data) { leaderboardList.innerHTML = "<li>No data</li>"; return; }
-      const list = Object.entries(data).map(([u,s])=>({
-        user:u, highScore:Number(s?.highScore)||0, currentRankIndex:Number(s?.currentRankIndex)||0
-      })).sort((a,b)=>b.highScore-a.highScore);
-
-      leaderboardList.innerHTML = "";
-      list.forEach((item,i)=>{
-        const medal = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
-        const rankName = ranks[item.currentRankIndex]?.name || "—";
-        const li = document.createElement('li');
-        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
-        leaderboardList.appendChild(li);
-
-        // Separator
-        if(i < list.length -1){
-          const sep = document.createElement('div');
-          sep.textContent = '──────────────';
-          sep.style.textAlign = 'center';
-          sep.style.color = '#888';
-          sep.style.margin = '4px 0';
-          leaderboardList.appendChild(sep);
-        }
-      });
-    })
-    .catch(err=>{ console.error("Leaderboard error:", err); leaderboardList.innerHTML="<li>Error loading leaderboard</li>"; });
-}
-
 /* ===== LOAD JSONS ===== */
 function fetchJSON(path){
   return fetch(path)
