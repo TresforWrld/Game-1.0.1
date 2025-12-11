@@ -243,11 +243,23 @@ function checkAnswer(opt=null){
 }
 
 /* ===== SAVE USER ===== */
-function saveUser(){
-  localStorage.setItem('score',score);
-  localStorage.setItem('highScore',highScore);
-  localStorage.setItem('rankIndex',currentRankIndex);
-  if(!username) return;
+async function saveUser() {
+  localStorage.setItem('score', score);
+  localStorage.setItem('highScore', highScore);
+  localStorage.setItem('rankIndex', currentRankIndex);
+
+  if (!username) return;
+
+  try {
+    await fetch('/submit-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, score, highScore, currentRankIndex })
+    });
+    loadLeaderboard(); // Refresh leaderboard after saving
+  } catch (err) {
+    console.error('Save failed:', err);
+  }
 }
 
 /* ===== LOAD JSONS ===== */
