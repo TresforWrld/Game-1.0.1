@@ -102,10 +102,28 @@
   <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
 
   <!-- Leaderboard -->
-  <div id="leaderboard">
-    <h3 style="margin:6px 0 8px 0;">Leaderboard</h3>
-    <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
-  </div>
+  function loadLeaderboard() {
+  fetch('users.json')
+    .then(r => r.json())
+    .then(data => {
+      if (!data) { leaderboardList.innerHTML = "<li>No data</li>"; return; }
+      const list = Object.entries(data).map(([u,s]) => ({
+        user: u,
+        highScore: Number(s?.highScore) || 0,
+        currentRankIndex: Number(s?.currentRankIndex) || 0
+      })).sort((a,b) => b.highScore - a.highScore);
+
+      leaderboardList.innerHTML = "";
+      list.forEach((item, i) => {
+        const medal = i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+        const rankName = ranks[item.currentRankIndex]?.name || "—";
+        const li = document.createElement('li');
+        li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${rankName}`;
+        leaderboardList.appendChild(li);
+      });
+    })
+    .catch(err => { console.error("Leaderboard error:", err); leaderboardList.innerHTML="<li>Error loading leaderboard</li>"; });
+}
 
   <!-- Footer -->
   <footer>
@@ -115,7 +133,7 @@
   <!-- All JS goes here -->
   <script>
   /* ===== CONFIG ===== */
-const API_BASE = ""; // adjust if JSONs are in a folder or remote
+const API_BASE = "questions.json"; // all subject JSONs are inside this folder
 
 /* ===== GLOBALS ===== */
 let ranks = [];
@@ -222,44 +240,26 @@ function generateQuestion() {
     return;
   }
 
-  // GK
-  if (subject === "gk") {
-    answerInput.type = "text"; answerInput.inputMode = "text";
-    if (!gkQuestions.length) {
-      questionEl.textContent = "GK questions loading...";
-      correctAnswer = null; answerInput.value = ""; feedbackEl.textContent = "";
-      return;
-    }
-    const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
-    questionEl.textContent = q.question;
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    answerInput.value = ""; feedbackEl.textContent = "";
-    answerInput.disabled = false; submitBtn.disabled = false;
-    return;
-  }
+/* ===== LOAD GK ===== */
+fetch(`${API_BASE}/gk.json`)
+  .then(r => r.json())
+  .then(j => gkQuestions = Array.isArray(j) ? j : [])
+  .catch(() => console.warn("Failed loading GK"));
 
-  // OTHER SUBJECTS
-  const pool = subjectQuestions[subject];
-  if (!Array.isArray(pool) || !pool.length) {
-    questionEl.textContent = `No questions for ${subject}`;
-    correctAnswer = null; answerInput.disabled = true; submitBtn.disabled = true; feedbackEl.innerHTML = "";
-    return;
-  }
+/* ===== LOAD SUBJECT QUESTIONS ===== */
+const subjectsList = [
+  'advancedmathematics','biology','chemistry','geography','history',
+  'ict','literature','physics','psychologyfacts'
+];
 
-  const q = pool[Math.floor(Math.random() * pool.length)];
-  questionEl.textContent = q.question;
-
-  if (Array.isArray(q.options) && q.options.length) {
-    correctAnswer = q.answer;
-    feedbackEl.innerHTML = q.options.map(o => `<button class="optionBtn">${o}</button>`).join(" ");
-    answerInput.disabled = true; submitBtn.disabled = false;
-    document.querySelectorAll(".optionBtn").forEach(btn => btn.onclick = () => checkAnswer(btn.textContent));
-  } else {
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    feedbackEl.innerHTML = "";
-    answerInput.disabled = false; submitBtn.disabled = false;
-  }
-}
+subjectsList.forEach(sub => {
+  fetch(`${API_BASE}/${sub}.json`)
+    .then(r => r.json())
+    .then(j => {
+      if (Array.isArray(j)) subjectQuestions[sub] = j;
+    })
+    .catch(() => console.warn("Missing subject:", sub));
+});
 
 /* ===== CHECK ANSWER ===== */
 function checkAnswer(opt = null) {
@@ -344,13 +344,21 @@ function loadAllQuestions() {
 }
 
 /* ===== LOAD RANKS ===== */
-function fetchRanksThenStart() {
-  fetchJSON("ranks.json").then(j => {
-    ranks = j; sanitizeRankIndex();
+fetch('ranks.json')
+  .then(r => r.json())
+  .then(j => { 
+    ranks = j;
+    sanitizeRankIndex();
     if (savedSubject) subjectSelect.value = savedSubject;
-    setUIEnabled(true); updateDisplay(); generateQuestion(); loadLeaderboard();
-  }).catch(err => { console.error("Ranks error:", err); questionEl.textContent = "Error loading ranks."; });
-}
+    setUIEnabled(true);
+    updateDisplay();
+    generateQuestion();
+    loadLeaderboard();
+  })
+  .catch(err => {
+    console.error("Ranks error:", err);
+    questionEl.textContent = "Error loading ranks.";
+  });
 
 /* ===== LOGIN ===== */
 function createLoginControls() {
@@ -368,7 +376,21 @@ function createLoginControls() {
     fetch(`${API_BASE}/user/${encodeURIComponent(username)}`)
       .then(r => r.json())
       .then(d => {
-        score = d.score ?? score; highScore = d.highScore ?? highScore; currentRankIndex = d.currentRankIndex ?? currentRankIndex;
+        score = d.score ?? score; higfetch('ranks.json')
+  .then(r => r.json())
+  .then(j => { 
+    ranks = j;
+    sanitizeRankIndex();
+    if (savedSubject) subjectSelect.value = savedSubject;
+    setUIEnabled(true);
+    updateDisplay();
+    generateQuestion();
+    loadLeaderboard();
+  })
+  .catch(err => {
+    console.error("Ranks error:", err);
+    questionEl.textContent = "Error loading ranks.";
+  });Score = d.highScore ?? highScore; currentRankIndex = d.currentRankIndex ?? currentRankIndex;
         updateDisplay(); fetchRanksThenStart();
       })
       .catch(() => { updateDisplay(); fetchRanksThenStart(); });
