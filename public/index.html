@@ -1028,6 +1028,9 @@ subjectSelect.addEventListener('change', ()=>{
       }).catch(()=>{ updateDisplay(); fetchRanksThenStart(); });
   } else fetchRanksThenStart();
 })();
+  window.onerror = function(msg, src, line, col, err) {
+  alert("JS ERROR: " + msg + "\n" + src + ":" + line);
+};
 </script>
 <footer>
   ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
