@@ -190,5 +190,5 @@
   {"question":"What is the capital of Argentina?","options":["Buenos Aires","Córdoba","Rosario","Mendoza"],"answer":"Buenos Aires"},
   {"question":"Which is the most spoken language in the world?","options":["Mandarin","English","Spanish","Hindi"],"answer":"Mandarin"},
   {"question":"Which planet is tilted on its axis?","options":["Uranus","Earth","Mars","Jupiter"],"answer":"Uranus"},
-  {"question":"Which animal is known as the ship of the desert?","options":["Camel","Horse","Elephant","Donkey"],"answer":"Camel"}
+  {"question":"Which animal is known as the ship of the desert?","options":["Camel","Horse","Elephant","Donkey"],"answer":"Camel"},
     ]
