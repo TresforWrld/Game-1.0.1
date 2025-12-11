@@ -1,29 +1,61 @@
-const express = require("express");
-const path = require("path");
-const app = express();
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const cors = require('cors');
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from /public
-app.use(express.static(path.join(__dirname, "public")));
+// Use JSON parser and allow CORS
+app.use(express.json());
+app.use(cors());
 
-// Root route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"), (err) => {
-    if (err) {
-      console.error("Error sending index.html:", err);
-      res.status(500).send("Server error");
-    }
-  });
+// File to store user scores
+const usersFile = path.join(__dirname, 'users.json');
+
+// Helper: Read users.json
+function readUsers() {
+  if (!fs.existsSync(usersFile)) return {};
+  const data = fs.readFileSync(usersFile, 'utf8');
+  try { return JSON.parse(data); } catch { return {}; }
+}
+
+// Helper: Write users.json
+function writeUsers(users) {
+  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+}
+
+// Submit score
+app.post('/submit-score', (req, res) => {
+  const { username, score, highScore, currentRankIndex } = req.body;
+  if (!username) return res.status(400).json({ error: 'Username required' });
+
+  const users = readUsers();
+  users[username] = {
+    score: score || 0,
+    highScore: highScore || 0,
+    currentRankIndex: currentRankIndex || 0
+  };
+  writeUsers(users);
+  res.json({ success: true });
 });
 
-// Extra: log all static file requests
-app.use((req, res, next) => {
-  console.log(`Request URL: ${req.url}`);
-  next();
+// Get leaderboard
+app.get('/leaderboard', (req, res) => {
+  const users = readUsers();
+  // Convert to array and sort by highScore descending
+  const list = Object.entries(users)
+    .map(([user, stats]) => ({
+      user,
+      highScore: Number(stats.highScore) || 0,
+      currentRankIndex: Number(stats.currentRankIndex) || 0
+    }))
+    .sort((a, b) => b.highScore - a.highScore);
+
+  res.json(list);
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Serve static files (like index.html)
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
