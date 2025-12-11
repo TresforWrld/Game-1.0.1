@@ -275,7 +275,10 @@ function checkAnswer(selectedOption = null){
   }
 
 /* ===== Answer checking ===== */
-function checkAnswer(){
+answerInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter') checkAnswer();
+});
+
 function checkAnswer(selectedOption = null){
   if (correctAnswer === undefined || correctAnswer === null) {
     feedbackEl.textContent = 'No question ready.';
@@ -285,12 +288,10 @@ function checkAnswer(selectedOption = null){
   const subject = subjectSelect.value || 'math';
   let raw;
 
-  if (selectedOption !== null) {
-    raw = selectedOption;
-  } else {
-    raw = (answerInput.value || '').trim();
-    if (raw === '') { feedbackEl.textContent = 'Please enter an answer.'; return; }
-  }
+  if (selectedOption !== null) raw = selectedOption;
+  else raw = (answerInput.value || '').trim();
+
+  if (!raw) { feedbackEl.textContent = 'Please enter an answer.'; return; }
 
   let correct = false;
 
@@ -299,7 +300,7 @@ function checkAnswer(selectedOption = null){
     if (Number.isNaN(userVal)) { feedbackEl.textContent = 'Enter a valid number.'; return; }
     if (userVal === correctAnswer) correct = true;
   } else {
-    if (raw.toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
+    if (raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase()) correct = true;
   }
 
   if (correct) {
@@ -322,9 +323,7 @@ function checkAnswer(selectedOption = null){
   if (feedbackEl.querySelectorAll('.optionBtn').length > 0) feedbackEl.innerHTML = '';
 
   generateQuestion();
-}
-  loadLeaderboard();
-}
+  }
 
 /* ===== Persistence: server calls =====
    Endpoints required on server:
