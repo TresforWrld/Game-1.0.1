@@ -6,54 +6,63 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
-// Render MUST use process.env.PORT
-const PORT = process.env.PORT || 3000;
-
-// Serve public folder
-app.use(express.static(path.join(__dirname, "public")));
-
-// USERS FILE
-const usersPath = path.join(__dirname, "users.json");
+const USERS_FILE = path.join(__dirname, "users.json");
 
 // Ensure users.json exists
-if (!fs.existsSync(usersPath)) {
-  fs.writeFileSync(usersPath, JSON.stringify({}, null, 2));
+if (!fs.existsSync(USERS_FILE)) {
+  fs.writeFileSync(USERS_FILE, "{}");
 }
 
-// GET leaderboard
+// ----------------------
+// GET LEADERBOARD
+// ----------------------
 app.get("/leaderboard", (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(usersPath, "utf8"));
-    res.json(data);
+    const raw = fs.readFileSync(USERS_FILE, "utf8");
+    const users = JSON.parse(raw);
+    res.json(users);
   } catch (err) {
-    console.error("Leaderboard error:", err);
-    res.status(500).json({ error: "Cannot read users" });
+    console.error("Error reading leaderboard:", err);
+    res.status(500).json({ error: "Failed to load leaderboard" });
   }
 });
 
-// SAVE / UPDATE user
-app.post("/save", (req, res) => {
+// ----------------------
+// UPDATE SCORE
+// ----------------------
+app.post("/update-score", (req, res) => {
+  const { username, score, rankIndex } = req.body;
+
+  if (!username) return res.status(400).json({ error: "Missing username" });
+
   try {
-    const { username, highScore, currentRankIndex } = req.body;
-    if (!username) return res.status(400).json({ error: "Missing username" });
+    const raw = fs.readFileSync(USERS_FILE, "utf8");
+    const users = JSON.parse(raw);
 
-    let users = JSON.parse(fs.readFileSync(usersPath, "utf8"));
+    const existing = users[username] || { highScore: 0, currentRankIndex: 0 };
 
-    users[username] = {
-      highScore: Number(highScore) || 0,
-      currentRankIndex: Number(currentRankIndex) || 0
-    };
+    // Update only if higher
+    if (score > existing.highScore) {
+      users[username] = {
+        highScore: score,
+        currentRankIndex: rankIndex ?? existing.currentRankIndex
+      };
+    }
 
-    fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    // Save back to file
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
     res.json({ success: true });
   } catch (err) {
-    console.error("Save error:", err);
-    res.status(500).json({ error: "Save failed" });
+    console.error("Error updating score:", err);
+    res.status(500).json({ error: "Failed to update score" });
   }
 });
 
+// ----------------------
 // START SERVER
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+// ----------------------
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server running on port ${port}`));
