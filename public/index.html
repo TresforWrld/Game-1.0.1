@@ -222,7 +222,7 @@ function generateQuestion(){
 }
 
 /* ===== CHECK ANSWER ===== */
-async function checkAnswer(opt = null) {
+function checkAnswer(opt = null) {
   if (correctAnswer == null) {
     feedbackEl.textContent = "No question ready.";
     return;
@@ -254,8 +254,8 @@ async function checkAnswer(opt = null) {
   updateDisplay();
   checkLevelUp();
 
-  // Save locally and update leaderboard/server
-  await saveUser();
+  // Save locally and update leaderboard/server without freezing
+  saveUser(); // <-- don't await here
 
   setTimeout(() => { 
     feedbackEl.innerHTML = ''; 
@@ -264,33 +264,30 @@ async function checkAnswer(opt = null) {
 }
 
 /* ===== SAVE USER ===== */
-async function saveUser() {
+function saveUser() {
   // Save locally
   localStorage.setItem('score', score);
   localStorage.setItem('highScore', highScore);
   localStorage.setItem('rankIndex', currentRankIndex);
 
-  // Update server & leaderboard if logged in
   if (!username) return;
 
-  try {
-    const res = await fetch("/update-score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username,
-        score: highScore,           // send highScore
-        rankIndex: currentRankIndex
-      })
-    });
-    const data = await res.json();
+  // Update server asynchronously
+  fetch("/update-score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: username,
+      score: highScore,           
+      rankIndex: currentRankIndex
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
     console.log("Score updated:", data);
-
-    // Refresh leaderboard immediately
-    loadLeaderboard();
-  } catch (err) {
-    console.error("Update score error:", err);
-  }
+    loadLeaderboard(); // refresh leaderboard immediately
+  })
+  .catch(err => console.error("Update score error:", err));
 }
   // --- SEND SCORE TO SERVER ---
   if (username) { // make sure user is logged in
