@@ -118,6 +118,15 @@ const SUBJECTS_FOLDER = "questions.json"; // folder where subject JSONs live (al
 const GK_PATH = "gk.json";                // gk.json is directly in public
 const RANKS_PATH = "ranks.json";
 
+  /* === UNIVERSAL SHUFFLE FUNCTION === */
+function shuffleArray(arr) {
+  let a = arr.slice(); // copy so original stays untouched
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 /* DOM */
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
@@ -183,29 +192,33 @@ function checkLevelUp(){
 }
 
 /* QUESTION GENERATION */
+/* QUESTION GENERATION */
 function generateQuestion(){
   const subject = subjectSelect.value || 'math';
 
-  // MATH
+  /* ===========================
+     MATH
+  ============================ */
   if (subject === 'math'){
     answerInput.type = 'number';
     answerInput.inputMode = 'numeric';
+
     const max = Math.max(10, 10 + currentRankIndex * 5);
     const a = Math.floor(Math.random() * max) + 1;
     const b = Math.floor(Math.random() * max) + 1;
     const ops = ['+','-','*','/'];
     const op = ops[Math.floor(Math.random() * ops.length)];
 
-    if (op === '+') {
+    if (op === '+'){
       correctAnswer = a + b;
       questionEl.textContent = `${a} + ${b} = ?`;
-    } else if (op === '-') {
+    } else if (op === '-'){
       correctAnswer = a - b;
       questionEl.textContent = `${a} - ${b} = ?`;
-    } else if (op === '*') {
+    } else if (op === '*'){
       correctAnswer = a * b;
       questionEl.textContent = `${a} × ${b} = ?`;
-    } else { // division — produce integer division: show (a*b) / b = a
+    } else {
       correctAnswer = a;
       questionEl.textContent = `${a * b} ÷ ${b} = ?`;
     }
@@ -217,24 +230,35 @@ function generateQuestion(){
     return;
   }
 
-  // GK
+  /* ===========================
+     GK
+  ============================ */
   if (subject === 'gk'){
     answerInput.type = 'text';
     answerInput.inputMode = 'text';
+
     if (!Array.isArray(gkQuestions) || gkQuestions.length === 0){
       questionEl.textContent = "GK questions loading...";
-      correctAnswer = null; answerInput.value = ''; feedbackEl.textContent = '';
+      correctAnswer = null;
+      answerInput.value = '';
+      feedbackEl.textContent = '';
       return;
     }
+
     const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
     questionEl.textContent = q.question;
     correctAnswer = String(q.answer).trim().toLowerCase();
-    answerInput.value = ''; feedbackEl.textContent = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
+
+    answerInput.value = '';
+    feedbackEl.textContent = '';
+    answerInput.disabled = false;
+    submitBtn.disabled = true;
     return;
   }
 
-  // OTHER SUBJECTS (multiple choice or text)
+  /* ===========================
+     OTHER SUBJECTS (with MCQ)
+  ============================ */
   const pool = subjectQuestions[subject] || [];
   if (!Array.isArray(pool) || pool.length === 0){
     questionEl.textContent = `No questions for ${subject}`;
@@ -248,18 +272,30 @@ function generateQuestion(){
   const q = pool[Math.floor(Math.random() * pool.length)];
   questionEl.textContent = q.question;
 
+  /* Multiple-choice */
   if (Array.isArray(q.options) && q.options.length){
+
+    // 🔥 SHUFFLE OPTIONS HERE 🔥
+    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+
     correctAnswer = q.answer;
-    feedbackEl.innerHTML = q.options.map(o => `<button class="optionBtn">${o}</button>`).join(' ');
-    answerInput.disabled = true; submitBtn.disabled = false;
-    // attach handlers
+
+    feedbackEl.innerHTML =
+      shuffled.map(o => `<button class="optionBtn">${o}</button>`).join(' ');
+
+    answerInput.disabled = true;
+    submitBtn.disabled = false;
+
     document.querySelectorAll('.optionBtn').forEach(btn => {
       btn.onclick = () => checkAnswer(btn.textContent);
     });
+
   } else {
+    /* Text answer questions */
     correctAnswer = String(q.answer).trim().toLowerCase();
     feedbackEl.innerHTML = '';
-    answerInput.disabled = false; submitBtn.disabled = false;
+    answerInput.disabled = false;
+    submitBtn.disabled = false;
   }
 }
 
