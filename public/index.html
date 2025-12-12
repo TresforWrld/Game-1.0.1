@@ -459,7 +459,11 @@ function createLoginControls(){
     username = v;
     localStorage.setItem('quiz_username', username);
     loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    // ensure server has user entry (save current highScore if present)
+
+    // ✅ ADD THIS LINE
+    registerUserOnServer(username);
+
+    // ensures server has user entry (save current highScore if present)
     saveUser();
     loadLeaderboard();
   };
