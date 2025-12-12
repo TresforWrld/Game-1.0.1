@@ -419,60 +419,70 @@ setUIEnabled(true);
 generateQuestion();
 }
 
-/* LEADERBOARD loader */
-function loadLeaderboard(){
-fetch('/leaderboard')
-.then(r => {
-if (!r.ok) throw new Error('leaderboard endpoint error ' + r.status);
-return r.json();
-})
-.then(data => {
-// Clear old entries (heading is in HTML)
-leaderboardList.innerHTML = '';
+/* ---------- LEADERBOARD ---------- */
+let leaderboardInterval; // single interval reference
 
-// server returns object { username: { highScore, currentRankIndex }, ... }  
-  const arr = Object.entries(data || {}).map(([name, info]) => ({  
-    username: name,  
-    highScore: Number(info?.highScore) || 0,  
-    rankIndex: Number(info?.currentRankIndex) || 0  
-  }));  
+async function loadLeaderboard() {
+  try {
+    const res = await fetch('/leaderboard');
+    if (!res.ok) throw new Error('Leaderboard endpoint error: ' + res.status);
+    const data = await res.json();
 
-  // sort desc  
-  arr.sort((a,b) => b.highScore - a.highScore);  
+    // clear old entries
+    leaderboardList.innerHTML = '';
 
-  if (arr.length === 0) {  
-    leaderboardList.innerHTML = '<li>No players yet.</li>';  
-    return;  
-  }  
+    // server returns { username: { highScore, currentRankIndex } }
+    const arr = Object.entries(data || {}).map(([name, info]) => ({
+      username: name,
+      highScore: Number(info?.highScore) || 0,
+      rankIndex: Number(info?.currentRankIndex) || 0
+    }));
 
-  arr.forEach((u, i) => {  
-    let pos;  
-    if (i === 0) pos = '🥇';  
-    else if (i === 1) pos = '🥈';  
-    else if (i === 2) pos = '🥉';  
-    else pos = (i + 1) + '.';  
+    // sort descending
+    arr.sort((a,b) => b.highScore - a.highScore);
 
-    const li = document.createElement('li');  
-    li.style.padding = '6px 0';  
-    li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;  
-    leaderboardList.appendChild(li);  
+    if (arr.length === 0) {
+      leaderboardList.innerHTML = '<li>No players yet.</li>';
+      return;
+    }
 
-    if (i < arr.length - 1) {  
-      const sep = document.createElement('div');  
-      sep.style.width = '80%';  
-      sep.style.height = '1px';  
-      sep.style.background = '#ccc';  
-      sep.style.margin = '6px auto';  
-      leaderboardList.appendChild(sep);  
-    }  
-  });  
-})  
-.catch(err => {  
-  console.error('Leaderboard error:', err);  
-  leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';  
-});
+    arr.forEach((u, i) => {
+      let pos;
+      if (i === 0) pos = '🥇';
+      else if (i === 1) pos = '🥈';
+      else if (i === 2) pos = '🥉';
+      else pos = (i + 1) + '.';
 
+      const li = document.createElement('li');
+      li.style.padding = '6px 0';
+      li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
+      leaderboardList.appendChild(li);
+
+      if (i < arr.length - 1) {
+        const sep = document.createElement('div');
+        sep.style.width = '80%';
+        sep.style.height = '1px';
+        sep.style.background = '#ccc';
+        sep.style.margin = '6px auto';
+        leaderboardList.appendChild(sep);
+      }
+    });
+
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
+  }
 }
+
+/* Start auto-refresh safely */
+function startLeaderboardAutoRefresh(intervalMs = 10000) {
+  if (leaderboardInterval) clearInterval(leaderboardInterval); // remove old
+  loadLeaderboard(); // initial load
+  leaderboardInterval = setInterval(loadLeaderboard, intervalMs);
+}
+
+/* Call this after your game UI is ready */
+startLeaderboardAutoRefresh();
 
 /* small helper to avoid HTML injection in usernames */
 function escapeHtml(s){
