@@ -36,15 +36,16 @@ Test your knowledge, level up through ranks, and compete on a **real-time leader
 
 ## 🎯 How It Works
 
+<!-- Mermaid diagram must have blank lines before and after -->
 ```mermaid
 flowchart LR
-A[Login or choose username] --> B[Select Subject]
-B --> C[Answer Questions]
-C --> D{Correct?}
-D -- Yes --> E[Score Increases]
-D -- No --> F[Try Again]
-E --> G[Rank Up]
-G --> H[Leaderboard Update]
+    A[Login or choose username] --> B[Select Subject]
+    B --> C[Answer Questions]
+    C --> D{Correct?}
+    D -- Yes --> E[Score Increases]
+    D -- No --> F[Try Again]
+    E --> G[Rank Up]
+    G --> H[Leaderboard Update]
 
 1. Login or pick a username.
 
