@@ -499,23 +499,26 @@ subjectSelect.addEventListener('change', () => {
   // restore local state
   const s = localStorage.getItem('quiz_username');
   if (s) { username = s; loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`; }
+
   /* INIT */
 (function init(){
   setUIEnabled(false);
   createLoginControls();
 
   // restore local state
-  const saved = localStorage.getItem('quiz_username');
-  if (saved) {
-    username = saved;
+  const s = localStorage.getItem('quiz_username');
+  if (s) {
+    username = s;
     loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    registerUserOnServer(username); // <-- IMPORTANT
+
+    // ✅ ADD THIS LINE (correct place)
+    registerUserOnServer(username);
   }
 
   fetchRanksThenStart();
 })();
 
-// Register on server (so leaderboard always shows all users)
+/* Register on server so leaderboard shows user immediately */
 async function registerUserOnServer(name) {
   try {
     await fetch("/update-score", {
