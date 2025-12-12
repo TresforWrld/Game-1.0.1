@@ -499,6 +499,40 @@ subjectSelect.addEventListener('change', () => {
   // restore local state
   const s = localStorage.getItem('quiz_username');
   if (s) { username = s; loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`; }
+  /* INIT */
+(function init(){
+  setUIEnabled(false);
+  createLoginControls();
+
+  // restore local state
+  const saved = localStorage.getItem('quiz_username');
+  if (saved) {
+    username = saved;
+    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
+    registerUserOnServer(username); // <-- IMPORTANT
+  }
+
+  fetchRanksThenStart();
+})();
+
+// Register on server (so leaderboard always shows all users)
+async function registerUserOnServer(name) {
+  try {
+    await fetch("/update-score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: name,
+        score: 0,
+        rankIndex: 0
+      })
+    });
+
+    loadLeaderboard(); // refresh immediately
+  } catch (err) {
+    console.error("Register failed:", err);
+  }
+}
   fetchRanksThenStart();
 })();
 
