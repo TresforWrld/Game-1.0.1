@@ -319,6 +319,7 @@ function loadLeaderboard() {
     .then(res => res.json())
     .then(data => {
 
+      // Clear old content + add title once
       leaderboardList.innerHTML = "<h3 style='margin-bottom:6px;'>Leaderboard</h3>";
 
       const users = Object.entries(data)
@@ -343,10 +344,10 @@ function loadLeaderboard() {
           </div>
 
           <div style="
-              width: 80%;
-              height: 1px;
-              background: #ccc;
-              margin: 6px auto;
+            width: 80%;
+            height: 1px;
+            background: #ccc;
+            margin: 6px auto;
           "></div>
         `;
       });
