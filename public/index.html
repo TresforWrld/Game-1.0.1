@@ -349,26 +349,27 @@ function createLoginControls(){
 subjectSelect.addEventListener('change',()=>{ localStorage.setItem('quiz_subject',subjectSelect.value); generateQuestion(); });
 
 /* ============================
-   LOAD LEADERBOARD (MEDALS + NUMBERS)
+   LOAD LEADERBOARD (CLEAN VERSION)
    ============================ */
 function loadLeaderboard() {
   fetch("/leaderboard")
     .then(res => res.json())
     .then(data => {
+      const leaderboardList = document.getElementById("leaderboardList");
+      leaderboardList.innerHTML = ""; // clear old entries, keep heading in HTML
 
-      // Clear old content + add title once
-      leaderboardList.innerHTML = "<h3 style='margin-bottom:6px;'>Leaderboard</h3>";
+      // Convert object to array if needed
+      const users = Object.entries(data).map(([username, info]) => ({
+        username,
+        highScore: info.highScore || 0,
+        rankIndex: info.currentRankIndex || 0
+      }));
 
-      const users = Object.entries(data)
-        .map(([username, info]) => ({
-          username,
-          highScore: info.highScore || 0,
-          rankIndex: info.currentRankIndex || 0
-        }))
-        .sort((a, b) => b.highScore - a.highScore);
+      // Sort by highScore descending
+      users.sort((a, b) => b.highScore - a.highScore);
 
       if (users.length === 0) {
-        leaderboardList.innerHTML += "<p>No players yet.</p>";
+        leaderboardList.innerHTML = "<p>No players yet.</p>";
         return;
       }
 
@@ -377,25 +378,24 @@ function loadLeaderboard() {
         if (i === 0) positionDisplay = "🥇";
         else if (i === 1) positionDisplay = "🥈";
         else if (i === 2) positionDisplay = "🥉";
-        else positionDisplay = i + 1; // numbers start from 4th place
+        else positionDisplay = (i + 1) + "."; // numeric position starting at 4th
 
         leaderboardList.innerHTML += `
           <div style="padding:4px 0;">
             ${positionDisplay} <strong>${u.username}</strong> — ${u.highScore} pts — Rank: ${ranks[u.rankIndex]?.name || "—"}
           </div>
-
           <div style="
             width: 80%;
             height: 1px;
             background: #ccc;
-            margin: 6px auto;
+            margin: 4px auto;
           "></div>
         `;
       });
-
     })
     .catch(err => {
       console.error("Leaderboard error:", err);
+      const leaderboardList = document.getElementById("leaderboardList");
       leaderboardList.innerHTML = "<p>Error loading leaderboard</p>";
     });
 }
