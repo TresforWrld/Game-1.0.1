@@ -349,15 +349,15 @@ function createLoginControls(){
 subjectSelect.addEventListener('change',()=>{ localStorage.setItem('quiz_subject',subjectSelect.value); generateQuestion(); });
 
 /* ============================
-   LOAD LEADERBOARD (SMALL LINES)
+   LOAD LEADERBOARD (MEDALS + NUMBERS)
    ============================ */
 function loadLeaderboard() {
   fetch("/leaderboard")
     .then(res => res.json())
     .then(data => {
 
-      // Clear old user entries only
-      leaderboardList.innerHTML = "";
+      // Clear old content + add title once
+      leaderboardList.innerHTML = "<h3 style='margin-bottom:6px;'>Leaderboard</h3>";
 
       const users = Object.entries(data)
         .map(([username, info]) => ({
@@ -368,16 +368,20 @@ function loadLeaderboard() {
         .sort((a, b) => b.highScore - a.highScore);
 
       if (users.length === 0) {
-        leaderboardList.innerHTML = "<p>No players yet.</p>";
+        leaderboardList.innerHTML += "<p>No players yet.</p>";
         return;
       }
 
       users.forEach((u, i) => {
-        const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
+        let positionDisplay;
+        if (i === 0) positionDisplay = "🥇";
+        else if (i === 1) positionDisplay = "🥈";
+        else if (i === 2) positionDisplay = "🥉";
+        else positionDisplay = i + 1; // numbers start from 4th place
 
         leaderboardList.innerHTML += `
           <div style="padding:4px 0;">
-            ${medal}<strong>${u.username}</strong> — ${u.highScore} pts — Rank: ${ranks[u.rankIndex]?.name || "—"}
+            ${positionDisplay} <strong>${u.username}</strong> — ${u.highScore} pts — Rank: ${ranks[u.rankIndex]?.name || "—"}
           </div>
 
           <div style="
