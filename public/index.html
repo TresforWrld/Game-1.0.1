@@ -311,45 +311,51 @@ function createLoginControls(){
 /* ===== SUBJECT CHANGE ===== */
 subjectSelect.addEventListener('change',()=>{ localStorage.setItem('quiz_subject',subjectSelect.value); generateQuestion(); });
 
-/* ===== LOAD LEADERBOARD ===== */
-async function loadLeaderboard(){
-  try{
-    const res = await fetch('/leaderboard'); // <-- use your server route
-    if(!res.ok) throw new Error("Leaderboard route not found");
-    const data = await res.json();
-    if(!data || Object.keys(data).length === 0){
-      leaderboardList.innerHTML = "<li>No leaderboard data</li>";
-      return;
-    }
-    
-    const list = Object.entries(data)
-      .map(([u, s]) => ({
-        user: u,
-        highScore: Number(s?.highScore) || 0,
-        currentRankIndex: Number(s?.currentRankIndex) || 0
-      }))
-      .sort((a, b) => b.highScore - a.highScore);
+/* ============================
+   LOAD LEADERBOARD (SMALL LINES)
+   ============================ */
+function loadLeaderboard() {
+  fetch("/leaderboard")
+    .then(res => res.json())
+    .then(data => {
 
-    leaderboardList.innerHTML = '';
-    list.forEach((item, i) => {
-      const medal = i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : '';
-      const li = document.createElement('li');
-      li.textContent = `${medal}${item.user} — ${item.highScore} pts — Rank: ${ranks[item.currentRankIndex]?.name || '—'}`;
-      leaderboardList.appendChild(li);
+      leaderboardList.innerHTML = "<h3 style='margin-bottom:6px;'>Leaderboard</h3>";
 
-      if(i < list.length - 1){
-        const sep = document.createElement('div');
-        sep.textContent = "━━━━━━━━━━━━━━━━";
-        sep.style.textAlign = 'center';
-        sep.style.color = '#888';
-        sep.style.margin = '4px 0';
-        leaderboardList.appendChild(sep);
+      const users = Object.entries(data)
+        .map(([username, info]) => ({
+          username,
+          highScore: info.highScore || 0,
+          rankIndex: info.currentRankIndex || 0
+        }))
+        .sort((a, b) => b.highScore - a.highScore);
+
+      if (users.length === 0) {
+        leaderboardList.innerHTML += "<p>No players yet.</p>";
+        return;
       }
+
+      users.forEach((u, i) => {
+        const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
+
+        leaderboardList.innerHTML += `
+          <div style="padding:4px 0;">
+            ${medal}<strong>${u.username}</strong> — ${u.highScore} pts — Rank: ${ranks[u.rankIndex]?.name || "—"}
+          </div>
+
+          <div style="
+              width: 80%;
+              height: 1px;
+              background: #ccc;
+              margin: 6px auto;
+          "></div>
+        `;
+      });
+
+    })
+    .catch(err => {
+      console.error("Leaderboard error:", err);
+      leaderboardList.innerHTML = "<p>Error loading leaderboard</p>";
     });
-  } catch(err){
-    console.error(err);
-    leaderboardList.innerHTML = "<li>Error loading leaderboard</li>";
-  }
 }
 /* ===== INIT ===== */
 (function init(){
