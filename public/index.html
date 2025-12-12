@@ -238,7 +238,18 @@ function checkAnswer(opt=null){
   highScore=Math.max(highScore,score);
 
   updateDisplay(); checkLevelUp(); saveUser();
-
+fetch("/update-score", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    username: username,
+    score: score,
+    rankIndex: currentRankIndex
+  })
+})
+.then(res => res.json())
+.then(data => console.log("Score updated:", data))
+.catch(err => console.error("Update score error:", err));
   setTimeout(()=>{ feedbackEl.innerHTML=''; generateQuestion(); },2000);
 }
 
