@@ -222,59 +222,63 @@ function generateQuestion(){
 }
 
 /* ===== CHECK ANSWER ===== */
-function checkAnswer(opt=null){
-  if(correctAnswer==null){ feedbackEl.textContent="No question ready."; return; }
-  const raw=opt??answerInput.value.trim();
-  if(!raw){ feedbackEl.textContent="Please enter an answer."; return; }
+function checkAnswer(opt = null) {
+  if (correctAnswer == null) {
+    feedbackEl.textContent = "No question ready.";
+    return;
+  }
 
-  let correct=false;
-  if(subjectSelect.value==='math'){
-    const val=Number(raw); if(isNaN(val)){ feedbackEl.textContent="Enter a valid number."; return; }
-    correct=val===correctAnswer;
-  } else { correct=raw.toString().trim().toLowerCase()===correctAnswer.toString().trim().toLowerCase(); }
+  const raw = opt ?? answerInput.value.trim();
+  if (!raw) {
+    feedbackEl.textContent = "Please enter an answer.";
+    return;
+  }
+
+  let correct = false;
+  if (subjectSelect.value === 'math') {
+    const val = Number(raw);
+    if (isNaN(val)) {
+      feedbackEl.textContent = "Enter a valid number.";
+      return;
+    }
+    correct = val === correctAnswer;
+  } else {
+    correct = raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase();
+  }
 
   feedbackEl.textContent = correct ? "✅ Correct!" : `❌ Wrong! Answer: ${correctAnswer}`;
-  if(correct) score++;
-  highScore=Math.max(highScore,score);
 
-  updateDisplay(); checkLevelUp(); saveUser();
-fetch("/update-score", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    username: username,
-    score: score,
-    rankIndex: currentRankIndex
-  })
-})
-.then(res => res.json())
-.then(data => console.log("Score updated:", data))
-.catch(err => console.error("Update score error:", err));
-  setTimeout(()=>{ feedbackEl.innerHTML=''; generateQuestion(); },2000);
-}
-if(correct) score++;
-highScore = Math.max(highScore, score);
+  if (correct) score++;
+  highScore = Math.max(highScore, score);
 
-// --- ADD THIS ---
-if(username){ // make sure user is logged in
-  fetch("/update-score", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: username,
-      score: score,
-      rankIndex: currentRankIndex
+  updateDisplay();
+  checkLevelUp();
+  saveUser();
+
+  // --- SEND SCORE TO SERVER ---
+  if (username) { // make sure user is logged in
+    fetch("/update-score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        score: score,
+        rankIndex: currentRankIndex
+      })
     })
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("Score updated:", data);
-    loadLeaderboard(); // refresh leaderboard immediately
-  })
-  .catch(err => console.error("Update score error:", err));
-}
-// --- END ---
+    .then(res => res.json())
+    .then(data => {
+      console.log("Score updated:", data);
+      loadLeaderboard(); // refresh leaderboard immediately
+    })
+    .catch(err => console.error("Update score error:", err));
+  }
 
+  setTimeout(() => { 
+    feedbackEl.innerHTML = ''; 
+    generateQuestion(); 
+  }, 2000);
+}
 /* ===== SAVE USER ===== */
 async function saveUser() {
   localStorage.setItem('score', score);
