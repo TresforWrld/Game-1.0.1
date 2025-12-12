@@ -319,8 +319,8 @@ function loadLeaderboard() {
     .then(res => res.json())
     .then(data => {
 
-      // Clear old content + add title once
-      leaderboardList.innerHTML = "<h3 style='margin-bottom:6px;'>Leaderboard</h3>";
+      // Clear old user entries only
+      leaderboardList.innerHTML = "";
 
       const users = Object.entries(data)
         .map(([username, info]) => ({
@@ -331,7 +331,7 @@ function loadLeaderboard() {
         .sort((a, b) => b.highScore - a.highScore);
 
       if (users.length === 0) {
-        leaderboardList.innerHTML += "<p>No players yet.</p>";
+        leaderboardList.innerHTML = "<p>No players yet.</p>";
         return;
       }
 
