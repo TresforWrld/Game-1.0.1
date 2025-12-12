@@ -10,30 +10,18 @@ app.use(express.static("public"));
 
 const USERS_FILE = path.join(__dirname, "users.json");
 
-// Ensure users.json exists
+// Ensure users.json exists as an object
 if (!fs.existsSync(USERS_FILE)) {
-  fs.writeFileSync(USERS_FILE, "[]"); // store as array
+  fs.writeFileSync(USERS_FILE, "{}");
 }
 
 // ----------------------
-// GET LEADERBOARD (always returns array)
+// GET LEADERBOARD
 // ----------------------
 app.get("/leaderboard", (req, res) => {
   try {
-    let raw = fs.readFileSync(USERS_FILE, "utf8") || "[]";
-    let users = JSON.parse(raw);
-
-    // If old object format, convert it
-    if (!Array.isArray(users)) {
-      users = Object.keys(users).map(username => ({
-        username,
-        score: users[username].highScore || 0
-      }));
-    }
-
-    // Sort by score DESC
-    users.sort((a, b) => b.score - a.score);
-
+    const raw = fs.readFileSync(USERS_FILE, "utf8") || "{}";
+    const users = JSON.parse(raw); // always an object
     res.json(users);
   } catch (err) {
     console.error("Error reading leaderboard:", err);
@@ -42,42 +30,31 @@ app.get("/leaderboard", (req, res) => {
 });
 
 // ----------------------
-// UPDATE SCORE (add or update user)
+// UPDATE SCORE
 // ----------------------
 app.post("/update-score", (req, res) => {
-  const { username, score } = req.body;
+  const { username, score, rankIndex } = req.body;
 
-  if (!username) {
-    return res.status(400).json({ error: "Missing username" });
-  }
+  if (!username) return res.status(400).json({ error: "Missing username" });
 
   try {
-    let raw = fs.readFileSync(USERS_FILE, "utf8") || "[]";
-    let users = JSON.parse(raw);
+    const raw = fs.readFileSync(USERS_FILE, "utf8") || "{}";
+    const users = JSON.parse(raw); // always an object
 
-    // Convert old object format
-    if (!Array.isArray(users)) {
-      users = Object.keys(users).map(username => ({
-        username,
-        score: users[username].highScore || 0
-      }));
+    // Initialize user if not exists
+    if (!users[username]) {
+      users[username] = { highScore: 0, currentRankIndex: 0 };
     }
 
-    // Try to find existing user
-    let user = users.find(u => u.username === username);
-
-    if (user) {
-      // Update only if the score is higher
-      if (score > user.score) user.score = score;
-    } else {
-      // Create new user
-      users.push({ username, score });
+    // Update only if higher
+    if (score > users[username].highScore) {
+      users[username].highScore = score;
+      users[username].currentRankIndex = rankIndex ?? users[username].currentRankIndex;
     }
 
-    // Save back to users.json
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 
-    res.json({ success: true });
+    res.json({ success: true, user: users[username] });
   } catch (err) {
     console.error("Error updating score:", err);
     res.status(500).json({ error: "Failed to update score" });
