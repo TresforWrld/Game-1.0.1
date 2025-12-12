@@ -222,7 +222,7 @@ function generateQuestion(){
 }
 
 /* ===== CHECK ANSWER ===== */
-function checkAnswer(opt = null) {
+async function checkAnswer(opt = null) {
   if (correctAnswer == null) {
     feedbackEl.textContent = "No question ready.";
     return;
@@ -253,8 +253,45 @@ function checkAnswer(opt = null) {
 
   updateDisplay();
   checkLevelUp();
-  saveUser();
 
+  // Save locally and update leaderboard/server
+  await saveUser();
+
+  setTimeout(() => { 
+    feedbackEl.innerHTML = ''; 
+    generateQuestion(); 
+  }, 2000);
+}
+
+/* ===== SAVE USER ===== */
+async function saveUser() {
+  // Save locally
+  localStorage.setItem('score', score);
+  localStorage.setItem('highScore', highScore);
+  localStorage.setItem('rankIndex', currentRankIndex);
+
+  // Update server & leaderboard if logged in
+  if (!username) return;
+
+  try {
+    const res = await fetch("/update-score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        score: highScore,           // send highScore
+        rankIndex: currentRankIndex
+      })
+    });
+    const data = await res.json();
+    console.log("Score updated:", data);
+
+    // Refresh leaderboard immediately
+    loadLeaderboard();
+  } catch (err) {
+    console.error("Update score error:", err);
+  }
+}
   // --- SEND SCORE TO SERVER ---
   if (username) { // make sure user is logged in
     fetch("/update-score", {
