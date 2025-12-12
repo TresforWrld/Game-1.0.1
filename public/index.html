@@ -264,30 +264,27 @@ function checkAnswer(opt = null) {
 }
 
 /* ===== SAVE USER ===== */
-function saveUser() {
-  // Save locally
+async function saveUser() {
   localStorage.setItem('score', score);
   localStorage.setItem('highScore', highScore);
   localStorage.setItem('rankIndex', currentRankIndex);
 
   if (!username) return;
 
-  // Update server asynchronously
-  fetch("/update-score", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: username,
-      score: highScore,           
-      rankIndex: currentRankIndex
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("Score updated:", data);
-    loadLeaderboard(); // refresh leaderboard immediately
-  })
-  .catch(err => console.error("Update score error:", err));
+  try {
+    await fetch('/update-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        username, 
+        score: highScore,        // only send highScore
+        rankIndex: currentRankIndex 
+      })
+    });
+    loadLeaderboard(); // refresh leaderboard once
+  } catch (err) {
+    console.error('Save failed:', err);
+  }
 }
   // --- SEND SCORE TO SERVER ---
   if (username) { // make sure user is logged in
