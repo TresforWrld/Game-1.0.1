@@ -237,10 +237,7 @@ function checkAnswer(opt = null) {
   let correct = false;
   if (subjectSelect.value === 'math') {
     const val = Number(raw);
-    if (isNaN(val)) {
-      feedbackEl.textContent = "Enter a valid number.";
-      return;
-    }
+    if (isNaN(val)) { feedbackEl.textContent = "Enter a valid number."; return; }
     correct = val === correctAnswer;
   } else {
     correct = raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase();
@@ -254,8 +251,7 @@ function checkAnswer(opt = null) {
   updateDisplay();
   checkLevelUp();
 
-  // Save locally and update leaderboard/server without freezing
-  saveUser(); // <-- don't await here
+  saveUser(); // only call this once
 
   setTimeout(() => { 
     feedbackEl.innerHTML = ''; 
