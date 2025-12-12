@@ -237,7 +237,10 @@ function checkAnswer(opt = null) {
   let correct = false;
   if (subjectSelect.value === 'math') {
     const val = Number(raw);
-    if (isNaN(val)) { feedbackEl.textContent = "Enter a valid number."; return; }
+    if (isNaN(val)) {
+      feedbackEl.textContent = "Enter a valid number.";
+      return;
+    }
     correct = val === correctAnswer;
   } else {
     correct = raw.toString().trim().toLowerCase() === correctAnswer.toString().trim().toLowerCase();
@@ -248,38 +251,62 @@ function checkAnswer(opt = null) {
   if (correct) score++;
   highScore = Math.max(highScore, score);
 
+  // persist locally and update UI / levels
   updateDisplay();
   checkLevelUp();
 
-  saveUser(); // only call this once
+  // call saveUser (async). Do NOT await here — let it run in background.
+  saveUser();
 
-  setTimeout(() => { 
-    feedbackEl.innerHTML = ''; 
-    generateQuestion(); 
-  }, 2000);
+  // move to next question after a short pause
+  setTimeout(() => {
+    feedbackEl.innerHTML = '';
+    generateQuestion();
+  }, 1200);
 }
 
 /* ===== SAVE USER ===== */
 async function saveUser() {
-  localStorage.setItem('score', score);
-  localStorage.setItem('highScore', highScore);
-  localStorage.setItem('rankIndex', currentRankIndex);
+  // Always persist locally immediately
+  try {
+    localStorage.setItem('score', String(score));
+    localStorage.setItem('highScore', String(highScore));
+    localStorage.setItem('rankIndex', String(currentRankIndex));
+  } catch (e) {
+    console.warn("LocalStorage save failed:", e);
+  }
 
+  // Only try server update when username exists
   if (!username) return;
 
+  // Build payload — send the user's high score (server expects `score`)
+  const payload = {
+    username: username,
+    score: highScore,
+    rankIndex: currentRankIndex
+  };
+
   try {
-    await fetch('/update-score', {
+    const res = await fetch('/update-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        username, 
-        score: highScore,        // only send highScore
-        rankIndex: currentRankIndex 
-      })
+      body: JSON.stringify(payload),
+      // small timeout isn't available in fetch by default; rely on server responsiveness
     });
-    loadLeaderboard(); // refresh leaderboard once
+
+    if (!res.ok) {
+      console.warn('Server responded with status', res.status);
+      return;
+    }
+
+    const json = await res.json();
+    console.log('Score saved on server:', json);
+
+    // refresh leaderboard after successful update
+    try { loadLeaderboard(); } catch (e) { console.warn('loadLeaderboard() failed after save:', e); }
   } catch (err) {
-    console.error('Save failed:', err);
+    console.error('Failed to save score to server:', err);
+    // do not block UI — we've already persisted locally
   }
 }
   // --- SEND SCORE TO SERVER ---
