@@ -33,14 +33,6 @@ Test your knowledge, level up through ranks, and compete on a real-time leaderbo
 ## 🎯 How It Works
 
 ```mermaid
-flowchart LR
-A[Login or choose username] --> B[Select Subject]
-B --> C[Answer Questions]
-C --> D{Correct?}
-D -- Yes --> E[Score Increases]
-D -- No --> F[Try Again]
-E --> G[Rank Up]
-G --> H[Leaderboard Update]
 
 1. Login or pick a username.
 
@@ -72,7 +64,15 @@ G --> H[Leaderboard Update]
 git clone https://github.com/YourUsername/QuickQuizGame.git
 cd QuickQuizGame
 
-1. Open index.html in your browser.
+1. Open index.html ```mermaid
+flowchart LR
+A[Login or choose username] --> B[Select Subject]
+B --> C[Answer Questions]
+C --> D{Correct?}
+D -- Yes --> E[Score Increases]
+D -- No --> F[Try Again]
+E --> G[Rank Up]
+G --> H[Leaderboard Update]in your browser.
 
 
 2. Make sure questions.json & ranks.json are in the public/ folder.
