@@ -5,23 +5,67 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quick Quiz Game</title>
 <style>
-  body { font-family: Arial, sans-serif; text-align:center; margin:40px 10px 110px; background:#f0f8ff; color:#222; }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 40px 10px 110px;
+    background: #f0f8ff;
+    color: #222;
+  }
   h1 { margin-bottom: 6px; }
-  button, select { padding:10px 18px; font-size:15px; margin-top:10px; cursor:pointer; }
-  input[type="text"], input[type="number"] { font-size:16px; padding:6px; width:120px; }
-  #score, #highScore, #rank, #pointsToNext { font-weight:700; }
-  #feedback { min-height:1.4em; margin-top:10px; }
-  #leaderboard { margin-top:18px; text-align:left; display:inline-block; width:260px; }
-  footer { background:#808080; color:#fff; padding:12px; font-size:13px; position:fixed; bottom:0; left:0; right:0; box-sizing:border-box; }
-  .top-row { display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap; }
-  @media (max-width:420px) { #leaderboard { width:92%; } input[type="text"], input[type="number"] { width:86%; } }
+  button, select {
+    padding: 10px 18px;
+    font-size: 15px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  input[type="text"], input[type="number"] {
+    font-size: 16px;
+    padding: 6px;
+    width: 120px;
+  }
+  #score, #highScore, #rank, #pointsToNext {
+    font-weight: 700;
+  }
+  #feedback { min-height: 1.4em; margin-top: 10px; }
+  #leaderboard {
+    margin-top: 18px;
+    text-align: left;
+    display: inline-block;
+    width: 260px;
+  }
+  footer {
+    background: #808080;
+    color: #fff;
+    padding: 12px;
+    font-size: 13px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+  }
+  .top-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 420px) {
+    #leaderboard { width: 92%; }
+    input[type="text"], input[type="number"] { width: 86%; }
+  }
 </style>
 </head>
 <body>
 
 <h1>Quick Quiz Game</h1>
+
+<!-- Login area -->
 <div id="loginArea" class="top-row"></div>
 
+<!-- Subject selection -->
 <div class="top-row">
   <label for="subject">Choose subject:</label>
   <select id="subject" disabled>
@@ -39,53 +83,52 @@
   </select>
 </div>
 
+<!-- Question display -->
 <p id="questionTitle">Solve the problem:</p>
 <h2 id="question">Loading…</h2>
+
+<!-- Answer input -->
 <input id="answer" placeholder="Your answer" disabled>
 <br>
 <button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
+
+<!-- Feedback -->
 <p id="feedback"></p>
 
+<!-- Score display -->
 <p>Score: <span id="score">0</span> &nbsp;|&nbsp; High Score: <span id="highScore">0</span></p>
+
+<!-- Rank display -->
 <p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
 
+<!-- Leaderboard -->
 <div id="leaderboard">
   <h3 style="margin:6px 0 8px 0;">Leaderboard</h3>
   <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
 </div>
 
+<!-- Footer -->
 <footer style="text-align:center; padding:12px; font-size:13px; background:#808080; color:#fff;">
   ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)<br>
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Support%20Request" style="color:#d3d3d3; text-decoration:underline; margin-right:15px;">Support</a>
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Report%20a%20Problem" style="color:#d3d3d3; text-decoration:underline; margin-right:15px;">Report a Problem</a>
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=General%20Inquiry" style="color:#d3d3d3; text-decoration:underline;">Contact</a>
+
+  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Support%20Request&body=Hi%2C%0AI%20need%20help%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
+     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
+    Support
+  </a>
+
+  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Report%20a%20Problem&body=Hi%2C%0AI%20want%20to%20report%20an%20issue%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
+     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
+    Report a Problem
+  </a>
+
+  <a href="mailto:animewrldwarsanicade@gmail.com?subject=General%20Inquiry&body=Hi%2C%0AI%20have%20a%20question%20or%20message%20about%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
+     style="color:#d3d3d3; text-decoration:underline; font-weight:500;">
+    Contact
+  </a>
 </footer>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
-
-// ========================
-// Firebase Config
-// ========================
-const firebaseConfig = {  
-  apiKey: "AIzaSyBz51rwpYNp4IpVOFNGajoho9eK-1OAIAw",  
-  authDomain: "quick-quiz-game-d1607.firebaseapp.com",  
-  projectId: "quick-quiz-game-d1607",  
-  storageBucket: "quick-quiz-game-d1607.firebasestorage.app",  
-  messagingSenderId: "716206570966",  
-  appId: "1:716206570966:web:11be159ca216b3c590b877",  
-  measurementId: "G-NEFQRNKLNE"  
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getDatabase(app);
-
-// ========================
-// DOM & State
-// ========================
+<script>
+/* DOM */
 const questionEl = document.getElementById('question');
 const answerInput = document.getElementById('answer');
 const submitBtn = document.getElementById('submitBtn');
@@ -98,23 +141,14 @@ const feedbackEl = document.getElementById('feedback');
 const leaderboardList = document.getElementById('leaderboardList');
 const loginArea = document.getElementById('loginArea');
 
-const SUBJECTS_FOLDER = "questions.json";
-const GK_PATH = "gk.json";
-const RANKS_PATH = "ranks.json";
-const subjectsList = ['advancedmathematics','biology','chemistry','geography','history','ict','literature','physics','psychologyfacts'];
-
+/* STATE */
 let ranks = [];
 let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
 let score = parseInt(localStorage.getItem('score')) || 0;
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let username = null;
-let correctAnswer = null;
-let gkQuestions = [];
-let subjectQuestions = {};
 
-// ========================
-// Helpers
-// ========================
+/* HELPERS */
 function setUIEnabled(enabled){
   answerInput.disabled = !enabled;
   submitBtn.disabled = !enabled;
@@ -124,8 +158,8 @@ function setUIEnabled(enabled){
 function updateDisplay(){
   scoreEl.textContent = score;
   highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex]?.name) || '—';
-  const needed = ranks[currentRankIndex]?.points;
+  rankEl.textContent = (ranks[currentRankIndex] && ranks[currentRankIndex].name) ? ranks[currentRankIndex].name : '—';
+  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points);
   nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
 }
 
@@ -134,88 +168,31 @@ function sanitizeRankIndex(){
   if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
 }
 
-function pointsNeeded(idx){ return ranks[idx]?.points ?? Infinity; }
+/* SAVE USER */
+async function saveUser() {
+  localStorage.setItem('score', String(score));
+  localStorage.setItem('highScore', String(highScore));
+  localStorage.setItem('rankIndex', String(currentRankIndex));
 
-function checkLevelUp(){
-  if (!Array.isArray(ranks) || ranks.length === 0) return;
-  let changed = false;
-  while(currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)){
-    currentRankIndex++;
-    changed = true;
-    if(currentRankIndex >= ranks.length){
-      alert('🎉 Ultimate rank reached!');
-      score = 0;
-      currentRankIndex = 0;
-      break;
-    } else alert(`⭐ Rank Up: ${ranks[currentRankIndex].name}`);
+  if (!username) return;
+
+  try {
+    await fetch("/update-score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        score: highScore,
+        rankIndex: currentRankIndex
+      })
+    });
+    loadLeaderboard();
+  } catch (err) {
+    console.error("Failed to save user:", err);
   }
-  if(changed) saveUser();
-  updateDisplay();
 }
 
-// ========================
-// Question Generation
-// ========================
-function generateQuestion(){
-  const subject = subjectSelect.value || 'math';
-  if(subject === 'math'){
-    answerInput.type = 'number'; answerInput.inputMode = 'numeric';
-    const max = Math.max(10, 10 + currentRankIndex * 5);
-    const a = Math.floor(Math.random()*max)+1;
-    const b = Math.floor(Math.random()*max)+1;
-    const ops = ['+','-','*','/']; const op = ops[Math.floor(Math.random()*ops.length)];
-    if(op==='+'){ correctAnswer=a+b; questionEl.textContent=`${a} + ${b} = ?`; }
-    else if(op==='-'){ correctAnswer=a-b; questionEl.textContent=`${a} - ${b} = ?`; }
-    else if(op==='*'){ correctAnswer=a*b; questionEl.textContent=`${a} × ${b} = ?`; }
-    else { correctAnswer=a; questionEl.textContent=`${a*b} ÷ ${b} = ?`; }
-    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false; return;
-  }
-  if(subject==='gk'){
-    answerInput.type='text'; answerInput.inputMode='text';
-    if(!Array.isArray(gkQuestions) || gkQuestions.length===0){ questionEl.textContent="GK questions loading..."; correctAnswer=null; return; }
-    const q=gkQuestions[Math.floor(Math.random()*gkQuestions.length)];
-    questionEl.textContent=q.question; correctAnswer=String(q.answer).trim().toLowerCase();
-    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=true; return;
-  }
-  const pool=subjectQuestions[subject]||[];
-  if(!Array.isArray(pool)||pool.length===0){ questionEl.textContent=`No questions for ${subject}`; correctAnswer=null; answerInput.disabled=true; submitBtn.disabled=true; feedbackEl.innerHTML=''; return; }
-  const q=pool[Math.floor(Math.random()*pool.length)]; questionEl.textContent=q.question;
-  if(Array.isArray(q.options)&&q.options.length){
-    const shuffled=[...q.options].sort(()=>Math.random()-0.5); correctAnswer=q.answer;
-    feedbackEl.innerHTML=shuffled.map(o=>`<button class="optionBtn">${o}</button>`).join(' ');
-    answerInput.disabled=true; submitBtn.disabled=false;
-    document.querySelectorAll('.optionBtn').forEach(btn=>btn.onclick=()=>checkAnswer(btn.textContent));
-  } else { correctAnswer=String(q.answer).trim().toLowerCase(); feedbackEl.innerHTML=''; answerInput.disabled=false; submitBtn.disabled=false; }
-}
-
-// ========================
-// Check Answer
-// ========================
-function checkAnswer(opt=null){
-  if(correctAnswer==null){ feedbackEl.textContent="No question ready."; return; }
-  const raw=(opt!==null)?String(opt).trim():String(answerInput.value||'').trim();
-  if(!raw){ feedbackEl.textContent="Please enter an answer."; return; }
-  let correct=false;
-  if(subjectSelect.value==='math'){ const val=Number(raw); if(Number.isNaN(val)){ feedbackEl.textContent="Enter a valid number."; return; } correct=val===correctAnswer; }
-  else correct=raw.toLowerCase()===String(correctAnswer).toLowerCase();
-  feedbackEl.textContent=correct?"✅ Correct!":`❌ Wrong! Answer: ${correctAnswer}`;
-  if(correct) score++; highScore=Math.max(highScore,score); updateDisplay(); checkLevelUp(); saveUser();
-  setTimeout(()=>{ feedbackEl.innerHTML=''; generateQuestion(); },1200);
-}
-
-// ========================
-// Save User
-// ========================
-async function saveUser(){
-  localStorage.setItem('score',String(score));
-  localStorage.setItem('highScore',String(highScore));
-  localStorage.setItem('rankIndex',String(currentRankIndex));
-  if(!username) return;
-  const userRef=ref(db,'leaderboard/'+username);
-  await set(userRef,{ highScore, rankIndex: currentRankIndex });
-  loadLeaderboard();
-}
-/* LEADERBOARD loader (real-time) */
+/* LOAD LEADERBOARD */
 function loadLeaderboard() {
   fetch('/leaderboard')
     .then(res => res.json())
@@ -225,16 +202,14 @@ function loadLeaderboard() {
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
     });
 
-  // Polling to simulate "real-time" every 3 seconds
   setInterval(() => {
     fetch('/leaderboard')
       .then(res => res.json())
       .then(data => renderLeaderboard(data))
       .catch(err => console.error('Leaderboard error:', err));
-  }, 3000); // adjust time as needed
+  }, 3000);
 }
 
-/* Renders leaderboard entries */
 function renderLeaderboard(data) {
   leaderboardList.innerHTML = '';
   const arr = Object.entries(data).map(([name, info]) => ({
@@ -243,7 +218,7 @@ function renderLeaderboard(data) {
     rankIndex: Number(info.currentRankIndex || 0)
   }));
 
-  arr.sort((a, b) => b.highScore - a.highScore);
+  arr.sort((a,b) => b.highScore - a.highScore);
 
   if (arr.length === 0) {
     leaderboardList.innerHTML = '<li>No players yet.</li>';
@@ -251,64 +226,87 @@ function renderLeaderboard(data) {
   }
 
   arr.forEach((u, i) => {
-    let pos = (i === 0) ? '🥇' : (i === 1) ? '🥈' : (i === 2) ? '🥉' : (i + 1) + '.';
+    let pos = (i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':(i+1)+'.';
     const li = document.createElement('li');
     li.style.padding = '6px 0';
     li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
     leaderboardList.appendChild(li);
 
-    if (i < arr.length - 1) {
+    if(i < arr.length-1){
       const sep = document.createElement('div');
-      sep.style.width = '80%';
-      sep.style.height = '1px';
-      sep.style.background = '#ccc';
-      sep.style.margin = '6px auto';
+      sep.style.width='80%';
+      sep.style.height='1px';
+      sep.style.background='#ccc';
+      sep.style.margin='6px auto';
       leaderboardList.appendChild(sep);
     }
   });
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
-
-// ========================
-// Load Questions & Ranks
-// ========================
-async function fetchJSON(path){ try{ const res=await fetch(path); if(!res.ok) throw new Error(`${path} not found`); return await res.json(); }catch(err){ console.warn(err); return []; } }
-async function loadAllQuestions(){ gkQuestions=await fetchJSON(GK_PATH); for(const sub of subjectsList){ subjectQuestions[sub]=await fetchJSON(`${SUBJECTS_FOLDER}/${sub}.json`); } setUIEnabled(true); generateQuestion(); }
-async function fetchRanksThenStart(){ ranks=await fetchJSON(RANKS_PATH); sanitizeRankIndex(); const saved=localStorage.getItem('quiz_subject'); if(saved&&Array.from(subjectSelect.options).some(o=>o.value===saved)) subjectSelect.value=saved; updateDisplay(); await Promise.all([loadAllQuestions(), loadLeaderboard()]); }
-
-// ========================
-// Login Controls
-// ========================
-function createLoginControls(){
-  loginArea.innerHTML='';
-  const saved=localStorage.getItem('quiz_username')||'';
-  const input=document.createElement('input'); input.placeholder='username'; input.value=saved; input.style.padding='8px';
-  const btn=document.createElement('button'); btn.textContent=saved?'Use saved / Switch':'Login';
-  btn.onclick=()=>{
-    const v=String(input.value||'').trim(); if(!v){ alert('Enter a username'); return; }
-    username=v; localStorage.setItem('quiz_username',username); loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    saveUser(); loadLeaderboard();
-  };
-  const clearBtn=document.createElement('button'); clearBtn.textContent='Clear saved';
-  clearBtn.onclick=()=>{ localStorage.removeItem('quiz_username'); username=null; loginArea.innerHTML=''; createLoginControls(); setUIEnabled(false); };
-  loginArea.appendChild(input); loginArea.appendChild(btn); loginArea.appendChild(clearBtn);
-  if(saved){ username=saved; loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(saved)}</strong>`; }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 }
 
-// ========================
-// Init
-// ========================
-answerInput.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
-subjectSelect.addEventListener('change', ()=>{ localStorage.setItem('quiz_subject',subjectSelect.value); if(!answerInput.disabled) generateQuestion(); });
+/* LOGIN UI */
+function createLoginControls(){
+  loginArea.innerHTML = '';
+  const saved = localStorage.getItem('quiz_username') || '';
+  const input = document.createElement('input');
+  input.placeholder = 'username';
+  input.value = saved;
+  input.style.padding = '8px';
+  const btn = document.createElement('button');
+  btn.textContent = saved ? 'Use saved / Switch' : 'Login';
 
+  btn.onclick = () => {
+    const v = String(input.value || '').trim();
+    if(!v){ alert('Enter a username'); return; }
+    username = v;
+    localStorage.setItem('quiz_username', username);
+    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
+    saveUser();
+  };
+
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear saved';
+  clearBtn.onclick = () => {
+    localStorage.removeItem('quiz_username');
+    username = null;
+    loginArea.innerHTML = '';
+    createLoginControls();
+    setUIEnabled(false);
+  };
+
+  loginArea.appendChild(input);
+  loginArea.appendChild(btn);
+  loginArea.appendChild(clearBtn);
+
+  if(saved){
+    username = saved;
+    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
+    saveUser();
+  }
+}
+
+/* INIT */
 (function init(){
   setUIEnabled(false);
   createLoginControls();
-  const s=localStorage.getItem('quiz_username'); if(s){ username=s; loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`; }
   fetchRanksThenStart();
 })();
-</script>
 
+async function fetchRanksThenStart(){
+  const res = await fetch('ranks.json');
+  ranks = await res.json();
+  sanitizeRankIndex();
+  setUIEnabled(true);
+  updateDisplay();
+  loadLeaderboard();
+}
+
+/* Enter key to submit */
+answerInput.addEventListener('keydown', e => { if(e.key==='Enter') checkAnswer(); });
+
+</script>
 </body>
 </html>
