@@ -356,44 +356,21 @@ function checkAnswer(opt = null){
 }
 
 /* SAVE USER (single clean implementation) */
-async function saveUser(){
-  // Save locally first
-  try {
-    localStorage.setItem('score', String(score));
-    localStorage.setItem('highScore', String(highScore));
-    localStorage.setItem('rankIndex', String(currentRankIndex));
-  } catch (e) {
-    console.warn('localStorage save failed', e);
-  }
+async function saveUser() {
+  localStorage.setItem('score', String(score));
+  localStorage.setItem('highScore', String(highScore));
+  localStorage.setItem('rankIndex', String(currentRankIndex));
 
-  // Only update server if user logged in
   if (!username) return;
 
-  const payload = {
-    username: username,
-    score: highScore,            // send highScore so leaderboard shows best
+  const userRef = ref(db, 'leaderboard/' + username);
+  await set(userRef, {
+    highScore: highScore,
     rankIndex: currentRankIndex
-  };
+  });
 
-  try {
-    const res = await fetch('/update-score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      console.warn('Server returned', res.status);
-      return;
-    }
-    const json = await res.json();
-    console.log('Saved on server:', json);
-    // refresh leaderboard when server confirms
-    loadLeaderboard();
-  } catch (err) {
-    console.error('Failed to save score to server:', err);
-  }
+  loadLeaderboard(); // refresh after save
 }
-
 /* LOAD JSON helper */
 async function fetchJSON(path){
   try {
@@ -421,53 +398,43 @@ async function loadAllQuestions(){
 }
 
 /* LEADERBOARD loader */
-function loadLeaderboard(){
-  fetch('/leaderboard')
-    .then(r => {
-      if (!r.ok) throw new Error('leaderboard endpoint error ' + r.status);
-      return r.json();
-    })
-    .then(data => {
-      // Clear old entries (heading is in HTML)
-      leaderboardList.innerHTML = '';
+function loadLeaderboard() {
+  const lbRef = ref(db, 'leaderboard');
+  onValue(lbRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    leaderboardList.innerHTML = '';
 
-      // server returns object { username: { highScore, currentRankIndex }, ... }
-      const arr = Object.entries(data || {}).map(([name, info]) => ({
-        username: name,
-        highScore: Number(info?.highScore) || 0,
-        rankIndex: Number(info?.currentRankIndex) || 0
-      }));
+    const arr = Object.entries(data).map(([name, info]) => ({
+      username: name,
+      highScore: Number(info.highScore || 0),
+      rankIndex: Number(info.rankIndex || 0)
+    }));
 
-      // sort desc
-      arr.sort((a,b) => b.highScore - a.highScore);
+    arr.sort((a, b) => b.highScore - a.highScore);
 
-      if (arr.length === 0) {
-        leaderboardList.innerHTML = '<li>No players yet.</li>';
-        return;
+    if (arr.length === 0) {
+      leaderboardList.innerHTML = '<li>No players yet.</li>';
+      return;
+    }
+
+    arr.forEach((u, i) => {
+      let pos = (i === 0) ? '🥇' : (i === 1) ? '🥈' : (i === 2) ? '🥉' : (i + 1) + '.';
+      const li = document.createElement('li');
+      li.style.padding = '6px 0';
+      li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
+      leaderboardList.appendChild(li);
+
+      if (i < arr.length - 1) {
+        const sep = document.createElement('div');
+        sep.style.width = '80%';
+        sep.style.height = '1px';
+        sep.style.background = '#ccc';
+        sep.style.margin = '6px auto';
+        leaderboardList.appendChild(sep);
       }
+    });
+  });
 
-      arr.forEach((u, i) => {
-        let pos;
-        if (i === 0) pos = '🥇';
-        else if (i === 1) pos = '🥈';
-        else if (i === 2) pos = '🥉';
-        else pos = (i + 1) + '.';
-
-        const li = document.createElement('li');
-        li.style.padding = '6px 0';
-        li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
-        leaderboardList.appendChild(li);
-
-        if (i < arr.length - 1) {
-          const sep = document.createElement('div');
-          sep.style.width = '80%';
-          sep.style.height = '1px';
-          sep.style.background = '#ccc';
-          sep.style.margin = '6px auto';
-          leaderboardList.appendChild(sep);
-        }
-      });
-    })
     .catch(err => {
       console.error('Leaderboard error:', err);
       leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
