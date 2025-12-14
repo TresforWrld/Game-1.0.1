@@ -215,25 +215,56 @@ async function saveUser(){
   await set(userRef,{ highScore, rankIndex: currentRankIndex });
   loadLeaderboard();
 }
-
-// ========================
-// Load Leaderboard
-// ========================
-function loadLeaderboard(){
-  const lbRef=ref(db,'leaderboard');
-  onValue(lbRef,snapshot=>{
-    const data=snapshot.val()||{};
-    leaderboardList.innerHTML='';
-    const arr=Object.entries(data).map(([name,info])=>({ username:name, highScore:Number(info.highScore||0), rankIndex:Number(info.rankIndex||0) }));
-    arr.sort((a,b)=>b.highScore-a.highScore);
-    if(arr.length===0){ leaderboardList.innerHTML='<li>No players yet.</li>'; return; }
-    arr.forEach((u,i)=>{
-      let pos=(i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':(i+1)+'.';
-      const li=document.createElement('li'); li.style.padding='6px 0';
-      li.innerHTML=`<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name||'—')}</div>`;
-      leaderboardList.appendChild(li);
-      if(i<arr.length-1){ const sep=document.createElement('div'); sep.style.width='80%'; sep.style.height='1px'; sep.style.background='#ccc'; sep.style.margin='6px auto'; leaderboardList.appendChild(sep); }
+/* LEADERBOARD loader (real-time) */
+function loadLeaderboard() {
+  fetch('/leaderboard')
+    .then(res => res.json())
+    .then(data => renderLeaderboard(data))
+    .catch(err => {
+      console.error('Leaderboard error:', err);
+      leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
     });
+
+  // Polling to simulate "real-time" every 3 seconds
+  setInterval(() => {
+    fetch('/leaderboard')
+      .then(res => res.json())
+      .then(data => renderLeaderboard(data))
+      .catch(err => console.error('Leaderboard error:', err));
+  }, 3000); // adjust time as needed
+}
+
+/* Renders leaderboard entries */
+function renderLeaderboard(data) {
+  leaderboardList.innerHTML = '';
+  const arr = Object.entries(data).map(([name, info]) => ({
+    username: name,
+    highScore: Number(info.highScore || 0),
+    rankIndex: Number(info.currentRankIndex || 0)
+  }));
+
+  arr.sort((a, b) => b.highScore - a.highScore);
+
+  if (arr.length === 0) {
+    leaderboardList.innerHTML = '<li>No players yet.</li>';
+    return;
+  }
+
+  arr.forEach((u, i) => {
+    let pos = (i === 0) ? '🥇' : (i === 1) ? '🥈' : (i === 2) ? '🥉' : (i + 1) + '.';
+    const li = document.createElement('li');
+    li.style.padding = '6px 0';
+    li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
+    leaderboardList.appendChild(li);
+
+    if (i < arr.length - 1) {
+      const sep = document.createElement('div');
+      sep.style.width = '80%';
+      sep.style.height = '1px';
+      sep.style.background = '#ccc';
+      sep.style.margin = '6px auto';
+      leaderboardList.appendChild(sep);
+    }
   });
 }
 
