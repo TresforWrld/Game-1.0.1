@@ -5,57 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quick Quiz Game</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 40px 10px 110px;
-    background: #f0f8ff;
-    color: #222;
-  }
+  body { font-family: Arial, sans-serif; text-align: center; margin: 40px 10px 110px; background: #f0f8ff; color: #222; }
   h1 { margin-bottom: 6px; }
-  button, select {
-    padding: 10px 18px;
-    font-size: 15px;
-    margin-top: 10px;
-    cursor: pointer;
-  }
-  input[type="text"], input[type="number"] {
-    font-size: 16px;
-    padding: 6px;
-    width: 120px;
-  }
-  #score, #highScore, #rank, #pointsToNext {
-    font-weight: 700;
-  }
+  button, select { padding: 10px 18px; font-size: 15px; margin-top: 10px; cursor: pointer; }
+  input[type="text"], input[type="number"] { font-size: 16px; padding: 6px; width: 120px; }
+  #score, #highScore, #rank, #pointsToNext { font-weight: 700; }
   #feedback { min-height: 1.4em; margin-top: 10px; }
-  #leaderboard {
-    margin-top: 18px;
-    text-align: left;
-    display: inline-block;
-    width: 260px;
-  }
-  footer {
-    background: #808080;
-    color: #fff;
-    padding: 12px;
-    font-size: 13px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-  }
-  .top-row {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  @media (max-width: 420px) {
-    #leaderboard { width: 92%; }
-    input[type="text"], input[type="number"] { width: 86%; }
-  }
+  #leaderboard { margin-top: 18px; text-align: left; display: inline-block; width: 260px; }
+  footer { background: #808080; color: #fff; padding: 12px; font-size: 13px; position: fixed; bottom: 0; left: 0; right: 0; box-sizing: border-box; }
+  .top-row { display: flex; justify-content: center; gap: 12px; align-items: center; flex-wrap: wrap; }
+  @media (max-width: 420px) { #leaderboard { width: 92%; } input[type="text"], input[type="number"] { width: 86%; } }
 </style>
 </head>
 <body>
@@ -107,24 +66,8 @@
   <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
 </div>
 
-<!-- Footer -->
 <footer style="text-align:center; padding:12px; font-size:13px; background:#808080; color:#fff;">
-  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)<br>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Support%20Request&body=Hi%2C%0AI%20need%20help%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
-    Support
-  </a>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Report%20a%20Problem&body=Hi%2C%0AI%20want%20to%20report%20an%20issue%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
-    Report a Problem
-  </a>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=General%20Inquiry&body=Hi%2C%0AI%20have%20a%20question%20or%20message%20about%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; font-weight:500;">
-    Contact
-  </a>
+  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)
 </footer>
 
 <script>
@@ -148,6 +91,12 @@ let score = parseInt(localStorage.getItem('score')) || 0;
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let username = null;
 
+let gkQuestions = [];
+let subjectQuestions = {};
+const SUBJECTS_FOLDER = "questions.json";
+const GK_PATH = "gk.json";
+const subjectsList = ['advancedmathematics','biology','chemistry','geography','history','ict','literature','physics','psychologyfacts'];
+
 /* HELPERS */
 function setUIEnabled(enabled){
   answerInput.disabled = !enabled;
@@ -158,134 +107,158 @@ function setUIEnabled(enabled){
 function updateDisplay(){
   scoreEl.textContent = score;
   highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex] && ranks[currentRankIndex].name) ? ranks[currentRankIndex].name : '—';
-  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points);
-  nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
+  rankEl.textContent = (ranks[currentRankIndex]?.name || '—');
+  const needed = ranks[currentRankIndex]?.points;
+  nextEl.textContent = (typeof needed==='number') ? Math.max(0, needed-score) : '—';
 }
 
 function sanitizeRankIndex(){
-  if (!Array.isArray(ranks) || ranks.length === 0) { currentRankIndex = 0; return; }
-  if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
+  if (!Array.isArray(ranks) || ranks.length===0){ currentRankIndex=0; return; }
+  if (currentRankIndex<0 || currentRankIndex>=ranks.length) currentRankIndex=0;
 }
 
-/* SAVE USER */
-async function saveUser() {
-  localStorage.setItem('score', String(score));
-  localStorage.setItem('highScore', String(highScore));
-  localStorage.setItem('rankIndex', String(currentRankIndex));
+/* LOAD QUESTIONS */
+async function fetchJSON(path){
+  try{
+    const res = await fetch(path);
+    if(!res.ok) throw new Error(`${path} not found`);
+    return await res.json();
+  }catch(err){ console.warn(err); return []; }
+}
 
-  if (!username) return;
-
-  try {
-    await fetch("/update-score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        score: highScore,
-        rankIndex: currentRankIndex
-      })
-    });
-    loadLeaderboard();
-  } catch (err) {
-    console.error("Failed to save user:", err);
+async function loadAllQuestions(){
+  gkQuestions = await fetchJSON(GK_PATH);
+  for(const sub of subjectsList){
+    subjectQuestions[sub] = await fetchJSON(`${SUBJECTS_FOLDER}/${sub}.json`);
   }
+  setUIEnabled(true);
+  generateQuestion();
 }
 
-/* LOAD LEADERBOARD */
-function loadLeaderboard() {
-  fetch('/leaderboard')
-    .then(res => res.json())
-    .then(data => renderLeaderboard(data))
-    .catch(err => {
-      console.error('Leaderboard error:', err);
-      leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
-    });
+/* GENERATE QUESTION */
+let correctAnswer = null;
 
-  setInterval(() => {
-    fetch('/leaderboard')
-      .then(res => res.json())
-      .then(data => renderLeaderboard(data))
-      .catch(err => console.error('Leaderboard error:', err));
-  }, 3000);
-}
+function generateQuestion(){
+  const subject = subjectSelect.value || 'math';
 
-function renderLeaderboard(data) {
-  leaderboardList.innerHTML = '';
-  const arr = Object.entries(data).map(([name, info]) => ({
-    username: name,
-    highScore: Number(info.highScore || 0),
-    rankIndex: Number(info.currentRankIndex || 0)
-  }));
-
-  arr.sort((a,b) => b.highScore - a.highScore);
-
-  if (arr.length === 0) {
-    leaderboardList.innerHTML = '<li>No players yet.</li>';
+  if(subject==='math'){
+    answerInput.type='number';
+    const max = Math.max(10,10+currentRankIndex*5);
+    const a=Math.floor(Math.random()*max)+1;
+    const b=Math.floor(Math.random()*max)+1;
+    const ops=['+','-','*','/'];
+    const op=ops[Math.floor(Math.random()*ops.length)];
+    if(op==='+'){ correctAnswer=a+b; questionEl.textContent=`${a} + ${b} = ?`; }
+    else if(op==='-'){ correctAnswer=a-b; questionEl.textContent=`${a} - ${b} = ?`; }
+    else if(op==='*'){ correctAnswer=a*b; questionEl.textContent=`${a} × ${b} = ?`; }
+    else{ correctAnswer=a; questionEl.textContent=`${a*b} ÷ ${b} = ?`; }
+    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false;
     return;
   }
 
-  arr.forEach((u, i) => {
-    let pos = (i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':(i+1)+'.';
-    const li = document.createElement('li');
-    li.style.padding = '6px 0';
-    li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
-    leaderboardList.appendChild(li);
+  if(subject==='gk'){
+    answerInput.type='text';
+    if(!gkQuestions.length){ questionEl.textContent="GK questions loading..."; return; }
+    const q = gkQuestions[Math.floor(Math.random()*gkQuestions.length)];
+    questionEl.textContent=q.question; correctAnswer=String(q.answer).trim().toLowerCase();
+    answerInput.value=''; feedbackEl.textContent=''; answerInput.disabled=false; submitBtn.disabled=false;
+    return;
+  }
 
-    if(i < arr.length-1){
-      const sep = document.createElement('div');
-      sep.style.width='80%';
-      sep.style.height='1px';
-      sep.style.background='#ccc';
-      sep.style.margin='6px auto';
-      leaderboardList.appendChild(sep);
-    }
-  });
+  const pool = subjectQuestions[subject] || [];
+  if(!pool.length){ questionEl.textContent=`No questions for ${subject}`; return; }
+  const q=pool[Math.floor(Math.random()*pool.length)];
+  questionEl.textContent=q.question;
+  if(Array.isArray(q.options) && q.options.length){
+    correctAnswer=q.answer;
+    feedbackEl.innerHTML=q.options.sort(()=>Math.random()-0.5).map(o=>`<button class="optionBtn">${o}</button>`).join(' ');
+    answerInput.disabled=true; submitBtn.disabled=false;
+    document.querySelectorAll('.optionBtn').forEach(btn=>btn.onclick=()=>checkAnswer(btn.textContent));
+  }else{
+    correctAnswer=String(q.answer).trim().toLowerCase();
+    feedbackEl.innerHTML=''; answerInput.disabled=false; submitBtn.disabled=false;
+  }
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+/* CHECK ANSWER */
+function checkAnswer(opt=null){
+  if(correctAnswer==null){ feedbackEl.textContent="No question ready."; return; }
+  const raw = opt!==null?String(opt).trim():String(answerInput.value||'').trim();
+  if(!raw){ feedbackEl.textContent="Please enter an answer."; return; }
+  let correct=false;
+  if(subjectSelect.value==='math'){ correct=Number(raw)===correctAnswer; }
+  else{ correct=raw.toLowerCase()===String(correctAnswer).toLowerCase(); }
+  feedbackEl.textContent=correct?"✅ Correct!":`❌ Wrong! Answer: ${correctAnswer}`;
+  if(correct) score++;
+  highScore=Math.max(highScore,score);
+  updateDisplay();
+  checkLevelUp();
+  saveUser();
+  setTimeout(()=>{ feedbackEl.innerHTML=''; generateQuestion(); }, 1200);
+}
+
+/* LEVEL UP */
+function pointsNeeded(idx){ return ranks[idx]?.points||Infinity; }
+function checkLevelUp(){
+  if(!Array.isArray(ranks)||!ranks.length) return;
+  let changed=false;
+  while(currentRankIndex<ranks.length && score>=pointsNeeded(currentRankIndex)){
+    currentRankIndex++; changed=true;
+    if(currentRankIndex>=ranks.length){ alert('🎉 Ultimate rank reached!'); score=0; currentRankIndex=0; break; }
+    else alert(`⭐ Rank Up: ${ranks[currentRankIndex].name}`);
+  }
+  if(changed) saveUser();
+  updateDisplay();
+}
+
+/* SAVE USER */
+async function saveUser(){
+  localStorage.setItem('score',String(score));
+  localStorage.setItem('highScore',String(highScore));
+  localStorage.setItem('rankIndex',String(currentRankIndex));
+  if(!username) return;
+  try{
+    await fetch("/update-score",{ method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ username, score: highScore, rankIndex: currentRankIndex }) });
+    loadLeaderboard();
+  }catch(err){ console.error("Failed to save user:",err); }
+}
+
+/* LOAD LEADERBOARD */
+function loadLeaderboard(){
+  fetch('/leaderboard').then(res=>res.json()).then(data=>renderLeaderboard(data))
+  .catch(err=>{ console.error('Leaderboard error:',err); leaderboardList.innerHTML='<li>Error loading leaderboard</li>'; });
+  setInterval(()=>{
+    fetch('/leaderboard').then(res=>res.json()).then(data=>renderLeaderboard(data))
+    .catch(err=>console.error('Leaderboard error:',err));
+  },3000);
+}
+
+function renderLeaderboard(data){
+  leaderboardList.innerHTML='';
+  const arr=Object.entries(data).map(([name,info])=>({ username:name, highScore:Number(info.highScore||0), rankIndex:Number(info.currentRankIndex||0)}));
+  arr.sort((a,b)=>b.highScore-a.highScore);
+  if(!arr.length){ leaderboardList.innerHTML='<li>No players yet.</li>'; return; }
+  arr.forEach((u,i)=>{
+    let pos=(i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':(i+1)+'.';
+    const li=document.createElement('li');
+    li.style.padding='6px 0';
+    li.innerHTML=`<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name||'—')}</div>`;
+    leaderboardList.appendChild(li);
+    if(i<arr.length-1){ const sep=document.createElement('div'); sep.style.width='80%'; sep.style.height='1px'; sep.style.background='#ccc'; sep.style.margin='6px auto'; leaderboardList.appendChild(sep);}
+  });
 }
 
 /* LOGIN UI */
 function createLoginControls(){
-  loginArea.innerHTML = '';
-  const saved = localStorage.getItem('quiz_username') || '';
-  const input = document.createElement('input');
-  input.placeholder = 'username';
-  input.value = saved;
-  input.style.padding = '8px';
-  const btn = document.createElement('button');
-  btn.textContent = saved ? 'Use saved / Switch' : 'Login';
-
-  btn.onclick = () => {
-    const v = String(input.value || '').trim();
-    if(!v){ alert('Enter a username'); return; }
-    username = v;
-    localStorage.setItem('quiz_username', username);
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    saveUser();
-  };
-
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear saved';
-  clearBtn.onclick = () => {
-    localStorage.removeItem('quiz_username');
-    username = null;
-    loginArea.innerHTML = '';
-    createLoginControls();
-    setUIEnabled(false);
-  };
-
-  loginArea.appendChild(input);
-  loginArea.appendChild(btn);
-  loginArea.appendChild(clearBtn);
-
-  if(saved){
-    username = saved;
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    saveUser();
-  }
+  loginArea.innerHTML='';
+  const saved=localStorage.getItem('quiz_username')||'';
+  const input=document.createElement('input'); input.placeholder='username'; input.value=saved; input.style.padding='8px';
+  const btn=document.createElement('button'); btn.textContent=saved?'Use saved / Switch':'Login';
+  btn.onclick=()=>{ const v=String(input.value||'').trim(); if(!v){alert('Enter a username'); return;} username=v; localStorage.setItem('quiz_username',username); loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`; saveUser(); };
+  const clearBtn=document.createElement('button'); clearBtn.textContent='Clear saved'; clearBtn.onclick=()=>{ localStorage.removeItem('quiz_username'); username=null; loginArea.innerHTML=''; createLoginControls(); setUIEnabled(false); };
+  loginArea.appendChild(input); loginArea.appendChild(btn); loginArea.appendChild(clearBtn);
+  if(saved){ username=saved; loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`; saveUser(); }
 }
 
 /* INIT */
@@ -293,20 +266,16 @@ function createLoginControls(){
   setUIEnabled(false);
   createLoginControls();
   fetchRanksThenStart();
+  loadAllQuestions();
 })();
 
 async function fetchRanksThenStart(){
-  const res = await fetch('ranks.json');
-  ranks = await res.json();
-  sanitizeRankIndex();
-  setUIEnabled(true);
-  updateDisplay();
-  loadLeaderboard();
+  const res=await fetch('ranks.json'); ranks=await res.json(); sanitizeRankIndex(); setUIEnabled(true); updateDisplay(); loadLeaderboard();
 }
 
 /* Enter key to submit */
-answerInput.addEventListener('keydown', e => { if(e.key==='Enter') checkAnswer(); });
-
+answerInput.addEventListener('keydown',e=>{ if(e.key==='Enter') checkAnswer(); });
 </script>
+
 </body>
 </html>
