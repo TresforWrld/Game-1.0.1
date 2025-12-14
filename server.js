@@ -10,18 +10,14 @@ app.use(express.static("public"));
 
 const USERS_FILE = path.join(__dirname, "users.json");
 
-// Ensure users.json exists as an object
-if (!fs.existsSync(USERS_FILE)) {
-  fs.writeFileSync(USERS_FILE, "{}");
-}
+// Ensure users.json exists
+if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, "{}");
 
-// ----------------------
-// GET LEADERBOARD
-// ----------------------
+// GET leaderboard (all users)
 app.get("/leaderboard", (req, res) => {
   try {
     const raw = fs.readFileSync(USERS_FILE, "utf8") || "{}";
-    const users = JSON.parse(raw); // always an object
+    const users = JSON.parse(raw);
     res.json(users);
   } catch (err) {
     console.error("Error reading leaderboard:", err);
@@ -29,31 +25,26 @@ app.get("/leaderboard", (req, res) => {
   }
 });
 
-// ----------------------
-// UPDATE SCORE
-// ----------------------
+// POST update score
 app.post("/update-score", (req, res) => {
   const { username, score, rankIndex } = req.body;
-
   if (!username) return res.status(400).json({ error: "Missing username" });
 
   try {
     const raw = fs.readFileSync(USERS_FILE, "utf8") || "{}";
-    const users = JSON.parse(raw); // always an object
+    const users = JSON.parse(raw);
 
-    // Initialize user if not exists
     if (!users[username]) {
       users[username] = { highScore: 0, currentRankIndex: 0 };
     }
 
-    // Update only if higher
+    // Update only if new score is higher
     if (score > users[username].highScore) {
       users[username].highScore = score;
       users[username].currentRankIndex = rankIndex ?? users[username].currentRankIndex;
     }
 
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-
     res.json({ success: true, user: users[username] });
   } catch (err) {
     console.error("Error updating score:", err);
@@ -61,8 +52,6 @@ app.post("/update-score", (req, res) => {
   }
 });
 
-// ----------------------
-// START SERVER
-// ----------------------
+// START server
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
