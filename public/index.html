@@ -142,214 +142,164 @@ const loginArea = document.getElementById('loginArea');
 
 /* STATE */
 let ranks = [];
+let questions = [];
+let currentQuestion = null;
+
 let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
 let score = parseInt(localStorage.getItem('score')) || 0;
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let username = null;
 
-/* HELPERS */
+/* UI */
 function setUIEnabled(enabled){
   answerInput.disabled = !enabled;
   submitBtn.disabled = !enabled;
   subjectSelect.disabled = !enabled;
 }
 
+/* DISPLAY */
 function updateDisplay(){
   scoreEl.textContent = score;
   highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex] && ranks[currentRankIndex].name) ? ranks[currentRankIndex].name : '—';
-  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points);
-  nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
+  rankEl.textContent = ranks[currentRankIndex]?.name || '—';
+  const needed = ranks[currentRankIndex]?.points;
+  nextEl.textContent = typeof needed === 'number' ? Math.max(0, needed - score) : '—';
 }
 
 function sanitizeRankIndex(){
-  if (!Array.isArray(ranks) || ranks.length === 0) { currentRankIndex = 0; return; }
+  if (!Array.isArray(ranks) || !ranks.length) currentRankIndex = 0;
   if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
 }
 
 /* SAVE USER */
-async function saveUser() {
-  localStorage.setItem('score', String(score));
-  localStorage.setItem('highScore', String(highScore));
-  localStorage.setItem('rankIndex', String(currentRankIndex));
-
+async function saveUser(){
+  localStorage.setItem('score', score);
+  localStorage.setItem('highScore', highScore);
+  localStorage.setItem('rankIndex', currentRankIndex);
   if (!username) return;
 
   try {
-    await fetch("/update-score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        score: highScore,
-        rankIndex: currentRankIndex
-      })
+    await fetch('/update-score',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ username, score: highScore, rankIndex: currentRankIndex })
     });
-    loadLeaderboard();
-  } catch (err) {
-    console.error("Failed to save user:", err);
+  } catch(e){}
+}
+
+/* LOGIN */
+function createLoginControls(){
+  loginArea.innerHTML='';
+  const saved = localStorage.getItem('quiz_username') || '';
+
+  const input=document.createElement('input');
+  input.placeholder='username';
+  input.value=saved;
+
+  const btn=document.createElement('button');
+  btn.textContent=saved?'Use saved / Switch':'Login';
+
+  btn.onclick=()=>{
+    if(!input.value.trim()) return alert('Enter username');
+    username=input.value.trim();
+    localStorage.setItem('quiz_username',username);
+    loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`;
+    saveUser();
+  };
+
+  loginArea.append(input,btn);
+
+  if(saved){
+    username=saved;
+    loginArea.innerHTML=`Logged in as: <strong>${escapeHtml(username)}</strong>`;
   }
 }
 
-/* LOAD LEADERBOARD */
-function loadLeaderboard() {
+/* QUESTIONS — FIXED & SAFE */
+async function loadQuestions(){
+  try{
+    const res = await fetch('./questions.json', { cache:'no-store' });
+    if(!res.ok) throw new Error('HTTP error');
+
+    questions = await res.json();
+    if(!Array.isArray(questions) || !questions.length)
+      throw new Error('No questions');
+
+    setUIEnabled(true);
+    nextQuestion();
+
+  }catch(err){
+    console.error(err);
+    questionEl.textContent='Failed to load questions.';
+  }
+}
+
+function nextQuestion(){
+  currentQuestion = questions[Math.floor(Math.random()*questions.length)];
+  questionEl.textContent = currentQuestion.question;
+  answerInput.value='';
+  feedbackEl.textContent='';
+}
+
+function checkAnswer(){
+  if(!currentQuestion) return;
+
+  const user = answerInput.value.trim().toLowerCase();
+  const correct = String(currentQuestion.answer).trim().toLowerCase();
+
+  if(user===correct){
+    score++;
+    highScore=Math.max(highScore,score);
+    feedbackEl.textContent='✅ Correct!';
+  }else{
+    score=0;
+    feedbackEl.textContent=`❌ Wrong! Answer: ${currentQuestion.answer}`;
+  }
+
+  updateDisplay();
+  saveUser();
+  setTimeout(nextQuestion,900);
+}
+
+/* LEADERBOARD */
+function loadLeaderboard(){
   fetch('/leaderboard')
-    .then(res => res.json())
-    .then(data => renderLeaderboard(data))
-    .catch(err => {
-      console.error('Leaderboard error:', err);
-      leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
-    });
-
-  setInterval(() => {
-    fetch('/leaderboard')
-      .then(res => res.json())
-      .then(data => renderLeaderboard(data))
-      .catch(err => console.error('Leaderboard error:', err));
-  }, 3000);
+    .then(r=>r.json())
+    .then(renderLeaderboard)
+    .catch(()=>leaderboardList.innerHTML='<li>Error</li>');
 }
 
-function renderLeaderboard(data) {
-  leaderboardList.innerHTML = '';
-  const arr = Object.entries(data).map(([name, info]) => ({
-    username: name,
-    highScore: Number(info.highScore || 0),
-    rankIndex: Number(info.currentRankIndex || 0)
-  }));
-
-  arr.sort((a,b) => b.highScore - a.highScore);
-
-  if (arr.length === 0) {
-    leaderboardList.innerHTML = '<li>No players yet.</li>';
-    return;
-  }
-
-  arr.forEach((u, i) => {
-    let pos = (i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':(i+1)+'.';
-    const li = document.createElement('li');
-    li.style.padding = '6px 0';
-    li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
-    leaderboardList.appendChild(li);
-
-    if(i < arr.length-1){
-      const sep = document.createElement('div');
-      sep.style.width='80%';
-      sep.style.height='1px';
-      sep.style.background='#ccc';
-      sep.style.margin='6px auto';
-      leaderboardList.appendChild(sep);
-    }
-  });
+function renderLeaderboard(data){
+  leaderboardList.innerHTML='';
+  Object.entries(data)
+    .map(([u,v])=>({u, s:v.highScore||0, r:v.currentRankIndex||0}))
+    .sort((a,b)=>b.s-a.s)
+    .forEach((p,i)=>{
+      const li=document.createElement('li');
+      li.innerHTML=`${i+1}. <strong>${escapeHtml(p.u)}</strong> — ${p.s} pts`;
+      leaderboardList.appendChild(li);
+    });
 }
 
 function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* LOGIN UI */
-function createLoginControls(){
-  loginArea.innerHTML = '';
-  const saved = localStorage.getItem('quiz_username') || '';
-  const input = document.createElement('input');
-  input.placeholder = 'username';
-  input.value = saved;
-  input.style.padding = '8px';
-  const btn = document.createElement('button');
-  btn.textContent = saved ? 'Use saved / Switch' : 'Login';
-
-  btn.onclick = () => {
-    const v = String(input.value || '').trim();
-    if(!v){ alert('Enter a username'); return; }
-    username = v;
-    localStorage.setItem('quiz_username', username);
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    saveUser();
-  };
-
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear saved';
-  clearBtn.onclick = () => {
-    localStorage.removeItem('quiz_username');
-    username = null;
-    loginArea.innerHTML = '';
-    createLoginControls();
-    setUIEnabled(false);
-  };
-
-  loginArea.appendChild(input);
-  loginArea.appendChild(btn);
-  loginArea.appendChild(clearBtn);
-
-  if(saved){
-    username = saved;
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-    saveUser();
-  }
-}
-
-/* QUESTIONS */
-let questions = [];
-let currentQuestion = null;
-
-async function loadQuestions() {
-  try {
-    const res = await fetch('questions.json'); // path to your questions file
-    questions = await res.json();
-    generateQuestion();
-  } catch (err) {
-    console.error('Failed to load questions:', err);
-    questionEl.textContent = 'Failed to load questions.';
-  }
-}
-
-function generateQuestion() {
-  if (!questions || questions.length === 0) {
-    questionEl.textContent = 'No questions available.';
-    return;
-  }
-  currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-  questionEl.textContent = currentQuestion.question || 'Question missing';
-  answerInput.value = '';
-  answerInput.disabled = false;
-  submitBtn.disabled = false;
-}
-
-function checkAnswer() {
-  if (!currentQuestion) return;
-
-  const userAnswer = answerInput.value.trim().toLowerCase();
-  const correct = String(currentQuestion.answer).trim().toLowerCase() === userAnswer;
-
-  feedbackEl.textContent = correct ? '✅ Correct!' : `❌ Wrong! Answer: ${currentQuestion.answer}`;
-
-  if (correct) score++;
-  highScore = Math.max(highScore, score);
-  updateDisplay();
-  saveUser();
-
-  setTimeout(generateQuestion, 1200);
-}
-
-/* INIT */
-(function init(){
+/* INIT — ORDER MATTERS */
+(async function init(){
   setUIEnabled(false);
   createLoginControls();
-  fetchRanksThenStart();
+
+  const r = await fetch('ranks.json');
+  ranks = await r.json();
+  sanitizeRankIndex();
+  updateDisplay();
+
+  loadLeaderboard();
   loadQuestions();
 })();
 
-async function fetchRanksThenStart(){
-  const res = await fetch('ranks.json');
-  ranks = await res.json();
-  sanitizeRankIndex();
-  setUIEnabled(true);
-  updateDisplay();
-  loadLeaderboard();
-}
-
-/* Enter key to submit */
-answerInput.addEventListener('keydown', e => { if(e.key==='Enter') checkAnswer(); });
-
+answerInput.addEventListener('keydown',e=>{ if(e.key==='Enter') checkAnswer(); });
 </script>
 </body>
 </html>
