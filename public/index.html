@@ -1,602 +1,1631 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Quick Quiz Game</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAME 101 — ANICADE Tech</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 40px 10px 110px;
-    background: #f0f8ff;
-    color: #222;
+/* =============================================
+   ANICADE GAME 101 — Design System
+   Palette: Burnt Orange / Near-Black / Charcoal / Off-White
+   Typography: Oswald + IBM Plex Mono
+============================================= */
+:root {
+  --burnt:    #C8511A;
+  --burnt-dk: #9C3D10;
+  --black:    #0A0A0A;
+  --panel:    #111111;
+  --card:     #191919;
+  --border:   #2A2A2A;
+  --offwhite: #F0EBE1;
+  --muted:    #5A5A5A;
+  --dimmed:   #333333;
+  --success:  #4A7A30;
+  --error:    #8C2A1A;
+  --success-t:#1C2E14;
+  --error-t:  #2E0E08;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  background: var(--black);
+  color: var(--offwhite);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* HEADER */
+.hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.hdr-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--burnt);
+  line-height: 1;
+}
+.hdr-title span { color: var(--offwhite); font-weight: 300; }
+.hdr-brand {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.6;
+}
+.hdr-brand strong { color: var(--offwhite); display: block; font-size: 0.72rem; }
+
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 280px;
+  min-height: calc(100vh - 56px - 44px);
+  gap: 0;
+}
+
+/* PANELS */
+.panel {
+  padding: 20px 18px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.panel:last-child { border-right: none; }
+.panel-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: var(--burnt);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--dimmed);
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+/* LOGIN */
+.login-input {
+  width: 100%;
+  background: var(--black);
+  border: 1px solid var(--border);
+  color: var(--offwhite);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.login-input:focus { border-color: var(--burnt); }
+.login-input::placeholder { color: var(--muted); }
+
+.btn {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s;
+  background: transparent;
+  display: inline-block;
+}
+.btn-primary {
+  border-color: var(--burnt);
+  color: var(--burnt);
+}
+.btn-primary:hover { background: var(--burnt); color: var(--black); }
+.btn-ghost {
+  border-color: var(--dimmed);
+  color: var(--muted);
+  font-size: 0.72rem;
+  padding: 7px 12px;
+}
+.btn-ghost:hover { border-color: var(--muted); color: var(--offwhite); }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.logged-in-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.logged-in-tag strong { color: var(--burnt); font-weight: 500; }
+
+/* RANK DISPLAY */
+.rank-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rank-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--burnt);
+  line-height: 1;
+}
+.rank-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.rank-progress {
+  margin-top: 10px;
+  height: 3px;
+  background: var(--dimmed);
+  position: relative;
+  overflow: hidden;
+}
+.rank-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--burnt);
+  transition: width 0.6s ease;
+}
+
+/* STAT ROWS */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--dimmed);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.stat-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--offwhite);
+}
+.stat-val.accent { color: var(--burnt); }
+
+/* SUBJECT SELECT */
+.subject-select {
+  width: 100%;
+  background: var(--black);
+  border: 1px solid var(--border);
+  color: var(--offwhite);
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 10px 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235A5A5A'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s;
+}
+.subject-select:focus { border-color: var(--burnt); }
+.subject-select:disabled { opacity: 0.4; cursor: not-allowed; }
+.subject-select option { background: #1A1A1A; }
+
+/* STREAK */
+.streak-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.streak-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--burnt);
+  line-height: 1;
+  min-width: 56px;
+  transition: transform 0.15s;
+}
+.streak-num.bump { transform: scale(1.2); }
+.streak-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* CENTER PANEL */
+.center-panel {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.q-counter {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.18em;
+}
+.q-subject-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--burnt);
+  border: 1px solid var(--burnt-dk);
+  padding: 3px 10px;
+  background: rgba(200, 81, 26, 0.08);
+}
+
+.question-text {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--offwhite);
+  margin-bottom: 28px;
+  min-height: 80px;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s;
+}
+
+/* MCQ OPTIONS */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.opt-btn {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--offwhite);
+  transition: all 0.12s;
+  line-height: 1.3;
+}
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--burnt);
+  background: rgba(200, 81, 26, 0.08);
+  color: var(--burnt);
+}
+.opt-btn:disabled { cursor: not-allowed; }
+.opt-btn.correct { background: var(--success-t); border-color: var(--success); color: #7AC050; }
+.opt-btn.wrong   { background: var(--error-t);   border-color: var(--error);   color: #D45040; }
+
+/* TEXT ANSWER */
+.text-answer-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.answer-input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--offwhite);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+.answer-input:focus { border-color: var(--burnt); }
+.answer-input:disabled { opacity: 0.4; cursor: not-allowed; }
+.answer-input::placeholder { color: var(--muted); }
+
+/* FEEDBACK */
+.feedback-bar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 20px;
+  transition: color 0.2s;
+}
+.feedback-bar.correct-fb { color: #7AC050; }
+.feedback-bar.wrong-fb   { color: #D45040; }
+
+/* SCORE BAR */
+.score-bar {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin-bottom: 16px;
+}
+.score-cell {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+}
+.score-cell:last-child { border-right: none; }
+.score-cell-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.score-cell-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--offwhite);
+  line-height: 1;
+}
+.score-cell-val.accent { color: var(--burnt); }
+
+/* NEW BADGE POPUP */
+.badge-popup {
+  position: fixed;
+  top: 72px;
+  right: 20px;
+  background: var(--card);
+  border: 1px solid var(--burnt);
+  padding: 12px 18px;
+  z-index: 999;
+  animation: slideIn 0.3s ease, fadeOut 0.4s ease 2.8s forwards;
+  pointer-events: none;
+}
+.badge-popup-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--burnt);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.badge-popup-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--offwhite);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* RANK UP POPUP */
+.rankup-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bgIn 0.3s ease;
+}
+.rankup-box {
+  text-align: center;
+  padding: 48px 56px;
+  border: 1px solid var(--burnt);
+  background: var(--panel);
+  animation: boxIn 0.35s ease;
+}
+.rankup-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--burnt);
+  letter-spacing: 0.24em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.rankup-name {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--offwhite);
+  margin-bottom: 24px;
+}
+@keyframes bgIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes boxIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* LEADERBOARD PANEL */
+.lb-entry {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--dimmed);
+}
+.lb-entry:last-child { border-bottom: none; }
+.lb-pos {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.lb-pos.gold   { color: #C8A020; }
+.lb-pos.silver { color: #8A9AA0; }
+.lb-pos.bronze { color: #A0622A; }
+.lb-user {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-user.me { color: var(--burnt); }
+.lb-score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--offwhite);
+  text-align: right;
+  white-space: nowrap;
+}
+.lb-rank-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  grid-column: 2 / 4;
+  margin-top: -4px;
+}
+
+/* BADGES SECTION */
+.badges-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.badge-chip {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 5px 10px;
+  border: 1px solid;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.badge-chip.earned {
+  border-color: var(--burnt-dk);
+  color: var(--burnt);
+  background: rgba(200, 81, 26, 0.1);
+}
+.badge-chip.locked {
+  border-color: var(--dimmed);
+  color: var(--dimmed);
+  background: transparent;
+}
+
+/* SYNCING INDICATOR */
+.sync-dot {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.sync-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--muted);
+  border-radius: 50%;
+}
+.sync-dot.syncing::before { background: var(--burnt); animation: pulse 1s infinite; }
+.sync-dot.synced::before  { background: var(--success); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* FOOTER */
+.footer {
+  height: 44px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 24px;
+}
+.footer-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+}
+.footer-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-link:hover { color: var(--offwhite); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
   }
-  h1 { margin-bottom: 6px; }
-  button, select {
-    padding: 10px 18px;
-    font-size: 15px;
-    margin-top: 10px;
-    cursor: pointer;
-  }
-  input[type="text"], input[type="number"] {
-    font-size: 16px;
-    padding: 6px;
-    width: 120px;
-  }
-  #score, #highScore, #rank, #pointsToNext {
-    font-weight: 700;
-  }
-  #feedback { min-height: 1.4em; margin-top: 10px; }
-  #leaderboard {
-    margin-top: 18px;
-    text-align: left;
-    display: inline-block;
-    width: 260px;
-  }
-  footer {
-    background: #808080;
-    color: #fff;
-    padding: 12px;
-    font-size: 13px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-  }
-  .top-row {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  @media (max-width: 420px) {
-    #leaderboard { width: 92%; }
-    input[type="text"], input[type="number"] { width: 86%; }
-  }
+  .panel { border-right: none; border-bottom: 1px solid var(--border); }
+  .center-panel { padding: 20px; }
+  .options-grid { grid-template-columns: 1fr; }
+  .footer { flex-direction: column; height: auto; padding: 12px 24px; gap: 8px; }
+  .hdr-title { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .hdr { padding: 0 16px; }
+  .score-bar { flex-direction: column; }
+  .score-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .score-cell:last-child { border-bottom: none; }
+  .text-answer-row { flex-direction: column; }
+}
+
+/* SETUP NOTICE */
+.setup-notice {
+  background: rgba(200, 81, 26, 0.08);
+  border: 1px solid var(--burnt-dk);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.setup-notice p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--offwhite);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+.setup-notice strong { color: var(--burnt); }
 </style>
 </head>
 <body>
 
-<h1>Quick Quiz Game</h1>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-title">GAME <span>101</span></div>
+  <div id="syncStatus" class="sync-dot">OFFLINE</div>
+  <div class="hdr-brand">
+    <strong>ANICADE Tech</strong>
+    Knowledge Arena
+  </div>
+</header>
 
-<!-- Login area -->
-<div id="loginArea" class="top-row"></div>
+<!-- MAIN LAYOUT -->
+<div class="layout">
 
-<!-- Subject selection -->
-<div class="top-row">
-  <label for="subject">Choose subject:</label>
-  <select id="subject" disabled>
-    <option value="advancedmathematics">Advanced Mathematics</option>
-    <option value="biology">Biology</option>
-    <option value="chemistry">Chemistry</option>
-    <option value="geography">Geography</option>
-    <option value="history">History</option>
-    <option value="ict">ICT</option>
-    <option value="literature">Literature</option>
-    <option value="physics">Physics</option>
-    <option value="psychologyfacts">Psychology Facts</option>
-    <option value="gk">General Knowledge</option>
-    <option value="math">Math</option>
-  </select>
+  <!-- LEFT PANEL: Player + Controls -->
+  <aside class="panel">
+
+    <!-- SETUP NOTICE (hidden after config) -->
+    <div id="setupNotice" class="setup-notice" style="display:none;">
+      <p>
+        <strong>JSONBIN SETUP</strong><br>
+        1. Visit <strong>jsonbin.io</strong> &amp; create a free account<br>
+        2. Copy your <strong>Master Key</strong><br>
+        3. Create a new bin with <strong>{"players":{}}</strong><br>
+        4. Paste both in the <strong>CONFIG</strong> section at the top of this file
+      </p>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="panel-label">Player</div>
+    <div class="card" id="loginCard">
+      <input class="login-input" id="usernameInput" type="text" placeholder="enter username" maxlength="20" autocomplete="off">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="loginUser()">LOGIN</button>
+        <button class="btn btn-ghost" onclick="logoutUser()">CLEAR</button>
+      </div>
+      <div id="loggedInTag" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- RANK -->
+    <div class="panel-label" style="margin-top:4px;">Rank</div>
+    <div class="card">
+      <div class="rank-block">
+        <div class="rank-name" id="rankName">—</div>
+        <div class="rank-sub" id="rankSub">Login to begin</div>
+      </div>
+      <div class="rank-progress" style="margin-top:12px;">
+        <div class="rank-progress-fill" id="rankFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- SUBJECT -->
+    <div class="panel-label">Subject</div>
+    <div class="card">
+      <select class="subject-select" id="subjectSelect" disabled onchange="onSubjectChange()"></select>
+    </div>
+
+    <!-- STATS -->
+    <div class="panel-label">Session</div>
+    <div class="card">
+      <div class="stat-row">
+        <span class="stat-label">Score</span>
+        <span class="stat-val accent" id="scoreVal">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">High Score</span>
+        <span class="stat-val" id="highScoreVal">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Subject Best</span>
+        <span class="stat-val" id="subjectBest">0</span>
+      </div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="panel-label">Streak</div>
+    <div class="card">
+      <div class="streak-display">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-sub">CORRECT<br>IN A ROW</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- CENTER PANEL: Game -->
+  <main class="center-panel">
+
+    <div class="q-header">
+      <div class="q-counter" id="qCounter">Q — / —</div>
+      <div class="q-subject-tag" id="qSubjectTag">SELECT SUBJECT</div>
+    </div>
+
+    <div class="question-text" id="questionText">Login and select a subject to begin.</div>
+
+    <div class="options-grid" id="optionsGrid" style="display:none;"></div>
+
+    <div class="text-answer-row" id="textAnswerRow" style="display:none;">
+      <input class="answer-input" id="answerInput" type="text" placeholder="Type your answer..." autocomplete="off">
+      <button class="btn btn-primary" id="submitBtn" onclick="checkAnswer()">SUBMIT</button>
+    </div>
+
+    <div class="feedback-bar" id="feedbackBar"></div>
+
+    <div class="score-bar">
+      <div class="score-cell">
+        <div class="score-cell-label">Current Score</div>
+        <div class="score-cell-val accent" id="scoreDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Session High</div>
+        <div class="score-cell-val" id="highDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Questions</div>
+        <div class="score-cell-val" id="qCountDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Accuracy</div>
+        <div class="score-cell-val" id="accuracyDisplay">—</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT PANEL: Leaderboard + Badges -->
+  <aside class="panel">
+
+    <div class="panel-label">Global Leaderboard</div>
+    <div class="card" id="leaderboardCard">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.06em;">Connecting...</div>
+    </div>
+
+    <div class="panel-label" style="margin-top:4px;">Achievements</div>
+    <div class="card">
+      <div class="badges-grid" id="badgesGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+  </aside>
+
 </div>
 
-<!-- Question display -->
-<p id="questionTitle">Solve the problem:</p>
-<h2 id="question">Loading…</h2>
-
-<!-- Answer input -->
-<input id="answer" placeholder="Your answer" disabled>
-<br>
-<button id="submitBtn" onclick="checkAnswer()" disabled>Submit</button>
-
-<!-- Feedback -->
-<p id="feedback"></p>
-
-<!-- Score display -->
-<p>Score: <span id="score">0</span> &nbsp;|&nbsp; High Score: <span id="highScore">0</span></p>
-
-<!-- Rank display -->
-<p>Rank: <span id="rank">—</span> &nbsp;|&nbsp; Points to next: <span id="pointsToNext">—</span></p>
-
-<!-- Leaderboard -->
-<div id="leaderboard">
-  <h3 style="margin:6px 0 8px 0;">Leaderboard</h3>
-  <ol id="leaderboardList" style="padding-left:1.2em;"></ol>
-</div>
-
-<!-- Footer -->
-<footer style="text-align:center; padding:12px; font-size:13px; background:#808080; color:#fff;">
-  ©2025 ANICADE ⛩️ Productions (ANICADE's ELEVATE)<br>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Support%20Request&body=Hi%2C%0AI%20need%20help%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
-    Support
-  </a>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=Report%20a%20Problem&body=Hi%2C%0AI%20want%20to%20report%20an%20issue%20with%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; margin-right:15px; font-weight:500;">
-    Report a Problem
-  </a>
-
-  <a href="mailto:animewrldwarsanicade@gmail.com?subject=General%20Inquiry&body=Hi%2C%0AI%20have%20a%20question%20or%20message%20about%20the%20Quick%20Quiz%20Game.%0A%0AThanks!" 
-     style="color:#d3d3d3; text-decoration:underline; font-weight:500;">
-    Contact
-  </a>
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-text">&copy; ANICADE Tech 2025 — All rights reserved</span>
+  <a href="mailto:support@anicadetech.com" class="footer-link">Support</a>
+  <a href="mailto:report@anicadetech.com" class="footer-link">Report a Problem</a>
+  <a href="mailto:contact@anicadetech.com" class="footer-link">Contact</a>
 </footer>
 
 <script>
-/* CONFIG */
-const SUBJECTS_FOLDER = "questions.json"; // folder where subject JSONs live (already in public)
-const GK_PATH = "gk.json";                // gk.json is directly in public
-const RANKS_PATH = "ranks.json";
+/* =============================================
+   CONFIG — Edit these values
+   
+   HOW TO SET UP JSONBIN:
+   1. Go to https://jsonbin.io and sign up free
+   2. Click "CREATE BIN"
+   3. Paste in this initial data: {"players":{}}
+   4. Click Create — you will get a BIN ID in the URL
+   5. Go to API Keys and copy your Master Key
+   6. Paste both below
+============================================= */
+const JSONBIN_KEY = 'YOUR_MASTER_KEY_HERE';   // e.g. $2a$10$abc...
+const JSONBIN_ID  = 'YOUR_BIN_ID_HERE';       // e.g. 6840ab...
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 
-  /* === UNIVERSAL SHUFFLE FUNCTION === */
-function shuffleArray(arr) {
-  let a = arr.slice(); // copy so original stays untouched
+/* =============================================
+   SUBJECTS DEFINITION
+   To add a new subject: add an entry to this array.
+   id: internal key (no spaces), label: display name
+   type: 'mcq' | 'math' | 'adv-math'
+============================================= */
+const SUBJECTS = [
+  { id: 'math',               label: 'Mathematics',          type: 'math'     },
+  { id: 'advancedmathematics',label: 'Advanced Mathematics', type: 'adv-math' },
+  { id: 'biology',            label: 'Biology',              type: 'mcq'      },
+  { id: 'chemistry',          label: 'Chemistry',            type: 'mcq'      },
+  { id: 'geography',          label: 'Geography',            type: 'mcq'      },
+  { id: 'history',            label: 'History',              type: 'mcq'      },
+  { id: 'ict',                label: 'ICT',                  type: 'mcq'      },
+  { id: 'literature',         label: 'Literature',           type: 'mcq'      },
+  { id: 'physics',            label: 'Physics',              type: 'mcq'      },
+  { id: 'psychologyfacts',    label: 'Psychology Facts',     type: 'mcq'      },
+  { id: 'gk',                 label: 'General Knowledge',    type: 'mcq'      },
+];
+
+/* =============================================
+   RANKS SYSTEM
+   Player advances through ranks by accumulating points.
+   Add more ranks at any position — system adjusts automatically.
+============================================= */
+const RANKS = [
+  { name: 'NOVICE',       points: 50   },
+  { name: 'APPRENTICE',   points: 150  },
+  { name: 'SCHOLAR',      points: 300  },
+  { name: 'EXPERT',       points: 600  },
+  { name: 'MASTER',       points: 1000 },
+  { name: 'GRANDMASTER',  points: 2000 },
+  { name: 'LEGEND',       points: 4000 },
+  { name: 'IMMORTAL',     points: Infinity },
+];
+
+/* =============================================
+   ACHIEVEMENT BADGES (no emojis — text only)
+============================================= */
+const BADGE_DEFS = [
+  { id: 'FIRST_ANSWER',  label: 'FIRST ANSWER',  desc: 'Answered your first question correctly' },
+  { id: 'ON_A_ROLL',     label: 'ON A ROLL',     desc: '3 correct answers in a row' },
+  { id: 'HOT_STREAK',    label: 'HOT STREAK',    desc: '5 correct answers in a row' },
+  { id: 'UNSTOPPABLE',   label: 'UNSTOPPABLE',   desc: '10 correct answers in a row' },
+  { id: 'CENTURION',     label: 'CENTURION',     desc: 'Reached 100 total points' },
+  { id: 'FIVE_HUNDRED',  label: 'FIVE HUNDRED',  desc: 'Reached 500 total points' },
+  { id: 'THOUSANDAIRE',  label: 'THOUSANDAIRE',  desc: 'Reached 1000 total points' },
+  { id: 'SCHOLAR_RANK',  label: 'SCHOLAR RANK',  desc: 'Achieved the Scholar rank' },
+  { id: 'MASTER_CLASS',  label: 'MASTER CLASS',  desc: 'Achieved the Master rank' },
+  { id: 'POLYMATH',      label: 'POLYMATH',      desc: 'Played 5 or more different subjects' },
+  { id: 'SUBJECT_ACE',   label: 'SUBJECT ACE',   desc: 'Scored 50+ points in one subject' },
+  { id: 'DEDICATED',     label: 'DEDICATED',     desc: 'Scored 200+ points in one subject' },
+];
+
+/* =============================================
+   EMBEDDED QUESTION BANKS
+   Format: { question, options: [], answer }
+   Options are shuffled each time — answer must match one option exactly.
+   For text-answer questions (no options), answer is the expected string.
+============================================= */
+const QUESTION_BANKS = {
+
+  biology: [
+    { question: "What organelle is known as the powerhouse of the cell?", options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi Apparatus"], answer: "Mitochondria" },
+    { question: "How many chromosomes does a typical human cell contain?", options: ["23", "46", "48", "64"], answer: "46" },
+    { question: "What process do plants use to convert sunlight into glucose?", options: ["Photosynthesis", "Respiration", "Transpiration", "Fermentation"], answer: "Photosynthesis" },
+    { question: "Which type of cell division produces genetically identical daughter cells?", options: ["Mitosis", "Meiosis", "Binary fission", "Budding"], answer: "Mitosis" },
+    { question: "What enzyme breaks down starch into simpler sugars in the mouth?", options: ["Amylase", "Lipase", "Protease", "Pepsin"], answer: "Amylase" },
+    { question: "Which blood type is known as the universal donor?", options: ["O Negative", "A Positive", "AB Positive", "B Negative"], answer: "O Negative" },
+    { question: "Which organ in the body produces insulin?", options: ["Pancreas", "Liver", "Kidneys", "Spleen"], answer: "Pancreas" },
+    { question: "What is the primary function of ribosomes?", options: ["Protein synthesis", "DNA replication", "Energy production", "Waste removal"], answer: "Protein synthesis" },
+    { question: "Which gas is released by plants during photosynthesis?", options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"], answer: "Oxygen" },
+    { question: "What carries genetic information from the nucleus to ribosomes?", options: ["mRNA", "DNA", "tRNA", "rRNA"], answer: "mRNA" },
+    { question: "The study of heredity and genetic variation is called?", options: ["Genetics", "Ecology", "Anatomy", "Physiology"], answer: "Genetics" },
+    { question: "What is the fluid-filled interior of a cell called?", options: ["Cytoplasm", "Nucleoplasm", "Protoplasm", "Plasma"], answer: "Cytoplasm" },
+  ],
+
+  chemistry: [
+    { question: "What is the chemical symbol for Gold?", options: ["Au", "Go", "Gd", "Ag"], answer: "Au" },
+    { question: "What is the pH of pure water at room temperature?", options: ["7", "5", "9", "14"], answer: "7" },
+    { question: "Which gas makes up the largest proportion of Earth's atmosphere?", options: ["Nitrogen", "Oxygen", "Carbon dioxide", "Argon"], answer: "Nitrogen" },
+    { question: "What is the atomic number of Carbon?", options: ["6", "8", "12", "14"], answer: "6" },
+    { question: "Which type of chemical bond involves the transfer of electrons?", options: ["Ionic bond", "Covalent bond", "Metallic bond", "Hydrogen bond"], answer: "Ionic bond" },
+    { question: "Avogadro's number is approximately?", options: ["6.022 x 10^23", "6.022 x 10^22", "3.14 x 10^23", "1.67 x 10^27"], answer: "6.022 x 10^23" },
+    { question: "Oxidation is best defined as?", options: ["Loss of electrons", "Gain of electrons", "Loss of protons", "Gain of protons"], answer: "Loss of electrons" },
+    { question: "What is the most reactive group of metals on the periodic table?", options: ["Alkali metals", "Alkaline earth metals", "Transition metals", "Noble gases"], answer: "Alkali metals" },
+    { question: "Which particle has no electric charge?", options: ["Neutron", "Proton", "Electron", "Positron"], answer: "Neutron" },
+    { question: "What does a catalyst do to a chemical reaction?", options: ["Speeds it up without being consumed", "Slows it down", "Changes the products", "Increases the yield"], answer: "Speeds it up without being consumed" },
+    { question: "What is the chemical formula for table salt?", options: ["NaCl", "KCl", "MgCl2", "CaCl2"], answer: "NaCl" },
+    { question: "Which state of matter has a definite volume but no definite shape?", options: ["Liquid", "Solid", "Gas", "Plasma"], answer: "Liquid" },
+  ],
+
+  geography: [
+    { question: "Which is the largest ocean on Earth?", options: ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"], answer: "Pacific Ocean" },
+    { question: "What is the capital city of Australia?", options: ["Canberra", "Sydney", "Melbourne", "Brisbane"], answer: "Canberra" },
+    { question: "Which is the longest river in the world?", options: ["Nile", "Amazon", "Mississippi", "Yangtze"], answer: "Nile" },
+    { question: "Which country has the largest land area in the world?", options: ["Russia", "Canada", "China", "USA"], answer: "Russia" },
+    { question: "On which continent is Zambia located?", options: ["Africa", "Asia", "South America", "Australia"], answer: "Africa" },
+    { question: "What is the highest mountain on Earth?", options: ["Mount Everest", "K2", "Kangchenjunga", "Mont Blanc"], answer: "Mount Everest" },
+    { question: "The deepest point in the ocean is found in which trench?", options: ["Mariana Trench", "Puerto Rico Trench", "Tonga Trench", "Java Trench"], answer: "Mariana Trench" },
+    { question: "What is the capital of Brazil?", options: ["Brasilia", "Rio de Janeiro", "Sao Paulo", "Salvador"], answer: "Brasilia" },
+    { question: "Which country contains the most natural freshwater lakes?", options: ["Canada", "Russia", "Brazil", "USA"], answer: "Canada" },
+    { question: "What is the smallest continent by land area?", options: ["Australia", "Europe", "Antarctica", "South America"], answer: "Australia" },
+    { question: "The Sahara Desert is located primarily in which continent?", options: ["Africa", "Asia", "South America", "Australia"], answer: "Africa" },
+    { question: "Which city is known as the City of Canals?", options: ["Venice", "Amsterdam", "Bangkok", "Stockholm"], answer: "Venice" },
+  ],
+
+  history: [
+    { question: "In what year did World War II end?", options: ["1945", "1944", "1943", "1946"], answer: "1945" },
+    { question: "In what year did humans first land on the Moon?", options: ["1969", "1967", "1971", "1965"], answer: "1969" },
+    { question: "Who was the first President of the United States?", options: ["George Washington", "John Adams", "Thomas Jefferson", "Benjamin Franklin"], answer: "George Washington" },
+    { question: "In what year did the Berlin Wall fall?", options: ["1989", "1991", "1987", "1985"], answer: "1989" },
+    { question: "At which battle was Napoleon Bonaparte finally defeated?", options: ["Battle of Waterloo", "Battle of Leipzig", "Battle of Austerlitz", "Battle of Trafalgar"], answer: "Battle of Waterloo" },
+    { question: "Which ancient wonder of the world is still standing today?", options: ["Great Pyramid of Giza", "Colossus of Rhodes", "Hanging Gardens of Babylon", "Lighthouse of Alexandria"], answer: "Great Pyramid of Giza" },
+    { question: "Zambia gained its independence from Britain in which year?", options: ["1964", "1961", "1966", "1968"], answer: "1964" },
+    { question: "Who is credited with inventing the telephone?", options: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Guglielmo Marconi"], answer: "Alexander Graham Bell" },
+    { question: "In what year did the French Revolution begin?", options: ["1789", "1776", "1799", "1804"], answer: "1789" },
+    { question: "Which African country was the first to gain independence after World War II?", options: ["Ghana", "Nigeria", "Kenya", "Egypt"], answer: "Ghana" },
+    { question: "Who wrote the Communist Manifesto?", options: ["Karl Marx and Friedrich Engels", "Vladimir Lenin", "Leon Trotsky", "Mao Zedong"], answer: "Karl Marx and Friedrich Engels" },
+    { question: "The Roman Empire's capital was which city?", options: ["Rome", "Carthage", "Athens", "Alexandria"], answer: "Rome" },
+  ],
+
+  ict: [
+    { question: "What does CPU stand for?", options: ["Central Processing Unit", "Computer Power Unit", "Central Program Utility", "Core Processing Unit"], answer: "Central Processing Unit" },
+    { question: "What does HTML stand for?", options: ["HyperText Markup Language", "High Transfer Markup Language", "HyperText Modelling Language", "Hyper Terminal Markup Language"], answer: "HyperText Markup Language" },
+    { question: "Who co-founded Microsoft?", options: ["Bill Gates", "Steve Jobs", "Mark Zuckerberg", "Larry Page"], answer: "Bill Gates" },
+    { question: "What does RAM stand for?", options: ["Random Access Memory", "Read And Memorize", "Random Application Memory", "Rapid Access Module"], answer: "Random Access Memory" },
+    { question: "What does URL stand for?", options: ["Uniform Resource Locator", "Universal Reference Link", "Unified Resource Library", "Unique Resource Locator"], answer: "Uniform Resource Locator" },
+    { question: "Who invented the World Wide Web?", options: ["Tim Berners-Lee", "Bill Gates", "Steve Jobs", "Vint Cerf"], answer: "Tim Berners-Lee" },
+    { question: "What does USB stand for?", options: ["Universal Serial Bus", "Unified System Bus", "Universal Storage Base", "User Serial Bridge"], answer: "Universal Serial Bus" },
+    { question: "Which operating system is developed by Apple for Mac computers?", options: ["macOS", "Windows", "Linux", "Android"], answer: "macOS" },
+    { question: "In binary, what does the number 1010 equal in decimal?", options: ["10", "8", "12", "14"], answer: "10" },
+    { question: "What does CSS stand for in web development?", options: ["Cascading Style Sheets", "Computer Style Syntax", "Creative Styling System", "Coded Structure Sheets"], answer: "Cascading Style Sheets" },
+    { question: "Which programming language is primarily used for web interactivity?", options: ["JavaScript", "Python", "Java", "C++"], answer: "JavaScript" },
+    { question: "What is the function of a firewall in computing?", options: ["Blocks unauthorized network access", "Speeds up the processor", "Stores backup data", "Manages RAM usage"], answer: "Blocks unauthorized network access" },
+  ],
+
+  literature: [
+    { question: "Who is the author of the novel '1984'?", options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "Franz Kafka"], answer: "George Orwell" },
+    { question: "Which Shakespeare play features the Danish prince Hamlet?", options: ["Hamlet", "Macbeth", "Othello", "King Lear"], answer: "Hamlet" },
+    { question: "Who wrote 'Pride and Prejudice'?", options: ["Jane Austen", "Charlotte Bronte", "Emily Bronte", "George Eliot"], answer: "Jane Austen" },
+    { question: "Who wrote 'To Kill a Mockingbird'?", options: ["Harper Lee", "Toni Morrison", "Ernest Hemingway", "John Steinbeck"], answer: "Harper Lee" },
+    { question: "In which Italian city is Romeo and Juliet set?", options: ["Verona", "Venice", "Florence", "Rome"], answer: "Verona" },
+    { question: "Who wrote 'Animal Farm'?", options: ["George Orwell", "Aldous Huxley", "John Galsworthy", "Evelyn Waugh"], answer: "George Orwell" },
+    { question: "Who is the author of 'Lord of the Flies'?", options: ["William Golding", "Graham Greene", "Kingsley Amis", "Anthony Burgess"], answer: "William Golding" },
+    { question: "Who wrote 'The Great Gatsby'?", options: ["F. Scott Fitzgerald", "Ernest Hemingway", "William Faulkner", "John Dos Passos"], answer: "F. Scott Fitzgerald" },
+    { question: "Herman Melville's famous novel about a white whale is called?", options: ["Moby-Dick", "Billy Budd", "Typee", "White Jacket"], answer: "Moby-Dick" },
+    { question: "Who wrote 'Things Fall Apart', a foundational African novel?", options: ["Chinua Achebe", "Wole Soyinka", "Ngugi wa Thiong'o", "Ben Okri"], answer: "Chinua Achebe" },
+    { question: "The character Atticus Finch appears in which novel?", options: ["To Kill a Mockingbird", "Of Mice and Men", "The Catcher in the Rye", "Brave New World"], answer: "To Kill a Mockingbird" },
+    { question: "Who wrote 'Don Quixote', considered one of the first modern novels?", options: ["Miguel de Cervantes", "Lope de Vega", "Francisco de Quevedo", "Gongora"], answer: "Miguel de Cervantes" },
+  ],
+
+  physics: [
+    { question: "What is the approximate speed of light in a vacuum?", options: ["3 x 10^8 m/s", "3 x 10^6 m/s", "3 x 10^10 m/s", "3 x 10^5 m/s"], answer: "3 x 10^8 m/s" },
+    { question: "What is the SI unit of force?", options: ["Newton", "Joule", "Watt", "Pascal"], answer: "Newton" },
+    { question: "What does E = mc² represent?", options: ["Mass-energy equivalence", "Kinetic energy formula", "Gravitational potential energy", "Coulomb's law"], answer: "Mass-energy equivalence" },
+    { question: "What is the approximate acceleration due to gravity on Earth's surface?", options: ["9.8 m/s²", "6.7 m/s²", "12.4 m/s²", "8.9 m/s²"], answer: "9.8 m/s²" },
+    { question: "What is the SI unit of electric current?", options: ["Ampere", "Volt", "Ohm", "Watt"], answer: "Ampere" },
+    { question: "What law states that V = IR?", options: ["Ohm's Law", "Faraday's Law", "Newton's Law", "Kirchhoff's Law"], answer: "Ohm's Law" },
+    { question: "A moving object possesses which type of energy?", options: ["Kinetic energy", "Potential energy", "Thermal energy", "Chemical energy"], answer: "Kinetic energy" },
+    { question: "Sound cannot travel through which medium?", options: ["A vacuum", "Water", "Steel", "Air"], answer: "A vacuum" },
+    { question: "What is absolute zero in degrees Celsius?", options: ["-273.15", "-100", "-373.15", "-173.15"], answer: "-273.15" },
+    { question: "Which of Newton's laws states that every action has an equal and opposite reaction?", options: ["Third law", "First law", "Second law", "Fourth law"], answer: "Third law" },
+    { question: "What is the unit of electrical resistance?", options: ["Ohm", "Farad", "Henry", "Tesla"], answer: "Ohm" },
+    { question: "What phenomenon explains why a straw looks bent in water?", options: ["Refraction", "Reflection", "Diffraction", "Dispersion"], answer: "Refraction" },
+  ],
+
+  psychologyfacts: [
+    { question: "The intense fear of spiders is known as?", options: ["Arachnophobia", "Acrophobia", "Claustrophobia", "Entomophobia"], answer: "Arachnophobia" },
+    { question: "Pavlov's famous experiment with dogs demonstrated which type of learning?", options: ["Classical conditioning", "Operant conditioning", "Observational learning", "Latent learning"], answer: "Classical conditioning" },
+    { question: "Which part of the brain is primarily associated with memory formation?", options: ["Hippocampus", "Amygdala", "Cerebellum", "Frontal lobe"], answer: "Hippocampus" },
+    { question: "What is the term for the tendency to help less when others are present?", options: ["Bystander effect", "Social loafing", "Groupthink", "Deindividuation"], answer: "Bystander effect" },
+    { question: "Maslow's highest level of need in his hierarchy is?", options: ["Self-actualization", "Safety", "Esteem", "Love and belonging"], answer: "Self-actualization" },
+    { question: "A placebo effect occurs when?", options: ["An inactive treatment causes real improvement", "Medication works as expected", "Symptoms worsen due to expectation", "A drug is tested double-blind"], answer: "An inactive treatment causes real improvement" },
+    { question: "Cognitive dissonance refers to?", options: ["Discomfort from holding conflicting beliefs", "Memory loss due to trauma", "Difficulty making decisions", "Excessive repetitive thinking"], answer: "Discomfort from holding conflicting beliefs" },
+    { question: "REM in sleep science stands for?", options: ["Rapid Eye Movement", "Relaxed Electrochemical Memory", "Rapid Electroencephalogram Mode", "Rhythmic Eye Modulation"], answer: "Rapid Eye Movement" },
+    { question: "Which psychologist is associated with the theory of psychoanalysis?", options: ["Sigmund Freud", "Carl Jung", "B.F. Skinner", "Abraham Maslow"], answer: "Sigmund Freud" },
+    { question: "The halo effect describes the tendency to?", options: ["Assume overall greatness from one positive trait", "Blame others for your own failures", "Overestimate your own abilities", "Conform to group pressure"], answer: "Assume overall greatness from one positive trait" },
+    { question: "Which part of the brain controls emotions and fear responses?", options: ["Amygdala", "Hippocampus", "Prefrontal cortex", "Parietal lobe"], answer: "Amygdala" },
+    { question: "The Milgram experiment tested people's willingness to?", options: ["Obey authority even against their conscience", "Conform to group opinion", "Act altruistically toward strangers", "Resist peer pressure"], answer: "Obey authority even against their conscience" },
+  ],
+
+  gk: [
+    { question: "How many days are in a leap year?", options: ["366", "365", "367", "364"], answer: "366" },
+    { question: "How many continents are on Earth?", options: ["7", "6", "5", "8"], answer: "7" },
+    { question: "Which is the fastest land animal?", options: ["Cheetah", "Lion", "Pronghorn antelope", "Greyhound"], answer: "Cheetah" },
+    { question: "How many sides does a hexagon have?", options: ["6", "5", "7", "8"], answer: "6" },
+    { question: "Which language has the most native speakers in the world?", options: ["Mandarin Chinese", "Spanish", "English", "Hindi"], answer: "Mandarin Chinese" },
+    { question: "How many planets are in our Solar System?", options: ["8", "9", "7", "10"], answer: "8" },
+    { question: "What is the boiling point of water in degrees Celsius?", options: ["100", "90", "110", "212"], answer: "100" },
+    { question: "How many bones are in the adult human body?", options: ["206", "212", "198", "220"], answer: "206" },
+    { question: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], answer: "Leonardo da Vinci" },
+    { question: "What is the chemical symbol for water?", options: ["H2O", "HO2", "H2O2", "OH"], answer: "H2O" },
+    { question: "How many strings does a standard guitar have?", options: ["6", "4", "5", "7"], answer: "6" },
+    { question: "Which planet is closest to the Sun?", options: ["Mercury", "Venus", "Earth", "Mars"], answer: "Mercury" },
+  ],
+
+};
+
+/* =============================================
+   STATE
+============================================= */
+let username      = null;
+let score         = 0;
+let highScore     = 0;
+let streak        = 0;
+let questionsAsked = 0;
+let questionsRight = 0;
+let currentRankIndex = 0;
+let earnedBadges  = [];
+let subjectScores = {};       // { subjectId: { score, highScore, plays } }
+let playedSubjects = new Set();
+let correctAnswer = null;
+let questionNum   = 0;
+let globalBinData = null;     // full JSONbin record cache
+let saveTimer     = null;
+let isLoggedIn    = false;
+
+/* =============================================
+   DOM REFS
+============================================= */
+const subjectSelect   = document.getElementById('subjectSelect');
+const questionText    = document.getElementById('questionText');
+const optionsGrid     = document.getElementById('optionsGrid');
+const textAnswerRow   = document.getElementById('textAnswerRow');
+const answerInput     = document.getElementById('answerInput');
+const submitBtn       = document.getElementById('submitBtn');
+const feedbackBar     = document.getElementById('feedbackBar');
+const scoreDisplay    = document.getElementById('scoreDisplay');
+const highDisplay     = document.getElementById('highDisplay');
+const qCountDisplay   = document.getElementById('qCountDisplay');
+const accuracyDisplay = document.getElementById('accuracyDisplay');
+const scoreVal        = document.getElementById('scoreVal');
+const highScoreVal    = document.getElementById('highScoreVal');
+const subjectBest     = document.getElementById('subjectBest');
+const rankName        = document.getElementById('rankName');
+const rankSub         = document.getElementById('rankSub');
+const rankFill        = document.getElementById('rankFill');
+const streakNum       = document.getElementById('streakNum');
+const qCounter        = document.getElementById('qCounter');
+const qSubjectTag     = document.getElementById('qSubjectTag');
+const leaderboardCard = document.getElementById('leaderboardCard');
+const badgesGrid      = document.getElementById('badgesGrid');
+const syncStatus      = document.getElementById('syncStatus');
+const loggedInTag     = document.getElementById('loggedInTag');
+const usernameInput   = document.getElementById('usernameInput');
+
+/* =============================================
+   UTILITIES
+============================================= */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+}
+function shuffle(arr) {
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
-/* DOM */
-const questionEl = document.getElementById('question');
-const answerInput = document.getElementById('answer');
-const submitBtn = document.getElementById('submitBtn');
-const subjectSelect = document.getElementById('subject');
-const scoreEl = document.getElementById('score');
-const highScoreEl = document.getElementById('highScore');
-const rankEl = document.getElementById('rank');
-const nextEl = document.getElementById('pointsToNext');
-const feedbackEl = document.getElementById('feedback');
-const leaderboardList = document.getElementById('leaderboardList');
-const loginArea = document.getElementById('loginArea');
-
-/* STATE */
-let ranks = [];
-let currentRankIndex = parseInt(localStorage.getItem('rankIndex')) || 0;
-let score = parseInt(localStorage.getItem('score')) || 0;
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let username = null;
-let correctAnswer = null;
-let gkQuestions = [];
-let subjectQuestions = {};
-const subjectsList = ['advancedmathematics','biology','chemistry','geography','history','ict','literature','physics','psychologyfacts'];
-
-/* HELPERS */
-function setUIEnabled(enabled){
-  answerInput.disabled = !enabled;
-  submitBtn.disabled = !enabled;
-  subjectSelect.disabled = !enabled;
+function getCurrentSubjectId() { return subjectSelect.value || 'gk'; }
+function getCurrentSubjectType() {
+  const s = SUBJECTS.find(x => x.id === getCurrentSubjectId());
+  return s ? s.type : 'mcq';
 }
 
-function updateDisplay(){
-  scoreEl.textContent = score;
-  highScoreEl.textContent = highScore;
-  rankEl.textContent = (ranks[currentRankIndex] && ranks[currentRankIndex].name) ? ranks[currentRankIndex].name : '—';
-  const needed = (ranks[currentRankIndex] && ranks[currentRankIndex].points);
-  nextEl.textContent = (typeof needed === 'number') ? Math.max(0, needed - score) : '—';
+/* =============================================
+   JSONBIN API
+============================================= */
+function isJsonbinConfigured() {
+  return JSONBIN_KEY !== 'YOUR_MASTER_KEY_HERE' && JSONBIN_ID !== 'YOUR_BIN_ID_HERE' && JSONBIN_KEY && JSONBIN_ID;
 }
 
-function sanitizeRankIndex(){
-  if (!Array.isArray(ranks) || ranks.length === 0) { currentRankIndex = 0; return; }
-  if (currentRankIndex < 0 || currentRankIndex >= ranks.length) currentRankIndex = 0;
-}
-function pointsNeeded(idx){ return ranks[idx]?.points ?? Infinity; }
-
-function checkLevelUp(){
-  if (!Array.isArray(ranks) || ranks.length === 0) return;
-  let changed = false;
-  while (currentRankIndex < ranks.length && score >= pointsNeeded(currentRankIndex)){
-    currentRankIndex++;
-    changed = true;
-    if (currentRankIndex >= ranks.length){
-      alert('🎉 Ultimate rank reached!');
-      score = 0;
-      currentRankIndex = 0;
-      break;
-    } else {
-      alert(`⭐ Rank Up: ${ranks[currentRankIndex].name}`);
-    }
-  }
-  if (changed) saveUser(); // async safe
-  updateDisplay();
+function setSyncStatus(state) {
+  syncStatus.className = 'sync-dot ' + state;
+  if (state === 'syncing')  syncStatus.textContent = 'SYNCING';
+  else if (state === 'synced') syncStatus.textContent = 'SYNCED';
+  else syncStatus.textContent = 'OFFLINE';
 }
 
-/* QUESTION GENERATION */
-/* QUESTION GENERATION */
-function generateQuestion(){
-  const subject = subjectSelect.value || 'math';
-
-  /* ===========================
-     MATH
-  ============================ */
-  if (subject === 'math'){
-    answerInput.type = 'number';
-    answerInput.inputMode = 'numeric';
-
-    const max = Math.max(10, 10 + currentRankIndex * 5);
-    const a = Math.floor(Math.random() * max) + 1;
-    const b = Math.floor(Math.random() * max) + 1;
-    const ops = ['+','-','*','/'];
-    const op = ops[Math.floor(Math.random() * ops.length)];
-
-    if (op === '+'){
-      correctAnswer = a + b;
-      questionEl.textContent = `${a} + ${b} = ?`;
-    } else if (op === '-'){
-      correctAnswer = a - b;
-      questionEl.textContent = `${a} - ${b} = ?`;
-    } else if (op === '*'){
-      correctAnswer = a * b;
-      questionEl.textContent = `${a} × ${b} = ?`;
-    } else {
-      correctAnswer = a;
-      questionEl.textContent = `${a * b} ÷ ${b} = ?`;
-    }
-
-    answerInput.value = '';
-    feedbackEl.textContent = '';
-    answerInput.disabled = false;
-    submitBtn.disabled = false;
-    return;
-  }
-
-  /* ===========================
-     GK
-  ============================ */
-  if (subject === 'gk'){
-    answerInput.type = 'text';
-    answerInput.inputMode = 'text';
-
-    if (!Array.isArray(gkQuestions) || gkQuestions.length === 0){
-      questionEl.textContent = "GK questions loading...";
-      correctAnswer = null;
-      answerInput.value = '';
-      feedbackEl.textContent = '';
-      return;
-    }
-
-    const q = gkQuestions[Math.floor(Math.random() * gkQuestions.length)];
-    questionEl.textContent = q.question;
-    correctAnswer = String(q.answer).trim().toLowerCase();
-
-    answerInput.value = '';
-    feedbackEl.textContent = '';
-    answerInput.disabled = false;
-    submitBtn.disabled = true;
-    return;
-  }
-
-  /* ===========================
-     OTHER SUBJECTS (with MCQ)
-  ============================ */
-  const pool = subjectQuestions[subject] || [];
-  if (!Array.isArray(pool) || pool.length === 0){
-    questionEl.textContent = `No questions for ${subject}`;
-    correctAnswer = null;
-    answerInput.disabled = true;
-    submitBtn.disabled = true;
-    feedbackEl.innerHTML = '';
-    return;
-  }
-
-  const q = pool[Math.floor(Math.random() * pool.length)];
-  questionEl.textContent = q.question;
-
-  /* Multiple-choice */
-  if (Array.isArray(q.options) && q.options.length){
-
-    // 🔥 SHUFFLE OPTIONS HERE 🔥
-    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
-
-    correctAnswer = q.answer;
-
-    feedbackEl.innerHTML =
-      shuffled.map(o => `<button class="optionBtn">${o}</button>`).join(' ');
-
-    answerInput.disabled = true;
-    submitBtn.disabled = false;
-
-    document.querySelectorAll('.optionBtn').forEach(btn => {
-      btn.onclick = () => checkAnswer(btn.textContent);
+async function loadBin() {
+  if (!isJsonbinConfigured()) return null;
+  try {
+    const res = await fetch(`${JSONBIN_URL}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
     });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
 
-  } else {
-    /* Text answer questions */
-    correctAnswer = String(q.answer).trim().toLowerCase();
-    feedbackEl.innerHTML = '';
-    answerInput.disabled = false;
-    submitBtn.disabled = false;
+async function saveBin(data) {
+  if (!isJsonbinConfigured()) return;
+  setSyncStatus('syncing');
+  try {
+    await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Bin-Versioning': 'false'
+      },
+      body: JSON.stringify(data)
+    });
+    setSyncStatus('synced');
+    setTimeout(() => setSyncStatus('idle'), 3000);
+  } catch {
+    setSyncStatus('idle');
   }
 }
 
-/* CHECK ANSWER */
-function checkAnswer(opt = null){
-  if (correctAnswer == null){
-    feedbackEl.textContent = "No question ready.";
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(syncPlayerToLeaderboard, 2500);
+}
+
+async function syncPlayerToLeaderboard() {
+  if (!username || !isJsonbinConfigured()) return;
+
+  // Load latest data
+  let record = await loadBin() || { players: {} };
+  if (!record.players) record.players = {};
+
+  // Merge current player data
+  const prev = record.players[username] || {};
+  record.players[username] = {
+    totalHighScore: Math.max(highScore, prev.totalHighScore || 0),
+    rankIndex: currentRankIndex,
+    rankName: RANKS[Math.min(currentRankIndex, RANKS.length - 1)].name,
+    subjects: mergeSubjectScores(prev.subjects || {}),
+    badges: Array.from(new Set([...(prev.badges || []), ...earnedBadges])),
+    lastSeen: new Date().toISOString().slice(0, 10)
+  };
+
+  globalBinData = record;
+  await saveBin(record);
+  renderLeaderboard(record);
+}
+
+function mergeSubjectScores(prevSubjects) {
+  const merged = { ...prevSubjects };
+  for (const [id, data] of Object.entries(subjectScores)) {
+    const prev = merged[id] || { highScore: 0, plays: 0 };
+    merged[id] = {
+      highScore: Math.max(data.highScore, prev.highScore),
+      plays: (data.plays || 0) + (prev.plays || 0)
+    };
+  }
+  return merged;
+}
+
+async function loadLeaderboard() {
+  if (!isJsonbinConfigured()) {
+    leaderboardCard.innerHTML = '<div class="setup-notice"><p><strong>JSONBIN NOT CONFIGURED</strong><br>Add your API key and Bin ID to the CONFIG section of this file to enable the global leaderboard.</p></div>';
+    return;
+  }
+  leaderboardCard.innerHTML = '<div class="sync-dot syncing" style="margin:0;">LOADING</div>';
+  const data = await loadBin();
+  if (!data) {
+    leaderboardCard.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">Could not load leaderboard.</div>';
+    return;
+  }
+  globalBinData = data;
+  renderLeaderboard(data);
+}
+
+function renderLeaderboard(data) {
+  const players = data.players || {};
+  const entries = Object.entries(players).map(([name, info]) => ({
+    name,
+    score: info.totalHighScore || 0,
+    rankName: info.rankName || 'NOVICE',
+    rankIndex: info.rankIndex || 0
+  })).sort((a, b) => b.score - a.score).slice(0, 12);
+
+  if (entries.length === 0) {
+    leaderboardCard.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">No players yet. Be the first.</div>';
     return;
   }
 
-  const raw = (opt !== null) ? String(opt).trim() : String(answerInput.value || '').trim();
-  if (!raw){
-    feedbackEl.textContent = "Please enter an answer.";
+  const posLabels = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+  const posCls    = ['gold', 'silver', 'bronze', '', '', '', '', '', '', '', '', ''];
+
+  leaderboardCard.innerHTML = entries.map((p, i) => `
+    <div class="lb-entry">
+      <div class="lb-pos ${posCls[i] || ''}">${posLabels[i]}</div>
+      <div class="lb-user ${p.name === username ? 'me' : ''}">${esc(p.name)}</div>
+      <div class="lb-score">${p.score} pts</div>
+      <div class="lb-rank-name">${esc(p.rankName)}</div>
+    </div>
+  `).join('');
+}
+
+/* =============================================
+   LOCAL STORAGE PERSISTENCE
+============================================= */
+function saveLocal() {
+  try {
+    localStorage.setItem('g101_username', username || '');
+    localStorage.setItem('g101_score', String(score));
+    localStorage.setItem('g101_highScore', String(highScore));
+    localStorage.setItem('g101_rank', String(currentRankIndex));
+    localStorage.setItem('g101_badges', JSON.stringify(earnedBadges));
+    localStorage.setItem('g101_subjectScores', JSON.stringify(subjectScores));
+    localStorage.setItem('g101_streak', String(streak));
+    localStorage.setItem('g101_subject', getCurrentSubjectId());
+  } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    username           = localStorage.getItem('g101_username') || null;
+    score              = parseInt(localStorage.getItem('g101_score'))     || 0;
+    highScore          = parseInt(localStorage.getItem('g101_highScore')) || 0;
+    currentRankIndex   = parseInt(localStorage.getItem('g101_rank'))      || 0;
+    streak             = parseInt(localStorage.getItem('g101_streak'))    || 0;
+    earnedBadges       = JSON.parse(localStorage.getItem('g101_badges')  || '[]');
+    subjectScores      = JSON.parse(localStorage.getItem('g101_subjectScores') || '{}');
+    const savedSubject = localStorage.getItem('g101_subject');
+    if (savedSubject) subjectSelect.value = savedSubject;
+  } catch(e) {}
+}
+
+/* =============================================
+   DISPLAY UPDATES
+============================================= */
+function updateDisplay() {
+  // Scores
+  scoreDisplay.textContent = score;
+  highDisplay.textContent  = highScore;
+  scoreVal.textContent     = score;
+  highScoreVal.textContent = highScore;
+  qCountDisplay.textContent = questionsAsked;
+
+  const acc = questionsAsked > 0 ? Math.round((questionsRight / questionsAsked) * 100) + '%' : '—';
+  accuracyDisplay.textContent = acc;
+
+  // Subject best
+  const sid = getCurrentSubjectId();
+  const sb = subjectScores[sid];
+  subjectBest.textContent = sb ? sb.highScore : 0;
+
+  // Streak
+  streakNum.textContent = streak;
+
+  // Rank
+  const rank = RANKS[Math.min(currentRankIndex, RANKS.length - 1)];
+  const prevPts = currentRankIndex > 0 ? RANKS[currentRankIndex - 1].points : 0;
+  const nextPts = rank.points === Infinity ? prevPts + 1000 : rank.points;
+  const progress = rank.points === Infinity ? 100 : Math.min(100, Math.round(((score - prevPts) / (nextPts - prevPts)) * 100));
+  rankName.textContent = rank.name;
+  const ptsToNext = rank.points === Infinity ? 'MAX RANK' : `${Math.max(0, rank.points - score)} pts to next`;
+  rankSub.textContent  = ptsToNext;
+  rankFill.style.width = progress + '%';
+
+  // Badges
+  renderBadges();
+}
+
+function renderBadges() {
+  badgesGrid.innerHTML = BADGE_DEFS.map(b => {
+    const earned = earnedBadges.includes(b.id);
+    return `<div class="badge-chip ${earned ? 'earned' : 'locked'}" title="${esc(b.desc)}">${esc(b.label)}</div>`;
+  }).join('');
+}
+
+/* =============================================
+   RANK UP SYSTEM
+============================================= */
+function checkRankUp() {
+  let advanced = false;
+  while (currentRankIndex < RANKS.length - 1 && score >= RANKS[currentRankIndex].points) {
+    currentRankIndex++;
+    advanced = true;
+    showRankUpPopup(RANKS[currentRankIndex].name);
+
+    // Rank badges
+    if (RANKS[currentRankIndex].name === 'SCHOLAR') awardBadge('SCHOLAR_RANK');
+    if (RANKS[currentRankIndex].name === 'MASTER')  awardBadge('MASTER_CLASS');
+  }
+  return advanced;
+}
+
+function showRankUpPopup(name) {
+  const el = document.createElement('div');
+  el.className = 'rankup-popup';
+  el.innerHTML = `
+    <div class="rankup-box">
+      <div class="rankup-eyebrow">Rank Achieved</div>
+      <div class="rankup-name">${esc(name)}</div>
+      <button class="btn btn-primary" onclick="this.closest('.rankup-popup').remove()">CONTINUE</button>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+/* =============================================
+   ACHIEVEMENT SYSTEM
+============================================= */
+function awardBadge(id) {
+  if (earnedBadges.includes(id)) return;
+  earnedBadges.push(id);
+  const def = BADGE_DEFS.find(b => b.id === id);
+  if (def) showBadgePopup(def.label);
+  saveLocal();
+}
+
+function showBadgePopup(label) {
+  const existing = document.querySelectorAll('.badge-popup');
+  existing.forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'badge-popup';
+  el.innerHTML = `<div class="badge-popup-label">Badge Unlocked</div><div class="badge-popup-name">${esc(label)}</div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function checkBadges() {
+  if (score >= 1)    awardBadge('FIRST_ANSWER');
+  if (streak >= 3)   awardBadge('ON_A_ROLL');
+  if (streak >= 5)   awardBadge('HOT_STREAK');
+  if (streak >= 10)  awardBadge('UNSTOPPABLE');
+  if (score >= 100)  awardBadge('CENTURION');
+  if (score >= 500)  awardBadge('FIVE_HUNDRED');
+  if (score >= 1000) awardBadge('THOUSANDAIRE');
+  if (playedSubjects.size >= 5) awardBadge('POLYMATH');
+
+  // Subject-based
+  const sid = getCurrentSubjectId();
+  const ss = subjectScores[sid];
+  if (ss) {
+    if (ss.highScore >= 50)  awardBadge('SUBJECT_ACE');
+    if (ss.highScore >= 200) awardBadge('DEDICATED');
+  }
+}
+
+/* =============================================
+   QUESTION GENERATION
+============================================= */
+function generateMathQuestion() {
+  const max = Math.max(10, 10 + currentRankIndex * 5);
+  const a = Math.floor(Math.random() * max) + 1;
+  const b = Math.floor(Math.random() * max) + 1;
+  const ops = ['+', '-', '*', '/'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+  answerInput.type = 'number';
+  answerInput.inputMode = 'numeric';
+
+  let q, ans;
+  if (op === '+') { q = `${a} + ${b} = ?`; ans = a + b; }
+  else if (op === '-') { q = `${a} - ${b} = ?`; ans = a - b; }
+  else if (op === '*') { q = `${a} x ${b} = ?`; ans = a * b; }
+  else { q = `${a * b} / ${b} = ?`; ans = a; }
+
+  questionText.textContent = q;
+  correctAnswer = ans;
+  optionsGrid.style.display = 'none';
+  textAnswerRow.style.display = 'flex';
+  answerInput.value = '';
+  answerInput.disabled = false;
+  submitBtn.disabled = false;
+}
+
+function generateAdvMathQuestion() {
+  const difficulty = Math.max(1, currentRankIndex);
+  const ops = ['square', 'cube', 'percent', 'sqrt'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+  answerInput.type = 'number';
+  answerInput.inputMode = 'numeric';
+
+  let q, ans;
+  if (op === 'square') {
+    const n = Math.floor(Math.random() * (5 + difficulty * 2)) + 2;
+    q = `${n}² = ?`; ans = n * n;
+  } else if (op === 'cube') {
+    const n = Math.floor(Math.random() * (3 + difficulty)) + 2;
+    q = `${n}³ = ?`; ans = n * n * n;
+  } else if (op === 'percent') {
+    const pct = [10, 20, 25, 50, 5, 15][Math.floor(Math.random() * 6)];
+    const total = (Math.floor(Math.random() * (10 + difficulty * 5)) + 2) * 10;
+    q = `${pct}% of ${total} = ?`; ans = (pct / 100) * total;
+  } else {
+    const perfects = [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144];
+    const n = perfects[Math.floor(Math.random() * perfects.length)];
+    q = `sqrt(${n}) = ?`; ans = Math.sqrt(n);
+  }
+
+  questionText.textContent = q;
+  correctAnswer = ans;
+  optionsGrid.style.display = 'none';
+  textAnswerRow.style.display = 'flex';
+  answerInput.value = '';
+  answerInput.disabled = false;
+  submitBtn.disabled = false;
+}
+
+function generateMCQQuestion() {
+  const sid = getCurrentSubjectId();
+  const pool = QUESTION_BANKS[sid];
+  if (!pool || pool.length === 0) {
+    questionText.textContent = `No questions available for this subject.`;
+    correctAnswer = null;
     return;
   }
 
-  let correct = false;
-  if (subjectSelect.value === 'math'){
+  questionNum++;
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  questionText.textContent = q.question;
+  correctAnswer = q.answer;
+
+  const shuffled = shuffle(q.options);
+  optionsGrid.innerHTML = shuffled.map(opt =>
+    `<button class="opt-btn" onclick="checkAnswer(this.textContent)">${esc(opt)}</button>`
+  ).join('');
+  optionsGrid.style.display = 'grid';
+  textAnswerRow.style.display = 'none';
+  feedbackBar.textContent = '';
+  feedbackBar.className = 'feedback-bar';
+}
+
+function generateQuestion() {
+  if (!isLoggedIn) return;
+  questionNum++;
+  qCounter.textContent = `Q ${String(questionNum).padStart(3, '0')}`;
+
+  const sid = getCurrentSubjectId();
+  const sub = SUBJECTS.find(s => s.id === sid);
+  qSubjectTag.textContent = sub ? sub.label.toUpperCase() : sid.toUpperCase();
+  playedSubjects.add(sid);
+
+  feedbackBar.textContent = '';
+  feedbackBar.className = 'feedback-bar';
+  questionText.style.opacity = '0';
+  setTimeout(() => {
+    questionText.style.opacity = '1';
+    const type = getCurrentSubjectType();
+    if (type === 'math')      generateMathQuestion();
+    else if (type === 'adv-math') generateAdvMathQuestion();
+    else                      generateMCQQuestion();
+  }, 150);
+}
+
+/* =============================================
+   CHECK ANSWER
+============================================= */
+function checkAnswer(opt = null) {
+  if (correctAnswer === null) { feedbackBar.textContent = 'No question loaded.'; return; }
+
+  const raw = opt !== null ? String(opt).trim() : String(answerInput.value || '').trim();
+  if (!raw) { feedbackBar.textContent = 'Enter an answer first.'; return; }
+
+  const type = getCurrentSubjectType();
+  let correct;
+
+  if (type === 'math' || type === 'adv-math') {
     const val = Number(raw);
-    if (Number.isNaN(val)){ feedbackEl.textContent = "Enter a valid number."; return; }
-    correct = val === correctAnswer;
+    if (isNaN(val)) { feedbackBar.textContent = 'Enter a valid number.'; return; }
+    correct = Math.abs(val - Number(correctAnswer)) < 0.01;
   } else {
     correct = raw.toLowerCase() === String(correctAnswer).toLowerCase();
   }
 
-  feedbackEl.textContent = correct ? "✅ Correct!" : `❌ Wrong! Answer: ${correctAnswer}`;
+  questionsAsked++;
 
-  if (correct) score++;
-  highScore = Math.max(highScore, score);
+  // Highlight MCQ buttons
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === String(correctAnswer)) btn.classList.add('correct');
+    else if (btn.textContent === raw && !correct) btn.classList.add('wrong');
+  });
+  if (textAnswerRow.style.display !== 'none') {
+    answerInput.disabled = true;
+    submitBtn.disabled = true;
+  }
 
-  // update UI & possibly level up
+  if (correct) {
+    questionsRight++;
+    score++;
+    streak++;
+    highScore = Math.max(highScore, score);
+    feedbackBar.textContent  = 'Correct.';
+    feedbackBar.className    = 'feedback-bar correct-fb';
+
+    // Streak bump animation
+    streakNum.classList.add('bump');
+    setTimeout(() => streakNum.classList.remove('bump'), 200);
+
+    // Update subject score
+    const sid = getCurrentSubjectId();
+    if (!subjectScores[sid]) subjectScores[sid] = { score: 0, highScore: 0, plays: 0 };
+    subjectScores[sid].score++;
+    subjectScores[sid].highScore = Math.max(subjectScores[sid].highScore, subjectScores[sid].score);
+    subjectScores[sid].plays++;
+
+  } else {
+    streak = 0;
+    feedbackBar.textContent  = `Wrong. Answer: ${correctAnswer}`;
+    feedbackBar.className    = 'feedback-bar wrong-fb';
+
+    // Reset subject session score
+    const sid = getCurrentSubjectId();
+    if (subjectScores[sid]) subjectScores[sid].score = 0;
+  }
+
+  checkRankUp();
+  checkBadges();
   updateDisplay();
-  checkLevelUp();
+  saveLocal();
+  scheduleSave();
 
-  // persist asynchronously (local + server)
-  saveUser();
-
-  // next question after short pause
   setTimeout(() => {
-    feedbackEl.innerHTML = '';
+    feedbackBar.textContent = '';
+    feedbackBar.className   = 'feedback-bar';
     generateQuestion();
-  }, 1200);
+  }, 1400);
 }
 
-/* SAVE USER (single clean implementation) */
-async function saveUser(){
-  // Save locally first
-  try {
-    localStorage.setItem('score', String(score));
-    localStorage.setItem('highScore', String(highScore));
-    localStorage.setItem('rankIndex', String(currentRankIndex));
-  } catch (e) {
-    console.warn('localStorage save failed', e);
-  }
+/* =============================================
+   LOGIN / LOGOUT
+============================================= */
+function loginUser() {
+  const v = String(usernameInput.value || '').trim();
+  if (!v) { usernameInput.focus(); return; }
+  if (v.length < 2) { feedbackBar.textContent = 'Username must be at least 2 characters.'; return; }
 
-  // Only update server if user logged in
-  if (!username) return;
+  username  = v;
+  isLoggedIn = true;
+  localStorage.setItem('g101_username', username);
+  loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
+  usernameInput.style.display = 'none';
+  document.querySelector('.btn-row').style.display = 'none';
 
-  const payload = {
-    username: username,
-    score: highScore,            // send highScore so leaderboard shows best
-    rankIndex: currentRankIndex
-  };
+  subjectSelect.disabled = false;
+  setSyncStatus('idle');
 
-  try {
-    const res = await fetch('/update-score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      console.warn('Server returned', res.status);
-      return;
-    }
-    const json = await res.json();
-    console.log('Saved on server:', json);
-    // refresh leaderboard when server confirms
-    loadLeaderboard();
-  } catch (err) {
-    console.error('Failed to save score to server:', err);
-  }
-}
-
-/* LOAD JSON helper */
-async function fetchJSON(path){
-  try {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(`${path} not found (${res.status})`);
-    return await res.json();
-  } catch (err) {
-    console.warn(err);
-    return [];
-  }
-}
-
-/* LOAD QUESTION FILES */
-async function loadAllQuestions(){
-  // GK (single file in public)
-  gkQuestions = await fetchJSON(GK_PATH);
-
-  // subjects from folder
-  for (const sub of subjectsList){
-    subjectQuestions[sub] = await fetchJSON(`${SUBJECTS_FOLDER}/${sub}.json`);
-  }
-
-  setUIEnabled(true);
+  // Register / upsert on leaderboard
+  syncPlayerToLeaderboard();
   generateQuestion();
-}
-
-/* LEADERBOARD loader */
-function loadLeaderboard(){
-  fetch('/leaderboard')
-    .then(r => {
-      if (!r.ok) throw new Error('leaderboard endpoint error ' + r.status);
-      return r.json();
-    })
-    .then(data => {
-      // Clear old entries (heading is in HTML)
-      leaderboardList.innerHTML = '';
-
-      // server returns object { username: { highScore, currentRankIndex }, ... }
-      const arr = Object.entries(data || {}).map(([name, info]) => ({
-        username: name,
-        highScore: Number(info?.highScore) || 0,
-        rankIndex: Number(info?.currentRankIndex) || 0
-      }));
-
-      // sort desc
-      arr.sort((a,b) => b.highScore - a.highScore);
-
-      if (arr.length === 0) {
-        leaderboardList.innerHTML = '<li>No players yet.</li>';
-        return;
-      }
-
-      arr.forEach((u, i) => {
-        let pos;
-        if (i === 0) pos = '🥇';
-        else if (i === 1) pos = '🥈';
-        else if (i === 2) pos = '🥉';
-        else pos = (i + 1) + '.';
-
-        const li = document.createElement('li');
-        li.style.padding = '6px 0';
-        li.innerHTML = `<div>${pos} <strong>${escapeHtml(u.username)}</strong> — ${u.highScore} pts — Rank: ${escapeHtml(ranks[u.rankIndex]?.name || '—')}</div>`;
-        leaderboardList.appendChild(li);
-
-        if (i < arr.length - 1) {
-          const sep = document.createElement('div');
-          sep.style.width = '80%';
-          sep.style.height = '1px';
-          sep.style.background = '#ccc';
-          sep.style.margin = '6px auto';
-          leaderboardList.appendChild(sep);
-        }
-      });
-    })
-    .catch(err => {
-      console.error('Leaderboard error:', err);
-      leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
-    });
-}
-
-/* small helper to avoid HTML injection in usernames */
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
-}
-
-/* LOAD RANKS THEN START */
-async function fetchRanksThenStart(){
-  ranks = await fetchJSON(RANKS_PATH);
-  sanitizeRankIndex();
-
-  // restore saved subject if present
-  const saved = localStorage.getItem('quiz_subject');
-  if (saved && Array.from(subjectSelect.options).some(o => o.value === saved)) subjectSelect.value = saved;
-
   updateDisplay();
-  // load questions and leaderboard (do these in parallel)
-  await Promise.all([ loadAllQuestions(), loadLeaderboard() ]);
 }
 
-/* LOGIN UI */
-function createLoginControls(){
-  loginArea.innerHTML = '';
-  const saved = localStorage.getItem('quiz_username') || '';
-  const input = document.createElement('input');
-  input.placeholder = 'username';
-  input.value = saved;
-  input.style.padding = '8px';
-  const btn = document.createElement('button');
-  btn.textContent = saved ? 'Use saved / Switch' : 'Login';
+function logoutUser() {
+  username   = null;
+  isLoggedIn = false;
+  localStorage.removeItem('g101_username');
+  loggedInTag.innerHTML = '';
+  usernameInput.style.display = '';
+  usernameInput.value = '';
+  document.querySelector('.btn-row').style.display = '';
+  subjectSelect.disabled = true;
+  questionText.textContent = 'Login to start playing.';
+  optionsGrid.style.display = 'none';
+  textAnswerRow.style.display = 'none';
+  qCounter.textContent = 'Q — / —';
+  setSyncStatus('idle');
+}
 
-  btn.onclick = () => {
-    const v = String(input.value || '').trim();
-    if (!v) { alert('Enter a username'); return; }
-    username = v;
-    localStorage.setItem('quiz_username', username);
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
+/* =============================================
+   SUBJECT CHANGE
+============================================= */
+function onSubjectChange() {
+  const sid = getCurrentSubjectId();
+  localStorage.setItem('g101_subject', sid);
+  if (isLoggedIn) {
+    // Reset session score for new subject (but keep highScore)
+    score  = 0;
+    streak = 0;
+    questionsAsked = 0;
+    questionsRight = 0;
+    if (subjectScores[sid]) subjectScores[sid].score = 0;
+    updateDisplay();
+    generateQuestion();
+  }
+}
 
-    // ✅ ADD THIS LINE
-    registerUserOnServer(username);
+/* =============================================
+   INIT
+============================================= */
+(function init() {
+  // Populate subject selector
+  SUBJECTS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.label;
+    subjectSelect.appendChild(opt);
+  });
 
-    // ensures server has user entry (save current highScore if present)
-    saveUser();
+  // Load local state
+  loadLocal();
+
+  // Restore logged-in state
+  if (username) {
+    isLoggedIn = true;
+    usernameInput.value = username;
+    usernameInput.style.display = 'none';
+    document.querySelector('.btn-row').style.display = 'none';
+    loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
+    subjectSelect.disabled = false;
+    subjectSelect.value = localStorage.getItem('g101_subject') || 'gk';
+  }
+
+  // Check JSONbin config
+  if (!isJsonbinConfigured()) {
+    document.getElementById('setupNotice').style.display = 'block';
+    setSyncStatus('idle');
+  } else {
+    setSyncStatus('idle');
     loadLeaderboard();
-  };
-
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear saved';
-  clearBtn.onclick = () => {
-    localStorage.removeItem('quiz_username');
-    username = null;
-    loginArea.innerHTML = '';
-    createLoginControls();
-    setUIEnabled(false);
-  };
-
-  loginArea.appendChild(input);
-  loginArea.appendChild(btn);
-  loginArea.appendChild(clearBtn);
-
-  // if saved username exists show it
-  if (saved) {
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(saved)}</strong>`;
-    username = saved;
-  }
-}
-
-/* SUBJECT CHANGE persistence */
-subjectSelect.addEventListener('change', () => {
-  localStorage.setItem('quiz_subject', subjectSelect.value);
-  // regenerate question immediately if UI enabled
-  if (!answerInput.disabled) generateQuestion();
-});
-
-/* INIT */
-(function init(){
-  setUIEnabled(false);
-  createLoginControls();
-  // restore local state
-  const s = localStorage.getItem('quiz_username');
-  if (s) { username = s; loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`; }
-
-  /* INIT */
-(function init(){
-  setUIEnabled(false);
-  createLoginControls();
-
-  // restore local state
-  const s = localStorage.getItem('quiz_username');
-  if (s) {
-    username = s;
-    loginArea.innerHTML = `Logged in as: <strong>${escapeHtml(username)}</strong>`;
-
-    // ✅ ADD THIS LINE (correct place)
-    registerUserOnServer(username);
   }
 
-  fetchRanksThenStart();
+  // Key listener for text input
+  answerInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkAnswer();
+  });
+
+  renderBadges();
+  updateDisplay();
+
+  if (isLoggedIn) generateQuestion();
+  else { questionText.textContent = 'Enter your username and login to begin.'; }
+
 })();
-
-/* Register on server so leaderboard shows user immediately */
-async function registerUserOnServer(name) {
-  try {
-    await fetch("/update-score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: name,
-        score: 0,
-        rankIndex: 0
-      })
-    });
-
-    loadLeaderboard(); // refresh immediately
-  } catch (err) {
-    console.error("Register failed:", err);
-  }
-}
-  fetchRanksThenStart();
-})();
-
-/* Enter key to submit */
-answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
 </script>
-
 </body>
 </html>
