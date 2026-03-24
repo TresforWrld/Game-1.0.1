@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 /* =============================================
-   ANICADE GAME 101 — Design System
+   ANICADE GAME 101
    Palette: Burnt Orange / Near-Black / Charcoal / Off-White
    Typography: Oswald + IBM Plex Mono
 ============================================= */
@@ -140,10 +140,7 @@ html, body {
   background: transparent;
   display: inline-block;
 }
-.btn-primary {
-  border-color: var(--burnt);
-  color: var(--burnt);
-}
+.btn-primary { border-color: var(--burnt); color: var(--burnt); }
 .btn-primary:hover { background: var(--burnt); color: var(--black); }
 .btn-ghost {
   border-color: var(--dimmed);
@@ -162,12 +159,8 @@ html, body {
 }
 .logged-in-tag strong { color: var(--burnt); font-weight: 500; }
 
-/* RANK DISPLAY */
-.rank-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+/* RANK */
+.rank-block { display: flex; flex-direction: column; gap: 4px; }
 .rank-name {
   font-size: 1.3rem;
   font-weight: 700;
@@ -195,7 +188,7 @@ html, body {
   transition: width 0.6s ease;
 }
 
-/* STAT ROWS */
+/* STATS */
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -244,11 +237,7 @@ html, body {
 .subject-select option { background: #1A1A1A; }
 
 /* STREAK */
-.streak-display {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
+.streak-display { display: flex; align-items: baseline; gap: 10px; }
 .streak-num {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 2.4rem;
@@ -273,7 +262,6 @@ html, body {
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .q-header {
@@ -376,11 +364,11 @@ html, body {
 }
 .feedback-bar.correct-fb { color: #7AC050; }
 .feedback-bar.wrong-fb   { color: #D45040; }
+.feedback-bar.info-fb    { color: var(--muted); font-style: italic; }
 
 /* SCORE BAR */
 .score-bar {
   display: flex;
-  gap: 0;
   border: 1px solid var(--border);
   background: var(--card);
   margin-bottom: 16px;
@@ -408,7 +396,33 @@ html, body {
 }
 .score-cell-val.accent { color: var(--burnt); }
 
-/* NEW BADGE POPUP */
+/* LOADING STATE */
+.loading-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+.loading-dots span {
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: var(--burnt);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: bounce 1.2s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* BADGE POPUP */
 .badge-popup {
   position: fixed;
   top: 72px;
@@ -434,20 +448,14 @@ html, body {
   letter-spacing: 0.1em;
   color: var(--offwhite);
 }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
 /* RANK UP POPUP */
 .rankup-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.88);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -479,7 +487,7 @@ html, body {
 @keyframes bgIn  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes boxIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* LEADERBOARD PANEL */
+/* LEADERBOARD */
 .lb-entry {
   display: grid;
   grid-template-columns: 28px 1fr auto;
@@ -489,46 +497,17 @@ html, body {
   border-bottom: 1px solid var(--dimmed);
 }
 .lb-entry:last-child { border-bottom: none; }
-.lb-pos {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
+.lb-pos { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.04em; }
 .lb-pos.gold   { color: #C8A020; }
 .lb-pos.silver { color: #8A9AA0; }
 .lb-pos.bronze { color: #A0622A; }
-.lb-user {
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.lb-user { font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lb-user.me { color: var(--burnt); }
-.lb-score {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--offwhite);
-  text-align: right;
-  white-space: nowrap;
-}
-.lb-rank-name {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.55rem;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  grid-column: 2 / 4;
-  margin-top: -4px;
-}
+.lb-score { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--offwhite); text-align: right; white-space: nowrap; }
+.lb-rank-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; color: var(--muted); letter-spacing: 0.08em; grid-column: 2 / 4; margin-top: -4px; }
 
-/* BADGES SECTION */
-.badges-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+/* BADGES */
+.badges-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .badge-chip {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.6rem;
@@ -538,18 +517,10 @@ html, body {
   text-transform: uppercase;
   line-height: 1;
 }
-.badge-chip.earned {
-  border-color: var(--burnt-dk);
-  color: var(--burnt);
-  background: rgba(200, 81, 26, 0.1);
-}
-.badge-chip.locked {
-  border-color: var(--dimmed);
-  color: var(--dimmed);
-  background: transparent;
-}
+.badge-chip.earned { border-color: var(--burnt-dk); color: var(--burnt); background: rgba(200,81,26,0.1); }
+.badge-chip.locked { border-color: var(--dimmed); color: var(--dimmed); background: transparent; }
 
-/* SYNCING INDICATOR */
+/* SYNC STATUS */
 .sync-dot {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.58rem;
@@ -558,18 +529,33 @@ html, body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 10px;
 }
 .sync-dot::before {
   content: '';
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   background: var(--muted);
   border-radius: 50%;
+  flex-shrink: 0;
 }
 .sync-dot.syncing::before { background: var(--burnt); animation: pulse 1s infinite; }
 .sync-dot.synced::before  { background: var(--success); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* SETUP NOTICE */
+.setup-notice {
+  background: rgba(200,81,26,0.08);
+  border: 1px solid var(--burnt-dk);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.setup-notice p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--offwhite);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+.setup-notice strong { color: var(--burnt); }
 
 /* FOOTER */
 .footer {
@@ -582,28 +568,13 @@ html, body {
   gap: 32px;
   padding: 0 24px;
 }
-.footer-text {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--muted);
-  letter-spacing: 0.12em;
-}
-.footer-link {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  transition: color 0.15s;
-}
+.footer-text { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; }
+.footer-link { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; text-decoration: none; transition: color 0.15s; }
 .footer-link:hover { color: var(--offwhite); }
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
+  .layout { grid-template-columns: 1fr; min-height: auto; }
   .panel { border-right: none; border-bottom: 1px solid var(--border); }
   .center-panel { padding: 20px; }
   .options-grid { grid-template-columns: 1fr; }
@@ -623,7 +594,7 @@ html, body {
 
 <header class="hdr">
   <div class="hdr-title">GAME <span>101</span></div>
-  <div id="syncStatus" class="sync-dot">LIVE</div>
+  <div id="syncStatus" class="sync-dot">OFFLINE</div>
   <div class="hdr-brand">
     <strong>ANICADE Tech</strong>
     Knowledge Arena
@@ -631,13 +602,26 @@ html, body {
 </header>
 
 <div class="layout">
+
+  <!-- LEFT PANEL -->
   <aside class="panel">
+
+    <div id="setupNotice" class="setup-notice" style="display:none;">
+      <p>
+        <strong>JSONBIN SETUP</strong><br>
+        1. Visit <strong>jsonbin.io</strong> — create a free account<br>
+        2. Create a bin with <strong>{"players":{}}</strong><br>
+        3. Copy your <strong>Master Key</strong> and <strong>Bin ID</strong><br>
+        4. Paste both in the CONFIG section of this file
+      </p>
+    </div>
+
     <div class="panel-label">Player</div>
     <div class="card" id="loginCard">
       <input class="login-input" id="usernameInput" type="text" placeholder="enter username" maxlength="20" autocomplete="off">
-      <div class="btn-row">
+      <div class="btn-row" id="loginBtnRow">
         <button class="btn btn-primary" onclick="loginUser()">LOGIN</button>
-        <button class="btn btn-ghost" onclick="logoutUser()">CLEAR</button>
+        <button class="btn btn-ghost"   onclick="logoutUser()">CLEAR</button>
       </div>
       <div id="loggedInTag" style="margin-top:10px;"></div>
     </div>
@@ -656,149 +640,1128 @@ html, body {
     <div class="panel-label">Subject</div>
     <div class="card">
       <select class="subject-select" id="subjectSelect" disabled onchange="onSubjectChange()"></select>
+      <div id="loadingBar" class="loading-bar" style="display:none; margin-top:10px;">
+        <span>Loading questions</span>
+        <span class="loading-dots"><span></span><span></span><span></span></span>
+      </div>
     </div>
 
     <div class="panel-label">Session</div>
     <div class="card">
-      <div class="stat-row"><span class="stat-label">Score</span><span class="stat-val accent" id="scoreVal">0</span></div>
-      <div class="stat-row"><span class="stat-label">High Score</span><span class="stat-val" id="highScoreVal">0</span></div>
-      <div class="stat-row"><span class="stat-label">Subject Best</span><span class="stat-val" id="subjectBest">0</span></div>
+      <div class="stat-row">
+        <span class="stat-label">Score</span>
+        <span class="stat-val accent" id="scoreVal">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">High Score</span>
+        <span class="stat-val" id="highScoreVal">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Subject Best</span>
+        <span class="stat-val" id="subjectBest">0</span>
+      </div>
     </div>
 
     <div class="panel-label">Streak</div>
     <div class="card">
-      <div class="streak-display"><div class="streak-num" id="streakNum">0</div><div class="streak-sub">CORRECT<br>IN A ROW</div></div>
+      <div class="streak-display">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-sub">CORRECT<br>IN A ROW</div>
+      </div>
     </div>
+
   </aside>
 
+  <!-- CENTER PANEL -->
   <main class="center-panel">
-    <div class="q-header"><div class="q-counter" id="qCounter">Q — / —</div><div class="q-subject-tag" id="qSubjectTag">SELECT SUBJECT</div></div>
+
+    <div class="q-header">
+      <div class="q-counter" id="qCounter">Q — / —</div>
+      <div class="q-subject-tag" id="qSubjectTag">SELECT SUBJECT</div>
+    </div>
+
     <div class="question-text" id="questionText">Login and select a subject to begin.</div>
+
     <div class="options-grid" id="optionsGrid" style="display:none;"></div>
+
     <div class="text-answer-row" id="textAnswerRow" style="display:none;">
       <input class="answer-input" id="answerInput" type="text" placeholder="Type your answer..." autocomplete="off">
       <button class="btn btn-primary" id="submitBtn" onclick="checkAnswer()">SUBMIT</button>
     </div>
+
     <div class="feedback-bar" id="feedbackBar"></div>
+
     <div class="score-bar">
-      <div class="score-cell"><div class="score-cell-label">Current Score</div><div class="score-cell-val accent" id="scoreDisplay">0</div></div>
-      <div class="score-cell"><div class="score-cell-label">Session High</div><div class="score-cell-val" id="highDisplay">0</div></div>
-      <div class="score-cell"><div class="score-cell-label">Questions</div><div class="score-cell-val" id="qCountDisplay">0</div></div>
-      <div class="score-cell"><div class="score-cell-label">Accuracy</div><div class="score-cell-val" id="accuracyDisplay">—</div></div>
+      <div class="score-cell">
+        <div class="score-cell-label">Current Score</div>
+        <div class="score-cell-val accent" id="scoreDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Session High</div>
+        <div class="score-cell-val" id="highDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Questions</div>
+        <div class="score-cell-val" id="qCountDisplay">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">Accuracy</div>
+        <div class="score-cell-val" id="accuracyDisplay">—</div>
+      </div>
     </div>
+
   </main>
 
+  <!-- RIGHT PANEL -->
   <aside class="panel">
+
     <div class="panel-label">Global Leaderboard</div>
-    <div class="card" id="leaderboardCard"><div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.06em;">Connecting...</div></div>
+    <div class="card" id="leaderboardCard">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--muted);">Connecting...</div>
+    </div>
+
     <div class="panel-label" style="margin-top:4px;">Achievements</div>
-    <div class="card"><div class="badges-grid" id="badgesGrid"></div></div>
+    <div class="card">
+      <div class="badges-grid" id="badgesGrid"></div>
+    </div>
+
   </aside>
+
 </div>
 
 <footer class="footer">
-  <span class="footer-text">&copy; ANICADE Tech 2025 — ZICTA Innovation Programme 2026</span>
-  <a href="mailto:support@anicadetech.com" class="footer-link">Support</a>
-  <a href="mailto:report@anicadetech.com" class="footer-link">Report a Problem</a>
-  <a href="mailto:contact@anicadetech.com" class="footer-link">Contact</a>
+  <span class="footer-text">&copy; ANICADE Tech 2025 — All rights reserved</span>
+  <a href="mailto:support@anicadetech.com"  class="footer-link">Support</a>
+  <a href="mailto:report@anicadetech.com"   class="footer-link">Report a Problem</a>
+  <a href="mailto:contact@anicadetech.com"  class="footer-link">Contact</a>
 </footer>
 
 <script>
 /* =============================================
-   JSONBIN CONFIGURATION (ACTIVE)
+   CONFIG
+   JSONbin: https://jsonbin.io — free account
+   Create a bin with {"players":{}} then paste
+   your Master Key and Bin ID below.
 ============================================= */
-const JSONBIN_KEY = '$2a$10$VJXQzwtVgNhMTIJiiQvpy.hG7XaRD0.H42NyZhKzeLRungeekMmpO';
-const JSONBIN_ID  = '69c24e41c3097a1dd554aac8';
+const JSONBIN_KEY = 'YOUR_MASTER_KEY_HERE';
+const JSONBIN_ID  = 'YOUR_BIN_ID_HERE';
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 
+/* =============================================
+   QUESTION FILE PATHS
+   Questions are loaded from external JSON files.
+   Each file should export an array of objects:
+     { question, options: ["A","B","C","D"], answer }
+   For text-answer (no options), omit options[].
+
+   FALLBACK: If a file can't be fetched, the
+   embedded FALLBACK_QUESTIONS below are used.
+
+   FILE NAMING CONVENTION (relative to this HTML):
+     questions/biology.json
+     questions/chemistry.json
+     ... etc.
+
+   You can change QUESTIONS_BASE_PATH to point
+   anywhere — a CDN, a GitHub Pages path, etc.
+============================================= */
+const QUESTIONS_BASE_PATH = 'questions/';   // trailing slash required
+
+/* =============================================
+   SUBJECTS
+   To add a subject: add an entry here.
+   id       — matches the JSON filename (e.g. "biology" -> questions/biology.json)
+   label    — display name in the dropdown
+   type     — 'mcq' | 'math' | 'adv-math'
+             math and adv-math are generated procedurally (no JSON file needed)
+============================================= */
 const SUBJECTS = [
-  { id: 'math', label: 'Mathematics', type: 'math' },
-  { id: 'advancedmathematics', label: 'Advanced Mathematics', type: 'adv-math' },
-  { id: 'biology', label: 'Biology', type: 'mcq' },
-  { id: 'chemistry', label: 'Chemistry', type: 'mcq' },
-  { id: 'geography', label: 'Geography', type: 'mcq' },
-  { id: 'history', label: 'History', type: 'mcq' },
-  { id: 'ict', label: 'ICT', type: 'mcq' },
-  { id: 'literature', label: 'Literature', type: 'mcq' },
-  { id: 'physics', label: 'Physics', type: 'mcq' },
-  { id: 'psychologyfacts', label: 'Psychology Facts', type: 'mcq' },
-  { id: 'gk', label: 'General Knowledge', type: 'mcq' },
+  { id: 'math',               label: 'Mathematics',          type: 'math'     },
+  { id: 'advancedmathematics',label: 'Advanced Mathematics', type: 'adv-math' },
+  { id: 'biology',            label: 'Biology',              type: 'mcq'      },
+  { id: 'chemistry',          label: 'Chemistry',            type: 'mcq'      },
+  { id: 'geography',          label: 'Geography',            type: 'mcq'      },
+  { id: 'history',            label: 'History',              type: 'mcq'      },
+  { id: 'ict',                label: 'ICT',                  type: 'mcq'      },
+  { id: 'literature',         label: 'Literature',           type: 'mcq'      },
+  { id: 'physics',            label: 'Physics',              type: 'mcq'      },
+  { id: 'psychologyfacts',    label: 'Psychology Facts',     type: 'mcq'      },
+  { id: 'gk',                 label: 'General Knowledge',    type: 'mcq'      },
+  /* ---- Extra subjects — add your JSON files to match ---- */
+  { id: 'economics',          label: 'Economics',            type: 'mcq'      },
+  { id: 'computerscience',    label: 'Computer Science',     type: 'mcq'      },
+  { id: 'zambia',             label: 'Zambia Studies',       type: 'mcq'      },
+  { id: 'english',            label: 'English Language',     type: 'mcq'      },
 ];
 
-const RANKS = [
-  { name: 'NOVICE', points: 50 },
-  { name: 'APPRENTICE', points: 150 },
-  { name: 'SCHOLAR', points: 300 },
-  { name: 'EXPERT', points: 600 },
-  { name: 'MASTER', points: 1000 },
-  { name: 'GRANDMASTER', points: 2000 },
-  { name: 'LEGEND', points: 4000 },
-  { name: 'IMMORTAL', points: Infinity },
-];
-
-const BADGE_DEFS = [
-  { id: 'FIRST_ANSWER', label: 'FIRST ANSWER', desc: 'First correct answer' },
-  { id: 'ON_A_ROLL', label: 'ON A ROLL', desc: '3 correct streak' },
-  { id: 'HOT_STREAK', label: 'HOT STREAK', desc: '5 correct streak' },
-  { id: 'UNSTOPPABLE', label: 'UNSTOPPABLE', desc: '10 correct streak' },
-  { id: 'CENTURION', label: 'CENTURION', desc: '100 total points' },
-  { id: 'FIVE_HUNDRED', label: 'FIVE HUNDRED', desc: '500 total points' },
-  { id: 'THOUSANDAIRE', label: 'THOUSANDAIRE', desc: '1000 total points' },
-  { id: 'SCHOLAR_RANK', label: 'SCHOLAR RANK', desc: 'Reached Scholar rank' },
-  { id: 'MASTER_CLASS', label: 'MASTER CLASS', desc: 'Reached Master rank' },
-  { id: 'POLYMATH', label: 'POLYMATH', desc: 'Played 5 subjects' },
-  { id: 'SUBJECT_ACE', label: 'SUBJECT ACE', desc: '50+ in one subject' },
-  { id: 'DEDICATED', label: 'DEDICATED', desc: '200+ in one subject' },
-];
-
-const QUESTION_BANKS = {
-  biology: [{ question: "What organelle is known as the powerhouse of the cell?", options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi Apparatus"], answer: "Mitochondria" }],
-  chemistry: [{ question: "What is the chemical symbol for Gold?", options: ["Au", "Go", "Gd", "Ag"], answer: "Au" }],
-  geography: [{ question: "Which is the largest ocean on Earth?", options: ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"], answer: "Pacific Ocean" }],
-  history: [{ question: "In what year did World War II end?", options: ["1945", "1944", "1943", "1946"], answer: "1945" }],
-  ict: [{ question: "What does CPU stand for?", options: ["Central Processing Unit", "Computer Power Unit", "Central Program Utility", "Core Processing Unit"], answer: "Central Processing Unit" }],
-  literature: [{ question: "Who is the author of the novel '1984'?", options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "Franz Kafka"], answer: "George Orwell" }],
-  physics: [{ question: "What is the approximate speed of light in a vacuum?", options: ["3 x 10^8 m/s", "3 x 10^6 m/s", "3 x 10^10 m/s", "3 x 10^5 m/s"], answer: "3 x 10^8 m/s" }],
-  psychologyfacts: [{ question: "The intense fear of spiders is known as?", options: ["Arachnophobia", "Acrophobia", "Claustrophobia", "Entomophobia"], answer: "Arachnophobia" }],
-  gk: [{ question: "How many days are in a leap year?", options: ["366", "365", "367", "364"], answer: "366" }],
-  math: [], advancedmathematics: []
+/* =============================================
+   FALLBACK QUESTIONS
+   Used when a subject's JSON file cannot be fetched.
+   Keyed by subject id. Add as many as you like.
+   These are the safety net — the real content
+   lives in the external JSON files.
+============================================= */
+const FALLBACK_QUESTIONS = {
+  biology: [
+    { question: "What organelle is known as the powerhouse of the cell?", options: ["Mitochondria","Nucleus","Ribosome","Golgi Apparatus"], answer: "Mitochondria" },
+    { question: "How many chromosomes does a typical human cell contain?", options: ["23","46","48","64"], answer: "46" },
+    { question: "What process do plants use to convert sunlight into glucose?", options: ["Photosynthesis","Respiration","Transpiration","Fermentation"], answer: "Photosynthesis" },
+    { question: "Which type of cell division produces genetically identical daughter cells?", options: ["Mitosis","Meiosis","Binary fission","Budding"], answer: "Mitosis" },
+    { question: "What enzyme breaks down starch into simpler sugars in the mouth?", options: ["Amylase","Lipase","Protease","Pepsin"], answer: "Amylase" },
+    { question: "Which blood type is the universal donor?", options: ["O Negative","A Positive","AB Positive","B Negative"], answer: "O Negative" },
+    { question: "Which organ produces insulin?", options: ["Pancreas","Liver","Kidneys","Spleen"], answer: "Pancreas" },
+    { question: "What is the primary function of ribosomes?", options: ["Protein synthesis","DNA replication","Energy production","Waste removal"], answer: "Protein synthesis" },
+    { question: "Which gas is released by plants during photosynthesis?", options: ["Oxygen","Carbon dioxide","Nitrogen","Hydrogen"], answer: "Oxygen" },
+    { question: "What carries genetic information from nucleus to ribosomes?", options: ["mRNA","DNA","tRNA","rRNA"], answer: "mRNA" },
+    { question: "The study of heredity and genetic variation is called?", options: ["Genetics","Ecology","Anatomy","Physiology"], answer: "Genetics" },
+    { question: "What is the fluid-filled interior of a cell called?", options: ["Cytoplasm","Nucleoplasm","Protoplasm","Plasma"], answer: "Cytoplasm" },
+  ],
+  chemistry: [
+    { question: "What is the chemical symbol for Gold?", options: ["Au","Go","Gd","Ag"], answer: "Au" },
+    { question: "What is the pH of pure water?", options: ["7","5","9","14"], answer: "7" },
+    { question: "Which gas makes up most of Earth's atmosphere?", options: ["Nitrogen","Oxygen","Carbon dioxide","Argon"], answer: "Nitrogen" },
+    { question: "What is the atomic number of Carbon?", options: ["6","8","12","14"], answer: "6" },
+    { question: "Which bond involves the transfer of electrons?", options: ["Ionic bond","Covalent bond","Metallic bond","Hydrogen bond"], answer: "Ionic bond" },
+    { question: "Avogadro's number is approximately?", options: ["6.022 x 10^23","6.022 x 10^22","3.14 x 10^23","1.67 x 10^27"], answer: "6.022 x 10^23" },
+    { question: "Oxidation is defined as?", options: ["Loss of electrons","Gain of electrons","Loss of protons","Gain of protons"], answer: "Loss of electrons" },
+    { question: "What is the most reactive group of metals?", options: ["Alkali metals","Alkaline earth metals","Transition metals","Noble gases"], answer: "Alkali metals" },
+    { question: "Which particle has no electric charge?", options: ["Neutron","Proton","Electron","Positron"], answer: "Neutron" },
+    { question: "What does a catalyst do?", options: ["Speeds reaction without being consumed","Slows it down","Changes the products","Increases yield"], answer: "Speeds reaction without being consumed" },
+    { question: "Chemical formula for table salt?", options: ["NaCl","KCl","MgCl2","CaCl2"], answer: "NaCl" },
+    { question: "Which state has definite volume but no definite shape?", options: ["Liquid","Solid","Gas","Plasma"], answer: "Liquid" },
+  ],
+  geography: [
+    { question: "Which is the largest ocean on Earth?", options: ["Pacific Ocean","Atlantic Ocean","Indian Ocean","Arctic Ocean"], answer: "Pacific Ocean" },
+    { question: "What is the capital city of Australia?", options: ["Canberra","Sydney","Melbourne","Brisbane"], answer: "Canberra" },
+    { question: "Which is the longest river in the world?", options: ["Nile","Amazon","Mississippi","Yangtze"], answer: "Nile" },
+    { question: "Which country has the largest land area?", options: ["Russia","Canada","China","USA"], answer: "Russia" },
+    { question: "On which continent is Zambia located?", options: ["Africa","Asia","South America","Australia"], answer: "Africa" },
+    { question: "What is the highest mountain on Earth?", options: ["Mount Everest","K2","Kangchenjunga","Mont Blanc"], answer: "Mount Everest" },
+    { question: "The deepest ocean point is in which trench?", options: ["Mariana Trench","Puerto Rico Trench","Tonga Trench","Java Trench"], answer: "Mariana Trench" },
+    { question: "What is the capital of Brazil?", options: ["Brasilia","Rio de Janeiro","Sao Paulo","Salvador"], answer: "Brasilia" },
+    { question: "Which country has the most natural freshwater lakes?", options: ["Canada","Russia","Brazil","USA"], answer: "Canada" },
+    { question: "What is the smallest continent by land area?", options: ["Australia","Europe","Antarctica","South America"], answer: "Australia" },
+    { question: "The Sahara Desert is in which continent?", options: ["Africa","Asia","South America","Australia"], answer: "Africa" },
+    { question: "Which city is known as the City of Canals?", options: ["Venice","Amsterdam","Bangkok","Stockholm"], answer: "Venice" },
+  ],
+  history: [
+    { question: "In what year did World War II end?", options: ["1945","1944","1943","1946"], answer: "1945" },
+    { question: "In what year did humans first land on the Moon?", options: ["1969","1967","1971","1965"], answer: "1969" },
+    { question: "Who was the first President of the United States?", options: ["George Washington","John Adams","Thomas Jefferson","Benjamin Franklin"], answer: "George Washington" },
+    { question: "In what year did the Berlin Wall fall?", options: ["1989","1991","1987","1985"], answer: "1989" },
+    { question: "Napoleon was finally defeated at which battle?", options: ["Battle of Waterloo","Battle of Leipzig","Battle of Austerlitz","Battle of Trafalgar"], answer: "Battle of Waterloo" },
+    { question: "Which ancient wonder is still standing today?", options: ["Great Pyramid of Giza","Colossus of Rhodes","Hanging Gardens","Lighthouse of Alexandria"], answer: "Great Pyramid of Giza" },
+    { question: "Zambia gained independence from Britain in which year?", options: ["1964","1961","1966","1968"], answer: "1964" },
+    { question: "Who is credited with inventing the telephone?", options: ["Alexander Graham Bell","Thomas Edison","Nikola Tesla","Guglielmo Marconi"], answer: "Alexander Graham Bell" },
+    { question: "In what year did the French Revolution begin?", options: ["1789","1776","1799","1804"], answer: "1789" },
+    { question: "Which African country was first to gain independence after WWII?", options: ["Ghana","Nigeria","Kenya","Egypt"], answer: "Ghana" },
+    { question: "Who co-authored the Communist Manifesto?", options: ["Karl Marx and Friedrich Engels","Vladimir Lenin","Leon Trotsky","Mao Zedong"], answer: "Karl Marx and Friedrich Engels" },
+    { question: "The Roman Empire's capital was which city?", options: ["Rome","Carthage","Athens","Alexandria"], answer: "Rome" },
+  ],
+  ict: [
+    { question: "What does CPU stand for?", options: ["Central Processing Unit","Computer Power Unit","Central Program Utility","Core Processing Unit"], answer: "Central Processing Unit" },
+    { question: "What does HTML stand for?", options: ["HyperText Markup Language","High Transfer Markup Language","HyperText Modelling Language","Hyper Terminal Markup Language"], answer: "HyperText Markup Language" },
+    { question: "Who co-founded Microsoft?", options: ["Bill Gates","Steve Jobs","Mark Zuckerberg","Larry Page"], answer: "Bill Gates" },
+    { question: "What does RAM stand for?", options: ["Random Access Memory","Read And Memorize","Random Application Memory","Rapid Access Module"], answer: "Random Access Memory" },
+    { question: "What does URL stand for?", options: ["Uniform Resource Locator","Universal Reference Link","Unified Resource Library","Unique Resource Locator"], answer: "Uniform Resource Locator" },
+    { question: "Who invented the World Wide Web?", options: ["Tim Berners-Lee","Bill Gates","Steve Jobs","Vint Cerf"], answer: "Tim Berners-Lee" },
+    { question: "What does USB stand for?", options: ["Universal Serial Bus","Unified System Bus","Universal Storage Base","User Serial Bridge"], answer: "Universal Serial Bus" },
+    { question: "What OS does Apple use on Mac computers?", options: ["macOS","Windows","Linux","Android"], answer: "macOS" },
+    { question: "In binary, what does 1010 equal in decimal?", options: ["10","8","12","14"], answer: "10" },
+    { question: "What does CSS stand for?", options: ["Cascading Style Sheets","Computer Style Syntax","Creative Styling System","Coded Structure Sheets"], answer: "Cascading Style Sheets" },
+    { question: "Which language is used for web interactivity?", options: ["JavaScript","Python","Java","C++"], answer: "JavaScript" },
+    { question: "What does a firewall do?", options: ["Blocks unauthorized network access","Speeds up the processor","Stores backup data","Manages RAM usage"], answer: "Blocks unauthorized network access" },
+  ],
+  literature: [
+    { question: "Who authored the novel '1984'?", options: ["George Orwell","Aldous Huxley","Ray Bradbury","Franz Kafka"], answer: "George Orwell" },
+    { question: "Which Shakespeare play features Prince Hamlet?", options: ["Hamlet","Macbeth","Othello","King Lear"], answer: "Hamlet" },
+    { question: "Who wrote 'Pride and Prejudice'?", options: ["Jane Austen","Charlotte Bronte","Emily Bronte","George Eliot"], answer: "Jane Austen" },
+    { question: "Who wrote 'To Kill a Mockingbird'?", options: ["Harper Lee","Toni Morrison","Ernest Hemingway","John Steinbeck"], answer: "Harper Lee" },
+    { question: "In which Italian city is Romeo and Juliet set?", options: ["Verona","Venice","Florence","Rome"], answer: "Verona" },
+    { question: "Who wrote 'Animal Farm'?", options: ["George Orwell","Aldous Huxley","John Galsworthy","Evelyn Waugh"], answer: "George Orwell" },
+    { question: "Who authored 'Lord of the Flies'?", options: ["William Golding","Graham Greene","Kingsley Amis","Anthony Burgess"], answer: "William Golding" },
+    { question: "Who wrote 'The Great Gatsby'?", options: ["F. Scott Fitzgerald","Ernest Hemingway","William Faulkner","John Dos Passos"], answer: "F. Scott Fitzgerald" },
+    { question: "Herman Melville's novel about a white whale is called?", options: ["Moby-Dick","Billy Budd","Typee","White Jacket"], answer: "Moby-Dick" },
+    { question: "Who wrote 'Things Fall Apart'?", options: ["Chinua Achebe","Wole Soyinka","Ngugi wa Thiong'o","Ben Okri"], answer: "Chinua Achebe" },
+    { question: "Atticus Finch appears in which novel?", options: ["To Kill a Mockingbird","Of Mice and Men","The Catcher in the Rye","Brave New World"], answer: "To Kill a Mockingbird" },
+    { question: "Who wrote 'Don Quixote'?", options: ["Miguel de Cervantes","Lope de Vega","Francisco de Quevedo","Gongora"], answer: "Miguel de Cervantes" },
+  ],
+  physics: [
+    { question: "Approximate speed of light in a vacuum?", options: ["3 x 10^8 m/s","3 x 10^6 m/s","3 x 10^10 m/s","3 x 10^5 m/s"], answer: "3 x 10^8 m/s" },
+    { question: "What is the SI unit of force?", options: ["Newton","Joule","Watt","Pascal"], answer: "Newton" },
+    { question: "E = mc² represents?", options: ["Mass-energy equivalence","Kinetic energy","Gravitational PE","Coulomb's law"], answer: "Mass-energy equivalence" },
+    { question: "Acceleration due to gravity on Earth?", options: ["9.8 m/s²","6.7 m/s²","12.4 m/s²","8.9 m/s²"], answer: "9.8 m/s²" },
+    { question: "SI unit of electric current?", options: ["Ampere","Volt","Ohm","Watt"], answer: "Ampere" },
+    { question: "What law states V = IR?", options: ["Ohm's Law","Faraday's Law","Newton's Law","Kirchhoff's Law"], answer: "Ohm's Law" },
+    { question: "A moving object possesses which energy?", options: ["Kinetic energy","Potential energy","Thermal energy","Chemical energy"], answer: "Kinetic energy" },
+    { question: "Sound cannot travel through?", options: ["A vacuum","Water","Steel","Air"], answer: "A vacuum" },
+    { question: "Absolute zero in degrees Celsius?", options: ["-273.15","-100","-373.15","-173.15"], answer: "-273.15" },
+    { question: "Every action has an equal and opposite reaction — which law?", options: ["Third law","First law","Second law","Fourth law"], answer: "Third law" },
+    { question: "Unit of electrical resistance?", options: ["Ohm","Farad","Henry","Tesla"], answer: "Ohm" },
+    { question: "Why does a straw look bent in water?", options: ["Refraction","Reflection","Diffraction","Dispersion"], answer: "Refraction" },
+  ],
+  psychologyfacts: [
+    { question: "Intense fear of spiders is called?", options: ["Arachnophobia","Acrophobia","Claustrophobia","Entomophobia"], answer: "Arachnophobia" },
+    { question: "Pavlov's experiment demonstrated which type of learning?", options: ["Classical conditioning","Operant conditioning","Observational learning","Latent learning"], answer: "Classical conditioning" },
+    { question: "Which brain region is primarily associated with memory?", options: ["Hippocampus","Amygdala","Cerebellum","Frontal lobe"], answer: "Hippocampus" },
+    { question: "Tendency to help less when others are present?", options: ["Bystander effect","Social loafing","Groupthink","Deindividuation"], answer: "Bystander effect" },
+    { question: "Maslow's highest level of need is?", options: ["Self-actualization","Safety","Esteem","Love and belonging"], answer: "Self-actualization" },
+    { question: "The placebo effect occurs when?", options: ["Inactive treatment causes real improvement","Medication works as expected","Symptoms worsen","Drug is tested double-blind"], answer: "Inactive treatment causes real improvement" },
+    { question: "Cognitive dissonance is?", options: ["Discomfort from conflicting beliefs","Memory loss from trauma","Difficulty deciding","Excessive repetitive thinking"], answer: "Discomfort from conflicting beliefs" },
+    { question: "REM stands for?", options: ["Rapid Eye Movement","Relaxed Electrochemical Memory","Rapid Electroencephalogram Mode","Rhythmic Eye Modulation"], answer: "Rapid Eye Movement" },
+    { question: "Who is associated with psychoanalysis?", options: ["Sigmund Freud","Carl Jung","B.F. Skinner","Abraham Maslow"], answer: "Sigmund Freud" },
+    { question: "The halo effect describes the tendency to?", options: ["Assume greatness from one positive trait","Blame others for your failures","Overestimate your abilities","Conform to group pressure"], answer: "Assume greatness from one positive trait" },
+    { question: "Which brain part controls fear responses?", options: ["Amygdala","Hippocampus","Prefrontal cortex","Parietal lobe"], answer: "Amygdala" },
+    { question: "Milgram's experiment tested willingness to?", options: ["Obey authority against conscience","Conform to group opinion","Act altruistically","Resist peer pressure"], answer: "Obey authority against conscience" },
+  ],
+  gk: [
+    { question: "How many days in a leap year?", options: ["366","365","367","364"], answer: "366" },
+    { question: "How many continents on Earth?", options: ["7","6","5","8"], answer: "7" },
+    { question: "Fastest land animal?", options: ["Cheetah","Lion","Pronghorn antelope","Greyhound"], answer: "Cheetah" },
+    { question: "How many sides does a hexagon have?", options: ["6","5","7","8"], answer: "6" },
+    { question: "Language with the most native speakers?", options: ["Mandarin Chinese","Spanish","English","Hindi"], answer: "Mandarin Chinese" },
+    { question: "How many planets in our Solar System?", options: ["8","9","7","10"], answer: "8" },
+    { question: "Boiling point of water in Celsius?", options: ["100","90","110","212"], answer: "100" },
+    { question: "How many bones in the adult human body?", options: ["206","212","198","220"], answer: "206" },
+    { question: "Who painted the Mona Lisa?", options: ["Leonardo da Vinci","Michelangelo","Raphael","Donatello"], answer: "Leonardo da Vinci" },
+    { question: "Chemical symbol for water?", options: ["H2O","HO2","H2O2","OH"], answer: "H2O" },
+    { question: "How many strings on a standard guitar?", options: ["6","4","5","7"], answer: "6" },
+    { question: "Which planet is closest to the Sun?", options: ["Mercury","Venus","Earth","Mars"], answer: "Mercury" },
+  ],
+  economics: [
+    { question: "What does GDP stand for?", options: ["Gross Domestic Product","General Domestic Profit","Gross Demand Percentage","General Development Plan"], answer: "Gross Domestic Product" },
+    { question: "Inflation is best described as?", options: ["Rise in general price levels","Decrease in money supply","Rise in unemployment","Fall in interest rates"], answer: "Rise in general price levels" },
+    { question: "What is a monopoly?", options: ["One seller dominates the market","Many sellers compete freely","Government controls prices","Two firms share the market"], answer: "One seller dominates the market" },
+    { question: "Supply and demand curves intersect at?", options: ["Equilibrium point","Break-even point","Marginal cost","Consumer surplus"], answer: "Equilibrium point" },
+    { question: "What is opportunity cost?", options: ["Value of the next best alternative forgone","Total cost of production","Profit after expenses","Fixed cost of a project"], answer: "Value of the next best alternative forgone" },
+    { question: "A budget deficit occurs when?", options: ["Government spending exceeds revenue","Revenue exceeds spending","Exports exceed imports","Inflation falls below target"], answer: "Government spending exceeds revenue" },
+    { question: "What does a central bank primarily control?", options: ["Monetary policy","Fiscal policy","Trade policy","Foreign aid"], answer: "Monetary policy" },
+    { question: "Which economic system relies entirely on market forces?", options: ["Free market economy","Command economy","Mixed economy","Traditional economy"], answer: "Free market economy" },
+  ],
+  computerscience: [
+    { question: "What is an algorithm?", options: ["Step-by-step set of instructions","A programming language","A type of hardware","A database query"], answer: "Step-by-step set of instructions" },
+    { question: "What does OOP stand for?", options: ["Object-Oriented Programming","Open Operational Process","Ordered Output Protocol","Objective Operating Procedure"], answer: "Object-Oriented Programming" },
+    { question: "What is the function of an operating system?", options: ["Manages hardware and software resources","Processes database queries","Designs user interfaces","Translates programming languages"], answer: "Manages hardware and software resources" },
+    { question: "In Big O notation, O(n) represents?", options: ["Linear time complexity","Constant time","Quadratic time","Logarithmic time"], answer: "Linear time complexity" },
+    { question: "What does SQL stand for?", options: ["Structured Query Language","Simple Query Logic","Standard Queue Language","Secure Query Layer"], answer: "Structured Query Language" },
+    { question: "A compiler does what?", options: ["Translates source code to machine code","Runs code line by line","Manages memory allocation","Handles network requests"], answer: "Translates source code to machine code" },
+    { question: "What is recursion in programming?", options: ["A function that calls itself","A loop that runs indefinitely","A method to sort arrays","A type of inheritance"], answer: "A function that calls itself" },
+    { question: "What does API stand for?", options: ["Application Programming Interface","Automated Process Integration","Advanced Programming Index","Application Process Interpreter"], answer: "Application Programming Interface" },
+  ],
+  zambia: [
+    { question: "What is the capital city of Zambia?", options: ["Lusaka","Ndola","Livingstone","Kitwe"], answer: "Lusaka" },
+    { question: "Zambia gained independence in which year?", options: ["1964","1961","1966","1968"], answer: "1964" },
+    { question: "Who was Zambia's first president?", options: ["Kenneth Kaunda","Frederick Chiluba","Levy Mwanawasa","Rupiah Banda"], answer: "Kenneth Kaunda" },
+    { question: "What is Zambia's national currency?", options: ["Zambian Kwacha","Zambian Shilling","Zambian Dollar","Zambian Rand"], answer: "Zambian Kwacha" },
+    { question: "Victoria Falls is located on which river?", options: ["Zambezi River","Congo River","Kafue River","Luangwa River"], answer: "Zambezi River" },
+    { question: "Zambia is bordered by how many countries?", options: ["8","6","7","5"], answer: "8" },
+    { question: "What is Zambia's main export commodity?", options: ["Copper","Gold","Tobacco","Coffee"], answer: "Copper" },
+    { question: "Which lake forms part of Zambia's border with Tanzania?", options: ["Lake Tanganyika","Lake Malawi","Lake Victoria","Lake Bangweulu"], answer: "Lake Tanganyika" },
+  ],
+  english: [
+    { question: "Which part of speech modifies a noun?", options: ["Adjective","Adverb","Conjunction","Preposition"], answer: "Adjective" },
+    { question: "A synonym for 'verbose' is?", options: ["Wordy","Concise","Silent","Abrupt"], answer: "Wordy" },
+    { question: "The active voice of 'The cake was eaten by John' is?", options: ["John ate the cake","John eats the cake","John had eaten the cake","The cake John ate"], answer: "John ate the cake" },
+    { question: "What is a homophone?", options: ["Words that sound the same but differ in meaning","Words with opposite meanings","Words with the same spelling","Words borrowed from another language"], answer: "Words that sound the same but differ in meaning" },
+    { question: "Identify the conjunction: 'She studied hard, yet she failed.'", options: ["yet","she","hard","studied"], answer: "yet" },
+    { question: "What is an oxymoron?", options: ["Two contradictory words together","A figure of speech using exaggeration","A comparison using 'like' or 'as'","Attributing human traits to non-human things"], answer: "Two contradictory words together" },
+    { question: "The plural of 'criterion' is?", options: ["Criteria","Criterions","Criterias","Criterium"], answer: "Criteria" },
+    { question: "What does the prefix 'anti-' mean?", options: ["Against","Before","After","Together"], answer: "Against" },
+  ],
 };
-for (let sub of ['biology','chemistry','geography','history','ict','literature','physics','psychologyfacts','gk']) {
-  while(QUESTION_BANKS[sub].length < 12) QUESTION_BANKS[sub].push(...QUESTION_BANKS[sub]);
+
+/* =============================================
+   RANKS SYSTEM
+   Add/remove/reorder ranks freely.
+   Last rank should have points: Infinity.
+============================================= */
+const RANKS = [
+  { name: 'NOVICE',       points: 50   },
+  { name: 'APPRENTICE',   points: 150  },
+  { name: 'SCHOLAR',      points: 300  },
+  { name: 'EXPERT',       points: 600  },
+  { name: 'MASTER',       points: 1000 },
+  { name: 'GRANDMASTER',  points: 2000 },
+  { name: 'LEGEND',       points: 4000 },
+  { name: 'IMMORTAL',     points: Infinity },
+];
+
+/* =============================================
+   ACHIEVEMENT BADGES
+   Add badges freely — just add an entry here
+   and trigger awardBadge(id) anywhere in the code.
+============================================= */
+const BADGE_DEFS = [
+  { id: 'FIRST_ANSWER',  label: 'FIRST ANSWER',  desc: 'Answered your first question correctly' },
+  { id: 'ON_A_ROLL',     label: 'ON A ROLL',     desc: '3 correct answers in a row' },
+  { id: 'HOT_STREAK',    label: 'HOT STREAK',    desc: '5 correct answers in a row' },
+  { id: 'UNSTOPPABLE',   label: 'UNSTOPPABLE',   desc: '10 correct answers in a row' },
+  { id: 'CENTURION',     label: 'CENTURION',     desc: 'Reached 100 total points' },
+  { id: 'FIVE_HUNDRED',  label: 'FIVE HUNDRED',  desc: 'Reached 500 total points' },
+  { id: 'THOUSANDAIRE',  label: 'THOUSANDAIRE',  desc: 'Reached 1000 total points' },
+  { id: 'SCHOLAR_RANK',  label: 'SCHOLAR RANK',  desc: 'Achieved the Scholar rank' },
+  { id: 'MASTER_CLASS',  label: 'MASTER CLASS',  desc: 'Achieved the Master rank' },
+  { id: 'POLYMATH',      label: 'POLYMATH',      desc: 'Played 5 or more different subjects' },
+  { id: 'SUBJECT_ACE',   label: 'SUBJECT ACE',   desc: 'Scored 50+ points in one subject' },
+  { id: 'DEDICATED',     label: 'DEDICATED',     desc: 'Scored 200+ points in one subject' },
+  { id: 'COMPLETIONIST', label: 'COMPLETIONIST', desc: 'Played every available subject at least once' },
+];
+
+/* =============================================
+   STATE
+============================================= */
+let username         = null;
+let isLoggedIn       = false;
+let score            = 0;
+let highScore        = 0;
+let streak           = 0;
+let questionsAsked   = 0;
+let questionsRight   = 0;
+let questionNum      = 0;
+let currentRankIndex = 0;
+let correctAnswer    = null;
+let earnedBadges     = [];
+let subjectScores    = {};
+let playedSubjects   = new Set();
+let globalBinData    = null;
+let saveTimer        = null;
+let nextQuestionTimer = null;
+let isAnswering      = false;
+
+// Question store: loaded from JSON files, keyed by subject id
+const loadedQuestions = {};
+// Shuffled decks per subject — prevents repeat questions
+const questionDecks   = {};
+
+/* =============================================
+   DOM REFS
+============================================= */
+const subjectSelect   = document.getElementById('subjectSelect');
+const questionText    = document.getElementById('questionText');
+const optionsGrid     = document.getElementById('optionsGrid');
+const textAnswerRow   = document.getElementById('textAnswerRow');
+const answerInput     = document.getElementById('answerInput');
+const submitBtn       = document.getElementById('submitBtn');
+const feedbackBar     = document.getElementById('feedbackBar');
+const scoreDisplay    = document.getElementById('scoreDisplay');
+const highDisplay     = document.getElementById('highDisplay');
+const qCountDisplay   = document.getElementById('qCountDisplay');
+const accuracyDisplay = document.getElementById('accuracyDisplay');
+const scoreVal        = document.getElementById('scoreVal');
+const highScoreVal    = document.getElementById('highScoreVal');
+const subjectBest     = document.getElementById('subjectBest');
+const rankName        = document.getElementById('rankName');
+const rankSub         = document.getElementById('rankSub');
+const rankFill        = document.getElementById('rankFill');
+const streakNum       = document.getElementById('streakNum');
+const qCounter        = document.getElementById('qCounter');
+const qSubjectTag     = document.getElementById('qSubjectTag');
+const leaderboardCard = document.getElementById('leaderboardCard');
+const badgesGrid      = document.getElementById('badgesGrid');
+const syncStatus      = document.getElementById('syncStatus');
+const loggedInTag     = document.getElementById('loggedInTag');
+const usernameInput   = document.getElementById('usernameInput');
+const loginBtnRow     = document.getElementById('loginBtnRow');
+const loadingBar      = document.getElementById('loadingBar');
+
+/* =============================================
+   UTILITIES
+============================================= */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]
+  );
 }
 
-let username=null, score=0, highScore=0, streak=0, questionsAsked=0, questionsRight=0, currentRankIndex=0, earnedBadges=[], subjectScores={}, playedSubjects=new Set(), correctAnswer=null, questionNum=0, isLoggedIn=false, saveTimer=null;
-const subjectSelect=document.getElementById('subjectSelect'), questionText=document.getElementById('questionText'), optionsGrid=document.getElementById('optionsGrid'), textAnswerRow=document.getElementById('textAnswerRow'), answerInput=document.getElementById('answerInput'), submitBtn=document.getElementById('submitBtn'), feedbackBar=document.getElementById('feedbackBar'), scoreDisplay=document.getElementById('scoreDisplay'), highDisplay=document.getElementById('highDisplay'), qCountDisplay=document.getElementById('qCountDisplay'), accuracyDisplay=document.getElementById('accuracyDisplay'), scoreVal=document.getElementById('scoreVal'), highScoreVal=document.getElementById('highScoreVal'), subjectBest=document.getElementById('subjectBest'), rankName=document.getElementById('rankName'), rankSub=document.getElementById('rankSub'), rankFill=document.getElementById('rankFill'), streakNum=document.getElementById('streakNum'), qCounter=document.getElementById('qCounter'), qSubjectTag=document.getElementById('qSubjectTag'), leaderboardCard=document.getElementById('leaderboardCard'), badgesGrid=document.getElementById('badgesGrid'), syncStatus=document.getElementById('syncStatus'), loggedInTag=document.getElementById('loggedInTag'), usernameInput=document.getElementById('usernameInput');
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);}
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function getCurrentSubjectId(){return subjectSelect.value||'gk';}
-function getCurrentSubjectType(){const s=SUBJECTS.find(x=>x.id===getCurrentSubjectId());return s?s.type:'mcq';}
-function setSyncStatus(state){syncStatus.className='sync-dot '+state;syncStatus.textContent=state==='syncing'?'SYNCING':state==='synced'?'SYNCED':'LIVE';}
-async function loadBin(){try{const res=await fetch(`${JSONBIN_URL}/latest`,{headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}});if(!res.ok)return null;return await res.json();}catch{return null;}}
-async function saveBin(data){setSyncStatus('syncing');try{await fetch(JSONBIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(data)});setSyncStatus('synced');setTimeout(()=>setSyncStatus('idle'),3000);}catch{setSyncStatus('idle');}}
-function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(syncPlayerToLeaderboard,2000);}
-async function syncPlayerToLeaderboard(){if(!username)return;let record=await loadBin()||{players:{}};if(!record.players)record.players={};const prev=record.players[username]||{};record.players[username]={totalHighScore:Math.max(highScore,prev.totalHighScore||0),rankIndex:currentRankIndex,rankName:RANKS[Math.min(currentRankIndex,RANKS.length-1)].name,subjects:mergeSubjectScores(prev.subjects||{}),badges:Array.from(new Set([...(prev.badges||[]),...earnedBadges])),lastSeen:new Date().toISOString().slice(0,10)};await saveBin(record);renderLeaderboard(record);}
-function mergeSubjectScores(prev){const merged={...prev};for(const[id,data]of Object.entries(subjectScores)){const p=merged[id]||{highScore:0,plays:0};merged[id]={highScore:Math.max(data.highScore,p.highScore),plays:(data.plays||0)+(p.plays||0)};}return merged;}
-async function loadLeaderboard(){leaderboardCard.innerHTML='<div class="sync-dot syncing" style="margin:0;">LOADING</div>';const data=await loadBin();if(!data){leaderboardCard.innerHTML='<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">Could not load leaderboard.</div>';return;}renderLeaderboard(data);}
-function renderLeaderboard(data){const players=data.players||{};const entries=Object.entries(players).map(([name,info])=>({name,score:info.totalHighScore||0,rankName:info.rankName||'NOVICE',rankIndex:info.rankIndex||0})).sort((a,b)=>b.score-a.score).slice(0,12);if(entries.length===0){leaderboardCard.innerHTML='<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">No players yet. Be the first.</div>';return;}const posLabels=['01','02','03','04','05','06','07','08','09','10','11','12'];const posCls=['gold','silver','bronze','','','','','','','','',''];leaderboardCard.innerHTML=entries.map((p,i)=>`<div class="lb-entry"><div class="lb-pos ${posCls[i]||''}">${posLabels[i]}</div><div class="lb-user ${p.name===username?'me':''}">${esc(p.name)}</div><div class="lb-score">${p.score} pts</div><div class="lb-rank-name">${esc(p.rankName)}</div></div>`).join('');}
-function saveLocal(){try{localStorage.setItem('g101_username',username||'');localStorage.setItem('g101_score',String(score));localStorage.setItem('g101_highScore',String(highScore));localStorage.setItem('g101_rank',String(currentRankIndex));localStorage.setItem('g101_badges',JSON.stringify(earnedBadges));localStorage.setItem('g101_subjectScores',JSON.stringify(subjectScores));localStorage.setItem('g101_streak',String(streak));localStorage.setItem('g101_subject',getCurrentSubjectId());}catch(e){}}
-function loadLocal(){try{username=localStorage.getItem('g101_username')||null;score=parseInt(localStorage.getItem('g101_score'))||0;highScore=parseInt(localStorage.getItem('g101_highScore'))||0;currentRankIndex=parseInt(localStorage.getItem('g101_rank'))||0;streak=parseInt(localStorage.getItem('g101_streak'))||0;earnedBadges=JSON.parse(localStorage.getItem('g101_badges')||'[]');subjectScores=JSON.parse(localStorage.getItem('g101_subjectScores')||'{}');const savedSubject=localStorage.getItem('g101_subject');if(savedSubject)subjectSelect.value=savedSubject;}catch(e){}}
-function updateDisplay(){scoreDisplay.textContent=score;highDisplay.textContent=highScore;scoreVal.textContent=score;highScoreVal.textContent=highScore;qCountDisplay.textContent=questionsAsked;const acc=questionsAsked>0?Math.round((questionsRight/questionsAsked)*100)+'%':'—';accuracyDisplay.textContent=acc;const sid=getCurrentSubjectId();const sb=subjectScores[sid];subjectBest.textContent=sb?sb.highScore:0;streakNum.textContent=streak;const rank=RANKS[Math.min(currentRankIndex,RANKS.length-1)];const prevPts=currentRankIndex>0?RANKS[currentRankIndex-1].points:0;const nextPts=rank.points===Infinity?prevPts+1000:rank.points;const progress=rank.points===Infinity?100:Math.min(100,Math.round(((score-prevPts)/(nextPts-prevPts))*100));rankName.textContent=rank.name;rankSub.textContent=rank.points===Infinity?'MAX RANK':`${Math.max(0,rank.points-score)} pts to next`;rankFill.style.width=progress+'%';badgesGrid.innerHTML=BADGE_DEFS.map(b=>{const earned=earnedBadges.includes(b.id);return`<div class="badge-chip ${earned?'earned':'locked'}" title="${esc(b.desc)}">${esc(b.label)}</div>`;}).join('');}
-function checkRankUp(){let advanced=false;while(currentRankIndex<RANKS.length-1&&score>=RANKS[currentRankIndex].points){currentRankIndex++;advanced=true;showRankUpPopup(RANKS[currentRankIndex].name);if(RANKS[currentRankIndex].name==='SCHOLAR')awardBadge('SCHOLAR_RANK');if(RANKS[currentRankIndex].name==='MASTER')awardBadge('MASTER_CLASS');}return advanced;}
-function showRankUpPopup(name){const el=document.createElement('div');el.className='rankup-popup';el.innerHTML=`<div class="rankup-box"><div class="rankup-eyebrow">Rank Achieved</div><div class="rankup-name">${esc(name)}</div><button class="btn btn-primary" onclick="this.closest('.rankup-popup').remove()">CONTINUE</button></div>`;document.body.appendChild(el);}
-function awardBadge(id){if(earnedBadges.includes(id))return;earnedBadges.push(id);const def=BADGE_DEFS.find(b=>b.id===id);if(def)showBadgePopup(def.label);saveLocal();}
-function showBadgePopup(label){const existing=document.querySelectorAll('.badge-popup');existing.forEach(el=>el.remove());const el=document.createElement('div');el.className='badge-popup';el.innerHTML=`<div class="badge-popup-label">Badge Unlocked</div><div class="badge-popup-name">${esc(label)}</div>`;document.body.appendChild(el);setTimeout(()=>el.remove(),3500);}
-function checkBadges(){if(score>=1)awardBadge('FIRST_ANSWER');if(streak>=3)awardBadge('ON_A_ROLL');if(streak>=5)awardBadge('HOT_STREAK');if(streak>=10)awardBadge('UNSTOPPABLE');if(score>=100)awardBadge('CENTURION');if(score>=500)awardBadge('FIVE_HUNDRED');if(score>=1000)awardBadge('THOUSANDAIRE');if(playedSubjects.size>=5)awardBadge('POLYMATH');const sid=getCurrentSubjectId();const ss=subjectScores[sid];if(ss){if(ss.highScore>=50)awardBadge('SUBJECT_ACE');if(ss.highScore>=200)awardBadge('DEDICATED');}}
-function generateMathQuestion(){const max=Math.max(10,10+currentRankIndex*5);const a=Math.floor(Math.random()*max)+1,b=Math.floor(Math.random()*max)+1;const ops=['+','-','*','/'];const op=ops[Math.floor(Math.random()*ops.length)];answerInput.type='number';answerInput.inputMode='numeric';let q,ans;if(op==='+'){q=`${a} + ${b} = ?`;ans=a+b;}else if(op==='-'){q=`${a} - ${b} = ?`;ans=a-b;}else if(op==='*'){q=`${a} x ${b} = ?`;ans=a*b;}else{q=`${a*b} / ${b} = ?`;ans=a;}questionText.textContent=q;correctAnswer=ans;optionsGrid.style.display='none';textAnswerRow.style.display='flex';answerInput.value='';answerInput.disabled=false;submitBtn.disabled=false;}
-function generateAdvMathQuestion(){const difficulty=Math.max(1,currentRankIndex);const ops=['square','cube','percent','sqrt'];const op=ops[Math.floor(Math.random()*ops.length)];answerInput.type='number';answerInput.inputMode='numeric';let q,ans;if(op==='square'){const n=Math.floor(Math.random()*(5+difficulty*2))+2;q=`${n}² = ?`;ans=n*n;}else if(op==='cube'){const n=Math.floor(Math.random()*(3+difficulty))+2;q=`${n}³ = ?`;ans=n*n*n;}else if(op==='percent'){const pct=[10,20,25,50,5,15][Math.floor(Math.random()*6)];const total=(Math.floor(Math.random()*(10+difficulty*5))+2)*10;q=`${pct}% of ${total} = ?`;ans=(pct/100)*total;}else{const perfects=[4,9,16,25,36,49,64,81,100,121,144];const n=perfects[Math.floor(Math.random()*perfects.length)];q=`sqrt(${n}) = ?`;ans=Math.sqrt(n);}questionText.textContent=q;correctAnswer=ans;optionsGrid.style.display='none';textAnswerRow.style.display='flex';answerInput.value='';answerInput.disabled=false;submitBtn.disabled=false;}
-function generateMCQQuestion(){const sid=getCurrentSubjectId();const pool=QUESTION_BANKS[sid];if(!pool||pool.length===0){questionText.textContent=`No questions available.`;correctAnswer=null;return;}const q=pool[Math.floor(Math.random()*pool.length)];questionText.textContent=q.question;correctAnswer=q.answer;const shuffled=shuffle(q.options);optionsGrid.innerHTML=shuffled.map(opt=>`<button class="opt-btn" onclick="checkAnswer(this.textContent)">${esc(opt)}</button>`).join('');optionsGrid.style.display='grid';textAnswerRow.style.display='none';feedbackBar.textContent='';feedbackBar.className='feedback-bar';}
-function generateQuestion(){if(!isLoggedIn)return;questionNum++;qCounter.textContent=`Q ${String(questionNum).padStart(3,'0')}`;const sid=getCurrentSubjectId();const sub=SUBJECTS.find(s=>s.id===sid);qSubjectTag.textContent=sub?sub.label.toUpperCase():sid.toUpperCase();playedSubjects.add(sid);feedbackBar.textContent='';feedbackBar.className='feedback-bar';questionText.style.opacity='0';setTimeout(()=>{questionText.style.opacity='1';const type=getCurrentSubjectType();if(type==='math')generateMathQuestion();else if(type==='adv-math')generateAdvMathQuestion();else generateMCQQuestion();},150);}
-function checkAnswer(opt=null){if(correctAnswer===null){feedbackBar.textContent='No question loaded.';return;}const raw=opt!==null?String(opt).trim():String(answerInput.value||'').trim();if(!raw){feedbackBar.textContent='Enter an answer first.';return;}const type=getCurrentSubjectType();let correct;if(type==='math'||type==='adv-math'){const val=Number(raw);if(isNaN(val)){feedbackBar.textContent='Enter a valid number.';return;}correct=Math.abs(val-Number(correctAnswer))<0.01;}else{correct=raw.toLowerCase()===String(correctAnswer).toLowerCase();}questionsAsked++;document.querySelectorAll('.opt-btn').forEach(btn=>{btn.disabled=true;if(btn.textContent===String(correctAnswer))btn.classList.add('correct');else if(btn.textContent===raw&&!correct)btn.classList.add('wrong');});if(textAnswerRow.style.display!=='none'){answerInput.disabled=true;submitBtn.disabled=true;}if(correct){questionsRight++;score++;streak++;highScore=Math.max(highScore,score);feedbackBar.textContent='Correct.';feedbackBar.className='feedback-bar correct-fb';streakNum.classList.add('bump');setTimeout(()=>streakNum.classList.remove('bump'),200);const sid=getCurrentSubjectId();if(!subjectScores[sid])subjectScores[sid]={score:0,highScore:0,plays:0};subjectScores[sid].score++;subjectScores[sid].highScore=Math.max(subjectScores[sid].highScore,subjectScores[sid].score);subjectScores[sid].plays++;}else{streak=0;feedbackBar.textContent=`Wrong. Answer: ${correctAnswer}`;feedbackBar.className='feedback-bar wrong-fb';const sid=getCurrentSubjectId();if(subjectScores[sid])subjectScores[sid].score=0;}checkRankUp();checkBadges();updateDisplay();saveLocal();scheduleSave();setTimeout(()=>{feedbackBar.textContent='';feedbackBar.className='feedback-bar';generateQuestion();},1400);}
-function loginUser(){const v=String(usernameInput.value||'').trim();if(!v)return;if(v.length<2){feedbackBar.textContent='Username must be at least 2 characters.';return;}username=v;isLoggedIn=true;localStorage.setItem('g101_username',username);loggedInTag.innerHTML=`<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;usernameInput.style.display='none';document.querySelector('.btn-row').style.display='none';subjectSelect.disabled=false;syncPlayerToLeaderboard();generateQuestion();updateDisplay();}
-function logoutUser(){username=null;isLoggedIn=false;localStorage.removeItem('g101_username');loggedInTag.innerHTML='';usernameInput.style.display='';usernameInput.value='';document.querySelector('.btn-row').style.display='';subjectSelect.disabled=true;questionText.textContent='Login to start playing.';optionsGrid.style.display='none';textAnswerRow.style.display='none';qCounter.textContent='Q — / —';}
-function onSubjectChange(){const sid=getCurrentSubjectId();localStorage.setItem('g101_subject',sid);if(isLoggedIn){score=0;streak=0;questionsAsked=0;questionsRight=0;if(subjectScores[sid])subjectScores[sid].score=0;updateDisplay();generateQuestion();}}
-(function init(){SUBJECTS.forEach(s=>{const opt=document.createElement('option');opt.value=s.id;opt.textContent=s.label;subjectSelect.appendChild(opt);});loadLocal();if(username){isLoggedIn=true;usernameInput.value=username;usernameInput.style.display='none';document.querySelector('.btn-row').style.display='none';loggedInTag.innerHTML=`<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;subjectSelect.disabled=false;subjectSelect.value=localStorage.getItem('g101_subject')||'gk';}setSyncStatus('idle');loadLeaderboard();answerInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});updateDisplay();if(isLoggedIn)generateQuestion();else questionText.textContent='Enter your username and login to begin.';})();
+function getCurrentSubjectId()   { return subjectSelect.value || 'gk'; }
+function getCurrentSubjectMeta() { return SUBJECTS.find(s => s.id === getCurrentSubjectId()) || {}; }
+function getCurrentSubjectType() { return getCurrentSubjectMeta().type || 'mcq'; }
+
+/* =============================================
+   QUESTION LOADING (from external JSON files)
+   Falls back to FALLBACK_QUESTIONS if fetch fails.
+============================================= */
+async function loadSubjectQuestions(sid) {
+  // Already loaded
+  if (loadedQuestions[sid]) return loadedQuestions[sid];
+
+  // Math types are generated — no file needed
+  const meta = SUBJECTS.find(s => s.id === sid);
+  if (meta && (meta.type === 'math' || meta.type === 'adv-math')) return [];
+
+  loadingBar.style.display = 'flex';
+
+  try {
+    const url = `${QUESTIONS_BASE_PATH}${sid}.json`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      loadedQuestions[sid] = data;
+      loadingBar.style.display = 'none';
+      return data;
+    }
+    throw new Error('Empty or invalid JSON');
+  } catch (err) {
+    console.warn(`[GAME101] Could not load questions/${sid}.json (${err.message}) — using fallback.`);
+    const fallback = FALLBACK_QUESTIONS[sid] || [];
+    loadedQuestions[sid] = fallback;
+    loadingBar.style.display = 'none';
+    return fallback;
+  }
+}
+
+/* =============================================
+   SHUFFLED DECK — prevents question repeats
+   Cycles through the full pool before reshuffling.
+============================================= */
+function getNextQuestion(sid) {
+  const pool = loadedQuestions[sid] || FALLBACK_QUESTIONS[sid] || [];
+  if (pool.length === 0) return null;
+  if (!questionDecks[sid] || questionDecks[sid].length === 0) {
+    questionDecks[sid] = shuffle([...pool]);
+  }
+  return questionDecks[sid].pop();
+}
+
+/* =============================================
+   JSONBIN API
+============================================= */
+function isJsonbinConfigured() {
+  return (
+    JSONBIN_KEY !== 'YOUR_MASTER_KEY_HERE' && JSONBIN_KEY &&
+    JSONBIN_ID  !== 'YOUR_BIN_ID_HERE'    && JSONBIN_ID
+  );
+}
+
+function setSyncStatus(state) {
+  syncStatus.className = 'sync-dot ' + state;
+  const labels = { syncing: 'SYNCING', synced: 'SYNCED', idle: 'OFFLINE' };
+  syncStatus.textContent = labels[state] || 'OFFLINE';
+}
+
+async function loadBin() {
+  if (!isJsonbinConfigured()) return null;
+  try {
+    const res = await fetch(`${JSONBIN_URL}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+async function saveBin(data) {
+  if (!isJsonbinConfigured()) return;
+  setSyncStatus('syncing');
+  try {
+    await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Bin-Versioning': 'false'
+      },
+      body: JSON.stringify(data)
+    });
+    setSyncStatus('synced');
+    setTimeout(() => setSyncStatus('idle'), 3000);
+  } catch {
+    setSyncStatus('idle');
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(syncPlayerToLeaderboard, 2500);
+}
+
+async function syncPlayerToLeaderboard() {
+  if (!username || !isJsonbinConfigured()) return;
+  let record = await loadBin() || { players: {} };
+  if (!record.players) record.players = {};
+
+  const prev = record.players[username] || {};
+  record.players[username] = {
+    totalHighScore: Math.max(highScore, prev.totalHighScore || 0),
+    rankIndex: currentRankIndex,
+    rankName: RANKS[Math.min(currentRankIndex, RANKS.length - 1)].name,
+    subjects: mergeSubjectScores(prev.subjects || {}),
+    badges: Array.from(new Set([...(prev.badges || []), ...earnedBadges])),
+    lastSeen: new Date().toISOString().slice(0, 10)
+  };
+
+  globalBinData = record;
+  await saveBin(record);
+  renderLeaderboard(record);
+}
+
+function mergeSubjectScores(prevSubjects) {
+  const merged = { ...prevSubjects };
+  for (const [id, data] of Object.entries(subjectScores)) {
+    const prev = merged[id] || { highScore: 0, plays: 0 };
+    merged[id] = {
+      highScore: Math.max(data.highScore || 0, prev.highScore || 0),
+      plays:    (data.plays  || 0) + (prev.plays  || 0)
+    };
+  }
+  return merged;
+}
+
+async function loadLeaderboard() {
+  if (!isJsonbinConfigured()) {
+    leaderboardCard.innerHTML = `
+      <div class="setup-notice" style="margin:0;">
+        <p><strong>JSONBIN NOT CONFIGURED</strong><br>
+        Add your API key and Bin ID to the CONFIG section of this file to enable the global leaderboard.</p>
+      </div>`;
+    return;
+  }
+  leaderboardCard.innerHTML = '<div class="sync-dot syncing" style="margin:0;">LOADING</div>';
+  const data = await loadBin();
+  if (!data) {
+    leaderboardCard.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">Could not reach leaderboard.</div>';
+    return;
+  }
+  globalBinData = data;
+  renderLeaderboard(data);
+}
+
+function renderLeaderboard(data) {
+  const players = data.players || {};
+  const entries = Object.entries(players)
+    .map(([name, info]) => ({
+      name,
+      score:    info.totalHighScore || 0,
+      rankName: info.rankName || 'NOVICE',
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12);
+
+  if (entries.length === 0) {
+    leaderboardCard.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--muted);">No players yet. Be the first.</div>';
+    return;
+  }
+
+  const posLabels = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+  const posCls    = ['gold','silver','bronze','','','','','','','','',''];
+
+  leaderboardCard.innerHTML = entries.map((p, i) => `
+    <div class="lb-entry">
+      <div class="lb-pos ${posCls[i] || ''}">${posLabels[i]}</div>
+      <div class="lb-user ${p.name === username ? 'me' : ''}">${esc(p.name)}</div>
+      <div class="lb-score">${p.score} pts</div>
+      <div class="lb-rank-name">${esc(p.rankName)}</div>
+    </div>`
+  ).join('');
+}
+
+/* =============================================
+   LOCAL STORAGE
+============================================= */
+function saveLocal() {
+  try {
+    localStorage.setItem('g101_username',      username || '');
+    localStorage.setItem('g101_score',         String(score));
+    localStorage.setItem('g101_highScore',     String(highScore));
+    localStorage.setItem('g101_rank',          String(currentRankIndex));
+    localStorage.setItem('g101_badges',        JSON.stringify(earnedBadges));
+    localStorage.setItem('g101_subjectScores', JSON.stringify(subjectScores));
+    localStorage.setItem('g101_streak',        String(streak));
+    localStorage.setItem('g101_subject',       getCurrentSubjectId());
+  } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    username           = localStorage.getItem('g101_username')      || null;
+    score              = parseInt(localStorage.getItem('g101_score'))      || 0;
+    highScore          = parseInt(localStorage.getItem('g101_highScore'))  || 0;
+    currentRankIndex   = parseInt(localStorage.getItem('g101_rank'))       || 0;
+    streak             = parseInt(localStorage.getItem('g101_streak'))     || 0;
+    earnedBadges       = JSON.parse(localStorage.getItem('g101_badges')         || '[]');
+    subjectScores      = JSON.parse(localStorage.getItem('g101_subjectScores')  || '{}');
+    const saved = localStorage.getItem('g101_subject');
+    if (saved) subjectSelect.value = saved;
+  } catch(e) {}
+}
+
+/* =============================================
+   DISPLAY UPDATES
+============================================= */
+function updateDisplay() {
+  scoreDisplay.textContent  = score;
+  highDisplay.textContent   = highScore;
+  scoreVal.textContent      = score;
+  highScoreVal.textContent  = highScore;
+  qCountDisplay.textContent = questionsAsked;
+  accuracyDisplay.textContent = questionsAsked > 0
+    ? Math.round((questionsRight / questionsAsked) * 100) + '%'
+    : '—';
+
+  const sid = getCurrentSubjectId();
+  const ss  = subjectScores[sid];
+  subjectBest.textContent = ss ? ss.highScore : 0;
+  streakNum.textContent   = streak;
+
+  // Rank display
+  const safeIdx  = Math.min(currentRankIndex, RANKS.length - 1);
+  const rank     = RANKS[safeIdx];
+  const prevPts  = safeIdx > 0 ? RANKS[safeIdx - 1].points : 0;
+  const nextPts  = rank.points === Infinity ? prevPts + 1000 : rank.points;
+  const progress = rank.points === Infinity
+    ? 100
+    : Math.min(100, Math.max(0, Math.round(((score - prevPts) / (nextPts - prevPts)) * 100)));
+
+  rankName.textContent   = rank.name;
+  rankSub.textContent    = rank.points === Infinity
+    ? 'MAX RANK ACHIEVED'
+    : `${Math.max(0, rank.points - score)} pts to next`;
+  rankFill.style.width   = progress + '%';
+
+  renderBadges();
+}
+
+function renderBadges() {
+  badgesGrid.innerHTML = BADGE_DEFS.map(b => {
+    const earned = earnedBadges.includes(b.id);
+    return `<div class="badge-chip ${earned ? 'earned' : 'locked'}" title="${esc(b.desc)}">${esc(b.label)}</div>`;
+  }).join('');
+}
+
+/* =============================================
+   RANK UP SYSTEM
+============================================= */
+function checkRankUp() {
+  while (
+    currentRankIndex < RANKS.length - 1 &&
+    score >= RANKS[currentRankIndex].points
+  ) {
+    currentRankIndex++;
+    showRankUpPopup(RANKS[currentRankIndex].name);
+    if (RANKS[currentRankIndex].name === 'SCHOLAR') awardBadge('SCHOLAR_RANK');
+    if (RANKS[currentRankIndex].name === 'MASTER')  awardBadge('MASTER_CLASS');
+  }
+}
+
+function showRankUpPopup(name) {
+  const el = document.createElement('div');
+  el.className = 'rankup-popup';
+  el.innerHTML = `
+    <div class="rankup-box">
+      <div class="rankup-eyebrow">Rank Achieved</div>
+      <div class="rankup-name">${esc(name)}</div>
+      <button class="btn btn-primary" onclick="this.closest('.rankup-popup').remove()">CONTINUE</button>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+/* =============================================
+   ACHIEVEMENT SYSTEM
+============================================= */
+function awardBadge(id) {
+  if (earnedBadges.includes(id)) return;
+  earnedBadges.push(id);
+  const def = BADGE_DEFS.find(b => b.id === id);
+  if (def) showBadgePopup(def.label);
+  saveLocal();
+}
+
+function showBadgePopup(label) {
+  document.querySelectorAll('.badge-popup').forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'badge-popup';
+  el.innerHTML = `
+    <div class="badge-popup-label">Badge Unlocked</div>
+    <div class="badge-popup-name">${esc(label)}</div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el && el.remove(), 3500);
+}
+
+function checkBadges() {
+  if (score  >= 1)   awardBadge('FIRST_ANSWER');
+  if (streak >= 3)   awardBadge('ON_A_ROLL');
+  if (streak >= 5)   awardBadge('HOT_STREAK');
+  if (streak >= 10)  awardBadge('UNSTOPPABLE');
+  if (score  >= 100) awardBadge('CENTURION');
+  if (score  >= 500) awardBadge('FIVE_HUNDRED');
+  if (score  >= 1000)awardBadge('THOUSANDAIRE');
+  if (playedSubjects.size >= 5) awardBadge('POLYMATH');
+  // All subjects played
+  const mcqSubjects = SUBJECTS.filter(s => s.type === 'mcq').map(s => s.id);
+  if (mcqSubjects.every(sid => playedSubjects.has(sid))) awardBadge('COMPLETIONIST');
+
+  const sid = getCurrentSubjectId();
+  const ss  = subjectScores[sid];
+  if (ss) {
+    if (ss.highScore >= 50)  awardBadge('SUBJECT_ACE');
+    if (ss.highScore >= 200) awardBadge('DEDICATED');
+  }
+}
+
+/* =============================================
+   QUESTION GENERATION
+============================================= */
+function generateMathQuestion() {
+  const max = Math.max(10, 10 + currentRankIndex * 5);
+  const a   = Math.floor(Math.random() * max) + 1;
+  const b   = Math.floor(Math.random() * max) + 1;
+  const ops = ['+', '-', '*', '/'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+
+  answerInput.type       = 'number';
+  answerInput.inputMode  = 'numeric';
+  answerInput.placeholder = '0';
+
+  let q, ans;
+  if      (op === '+') { q = `${a} + ${b} = ?`;       ans = a + b; }
+  else if (op === '-') { q = `${a} - ${b} = ?`;       ans = a - b; }
+  else if (op === '*') { q = `${a} x ${b} = ?`;       ans = a * b; }
+  else                 { q = `${a * b} / ${b} = ?`;   ans = a;     }
+
+  questionText.textContent = q;
+  correctAnswer = ans;
+  optionsGrid.style.display  = 'none';
+  textAnswerRow.style.display = 'flex';
+  answerInput.value   = '';
+  answerInput.disabled = false;
+  submitBtn.disabled  = false;
+  answerInput.focus();
+}
+
+function generateAdvMathQuestion() {
+  const difficulty = Math.max(1, currentRankIndex);
+  const ops = ['square', 'cube', 'percent', 'sqrt'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+
+  answerInput.type       = 'number';
+  answerInput.inputMode  = 'numeric';
+  answerInput.placeholder = '0';
+
+  let q, ans;
+  if (op === 'square') {
+    const n = Math.floor(Math.random() * (5 + difficulty * 2)) + 2;
+    q = `${n}² = ?`; ans = n * n;
+  } else if (op === 'cube') {
+    const n = Math.floor(Math.random() * (3 + difficulty)) + 2;
+    q = `${n}³ = ?`; ans = n * n * n;
+  } else if (op === 'percent') {
+    const pct   = [10, 20, 25, 50, 5, 15][Math.floor(Math.random() * 6)];
+    const total = (Math.floor(Math.random() * (10 + difficulty * 5)) + 2) * 10;
+    q = `${pct}% of ${total} = ?`; ans = (pct / 100) * total;
+  } else {
+    const perfects = [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144];
+    const n = perfects[Math.floor(Math.random() * perfects.length)];
+    q = `sqrt(${n}) = ?`; ans = Math.sqrt(n);
+  }
+
+  questionText.textContent = q;
+  correctAnswer = ans;
+  optionsGrid.style.display  = 'none';
+  textAnswerRow.style.display = 'flex';
+  answerInput.value   = '';
+  answerInput.disabled = false;
+  submitBtn.disabled  = false;
+  answerInput.focus();
+}
+
+function generateMCQQuestion() {
+  const sid = getCurrentSubjectId();
+  const q   = getNextQuestion(sid);
+
+  if (!q) {
+    questionText.textContent = 'No questions loaded for this subject.';
+    feedbackBar.textContent  = 'Check that the questions JSON file exists.';
+    feedbackBar.className    = 'feedback-bar info-fb';
+    correctAnswer = null;
+    return;
+  }
+
+  questionText.textContent = q.question;
+  correctAnswer = q.answer;
+
+  // MCQ with options
+  if (Array.isArray(q.options) && q.options.length > 0) {
+    const shuffled = shuffle(q.options);
+    optionsGrid.innerHTML = shuffled.map(opt =>
+      `<button class="opt-btn" onclick="checkAnswer(this.textContent)">${esc(opt)}</button>`
+    ).join('');
+    optionsGrid.style.display  = 'grid';
+    textAnswerRow.style.display = 'none';
+  } else {
+    // Free-text answer (no options array in the JSON)
+    answerInput.type        = 'text';
+    answerInput.inputMode   = 'text';
+    answerInput.placeholder = 'Type your answer...';
+    optionsGrid.style.display  = 'none';
+    textAnswerRow.style.display = 'flex';
+    answerInput.value   = '';
+    answerInput.disabled = false;
+    submitBtn.disabled  = false;
+    answerInput.focus();
+  }
+
+  feedbackBar.textContent = '';
+  feedbackBar.className   = 'feedback-bar';
+}
+
+async function generateQuestion() {
+  if (!isLoggedIn) return;
+
+  // Cancel any pending auto-advance from previous question
+  clearTimeout(nextQuestionTimer);
+
+  questionNum++;
+  qCounter.textContent = `Q ${String(questionNum).padStart(3, '0')}`;
+
+  const sid  = getCurrentSubjectId();
+  const meta = getCurrentSubjectMeta();
+  qSubjectTag.textContent = meta.label ? meta.label.toUpperCase() : sid.toUpperCase();
+  playedSubjects.add(sid);
+
+  feedbackBar.textContent = '';
+  feedbackBar.className   = 'feedback-bar';
+  questionText.style.opacity = '0';
+
+  // Load questions for this subject (cached after first load)
+  if (meta.type === 'mcq') await loadSubjectQuestions(sid);
+
+  setTimeout(() => {
+    questionText.style.opacity = '1';
+    const type = meta.type || 'mcq';
+    if      (type === 'math')      generateMathQuestion();
+    else if (type === 'adv-math')  generateAdvMathQuestion();
+    else                           generateMCQQuestion();
+  }, 150);
+}
+
+/* =============================================
+   CHECK ANSWER
+   isAnswering lock prevents double-fire during
+   the 1400ms feedback window.
+============================================= */
+function checkAnswer(opt = null) {
+  if (isAnswering) return;
+  if (correctAnswer === null) {
+    feedbackBar.textContent = 'No question loaded.';
+    return;
+  }
+
+  const raw = opt !== null
+    ? String(opt).trim()
+    : String(answerInput.value || '').trim();
+
+  if (!raw) {
+    feedbackBar.textContent = 'Enter an answer first.';
+    return;
+  }
+
+  isAnswering = true;
+
+  const type = getCurrentSubjectType();
+  let correct;
+
+  if (type === 'math' || type === 'adv-math') {
+    const val = Number(raw);
+    if (isNaN(val)) {
+      feedbackBar.textContent = 'Enter a valid number.';
+      isAnswering = false;
+      return;
+    }
+    correct = Math.abs(val - Number(correctAnswer)) < 0.01;
+  } else {
+    correct = raw.toLowerCase() === String(correctAnswer).toLowerCase();
+  }
+
+  questionsAsked++;
+
+  // Highlight MCQ buttons
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === String(correctAnswer)) btn.classList.add('correct');
+    else if (btn.textContent === raw && !correct)  btn.classList.add('wrong');
+  });
+
+  // Disable text input
+  if (textAnswerRow.style.display !== 'none') {
+    answerInput.disabled = true;
+    submitBtn.disabled   = true;
+  }
+
+  if (correct) {
+    questionsRight++;
+    score++;
+    streak++;
+    highScore = Math.max(highScore, score);
+    feedbackBar.textContent = 'Correct.';
+    feedbackBar.className   = 'feedback-bar correct-fb';
+
+    // Streak animation
+    streakNum.classList.add('bump');
+    setTimeout(() => streakNum.classList.remove('bump'), 200);
+
+    // Subject score tracking
+    const sid = getCurrentSubjectId();
+    if (!subjectScores[sid]) subjectScores[sid] = { score: 0, highScore: 0, plays: 0 };
+    subjectScores[sid].score++;
+    subjectScores[sid].highScore = Math.max(subjectScores[sid].highScore, subjectScores[sid].score);
+    subjectScores[sid].plays++;
+
+  } else {
+    streak = 0;
+    feedbackBar.textContent = `Wrong. Answer: ${correctAnswer}`;
+    feedbackBar.className   = 'feedback-bar wrong-fb';
+
+    const sid = getCurrentSubjectId();
+    if (subjectScores[sid]) subjectScores[sid].score = 0;
+  }
+
+  checkRankUp();
+  checkBadges();
+  updateDisplay();
+  saveLocal();
+  scheduleSave();
+
+  // Auto-advance to next question
+  clearTimeout(nextQuestionTimer);
+  nextQuestionTimer = setTimeout(() => {
+    feedbackBar.textContent = '';
+    feedbackBar.className   = 'feedback-bar';
+    isAnswering = false;
+    generateQuestion();
+  }, 1400);
+}
+
+/* =============================================
+   LOGIN / LOGOUT
+============================================= */
+function loginUser() {
+  const v = String(usernameInput.value || '').trim();
+  if (!v)         { usernameInput.focus(); return; }
+  if (v.length < 2) { feedbackBar.textContent = 'Username must be at least 2 characters.'; return; }
+
+  username   = v;
+  isLoggedIn = true;
+  localStorage.setItem('g101_username', username);
+
+  loggedInTag.innerHTML        = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
+  usernameInput.style.display  = 'none';
+  loginBtnRow.style.display    = 'none';
+  subjectSelect.disabled       = false;
+  setSyncStatus('idle');
+
+  syncPlayerToLeaderboard();
+  generateQuestion();
+  updateDisplay();
+}
+
+function logoutUser() {
+  clearTimeout(nextQuestionTimer);
+  isAnswering = false;
+  username    = null;
+  isLoggedIn  = false;
+  localStorage.removeItem('g101_username');
+
+  loggedInTag.innerHTML       = '';
+  usernameInput.style.display = '';
+  usernameInput.value         = '';
+  loginBtnRow.style.display   = '';
+  subjectSelect.disabled      = true;
+
+  questionText.textContent    = 'Login to start playing.';
+  optionsGrid.style.display   = 'none';
+  textAnswerRow.style.display = 'none';
+  feedbackBar.textContent     = '';
+  qCounter.textContent        = 'Q — / —';
+  setSyncStatus('idle');
+}
+
+/* =============================================
+   SUBJECT CHANGE
+============================================= */
+function onSubjectChange() {
+  const sid = getCurrentSubjectId();
+  localStorage.setItem('g101_subject', sid);
+  if (!isLoggedIn) return;
+
+  // Cancel stale timer + release answer lock
+  clearTimeout(nextQuestionTimer);
+  isAnswering = false;
+
+  // Reset session stats (keep all-time highScore)
+  score          = 0;
+  streak         = 0;
+  questionsAsked = 0;
+  questionsRight = 0;
+  if (subjectScores[sid]) subjectScores[sid].score = 0;
+
+  updateDisplay();
+  generateQuestion();
+}
+
+/* =============================================
+   INIT
+============================================= */
+(function init() {
+  // Build subject dropdown
+  SUBJECTS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value       = s.id;
+    opt.textContent = s.label;
+    subjectSelect.appendChild(opt);
+  });
+
+  // Restore saved state from localStorage
+  loadLocal();
+
+  // Restore logged-in session
+  if (username) {
+    isLoggedIn = true;
+    usernameInput.style.display = 'none';
+    loginBtnRow.style.display   = 'none';
+    loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
+    subjectSelect.disabled = false;
+    const savedSubject = localStorage.getItem('g101_subject');
+    if (savedSubject) subjectSelect.value = savedSubject;
+  }
+
+  // JSONbin setup check
+  if (!isJsonbinConfigured()) {
+    document.getElementById('setupNotice').style.display = 'block';
+    setSyncStatus('idle');
+  } else {
+    setSyncStatus('idle');
+    loadLeaderboard();
+  }
+
+  // Enter key submits text answers
+  answerInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkAnswer();
+  });
+
+  // Enter key on username input logs in
+  usernameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') loginUser();
+  });
+
+  renderBadges();
+  updateDisplay();
+
+  if (isLoggedIn) {
+    generateQuestion();
+  } else {
+    questionText.textContent = 'Enter your username and login to begin.';
+  }
+})();
 </script>
 </body>
 </html>
