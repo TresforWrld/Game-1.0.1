@@ -27,23 +27,7 @@ html, body {
   background: var(--black);
   color: var(--offwhite);
   font-family: 'Oswald', sans-serif;
-  overflow: hidden;
-}
-
-/* ---- SCANLINE GRAIN OVERLAY ---- */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.18) 2px,
-    rgba(0,0,0,0.18) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
+  overflow: auto;
 }
 
 /* ---- LAYOUT ---- */
@@ -72,16 +56,6 @@ body::before {
   height: 3px;
   background: var(--burnt);
 }
-.brand-side::after {
-  content: '';
-  position: absolute;
-  bottom: 80px;
-  left: 48px;
-  right: 48px;
-  height: 1px;
-  background: var(--border);
-}
-
 /* Big diagonal number watermark */
 .watermark {
   position: absolute;
@@ -224,14 +198,6 @@ body::before {
   padding: 48px 52px;
   position: relative;
   background: var(--panel);
-}
-
-.auth-side::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--burnt) 0%, transparent 100%);
 }
 
 /* Tab switcher */
@@ -581,8 +547,7 @@ const MASTER_KEY  = '$2a$10$VJXQzwtVgNhMTIJiiQvpy.hG7XaRD0.H42NyZhKzeLRungeekMmp
 const USERS_BIN   = '69c24e41c3097a1dd554aac8';   // stores { users: { username: { passwordHash, createdAt } } }
 const USERS_URL   = `https://api.jsonbin.io/v3/b/${USERS_BIN}`;
 
-/* Where to redirect after successful login */
-const GAME_URL    = '/public/index.html';   // change to your game file name if different
+const GAME_URL    = 'index.html';
 
 /* =============================================
    PASSWORD HASHING (SHA-256 via Web Crypto)
