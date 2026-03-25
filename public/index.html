@@ -606,24 +606,12 @@ html, body {
   <!-- LEFT PANEL -->
   <aside class="panel">
 
-    <div id="setupNotice" class="setup-notice" style="display:none;">
-      <p>
-        <strong>JSONBIN SETUP</strong><br>
-        1. Visit <strong>jsonbin.io</strong> — create a free account<br>
-        2. Create a bin with <strong>{"players":{}}</strong><br>
-        3. Copy your <strong>Master Key</strong> and <strong>Bin ID</strong><br>
-        4. Paste both in the CONFIG section of this file
-      </p>
-    </div>
-
     <div class="panel-label">Player</div>
     <div class="card" id="loginCard">
-      <input class="login-input" id="usernameInput" type="text" placeholder="enter username" maxlength="20" autocomplete="off">
-      <div class="btn-row" id="loginBtnRow">
-        <button class="btn btn-primary" onclick="loginUser()">LOGIN</button>
-        <button class="btn btn-ghost"   onclick="logoutUser()">CLEAR</button>
+      <div id="loggedInTag"></div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-ghost" onclick="logoutUser()" style="width:100%;text-align:center;">SIGN OUT</button>
       </div>
-      <div id="loggedInTag" style="margin-top:10px;"></div>
     </div>
 
     <div class="panel-label" style="margin-top:4px;">Rank</div>
@@ -731,21 +719,22 @@ html, body {
 
 <footer class="footer">
   <span class="footer-text">&copy; ANICADE Tech 2025 — All rights reserved</span>
-  <a href="mailto:support@anicadetech.com"  class="footer-link">Support</a>
-  <a href="mailto:report@anicadetech.com"   class="footer-link">Report a Problem</a>
-  <a href="mailto:contact@anicadetech.com"  class="footer-link">Contact</a>
+  <a href="/cdn-cgi/l/email-protection#70030500001f020430111e1913111415041513185e131f1d" class="footer-link">Support</a>
+  <a href="/cdn-cgi/l/email-protection#bac8dfcad5c8cefadbd4d3d9dbdedfcedfd9d294d9d5d7" class="footer-link">Report a Problem</a>
+  <a href="/cdn-cgi/l/email-protection#dbb8b4b5afbab8af9bbab5b2b8babfbeafbeb8b3f5b8b4b6" class="footer-link">Contact</a>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* =============================================
    CONFIG
    JSONbin: https://jsonbin.io — free account
    Create a bin with {"players":{}} then paste
    your Master Key and Bin ID below.
 ============================================= */
-const JSONBIN_KEY = 'YOUR_MASTER_KEY_HERE';
-const JSONBIN_ID  = 'YOUR_BIN_ID_HERE';
+const JSONBIN_KEY = '$2a$10$VJXQzwtVgNhMTIJiiQvpy.hG7XaRD0.H42NyZhKzeLRungeekMmpO';
+const JSONBIN_ID  = '69c2dcb0b7ec241ddc9c73a2';   // game scores / leaderboard bin
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+const LOGIN_URL   = "login.html";
 
 /* =============================================
    QUESTION FILE PATHS
@@ -1060,8 +1049,6 @@ const leaderboardCard = document.getElementById('leaderboardCard');
 const badgesGrid      = document.getElementById('badgesGrid');
 const syncStatus      = document.getElementById('syncStatus');
 const loggedInTag     = document.getElementById('loggedInTag');
-const usernameInput   = document.getElementById('usernameInput');
-const loginBtnRow     = document.getElementById('loginBtnRow');
 const loadingBar      = document.getElementById('loadingBar');
 
 /* =============================================
@@ -1137,10 +1124,7 @@ function getNextQuestion(sid) {
    JSONBIN API
 ============================================= */
 function isJsonbinConfigured() {
-  return (
-    JSONBIN_KEY !== 'YOUR_MASTER_KEY_HERE' && JSONBIN_KEY &&
-    JSONBIN_ID  !== 'YOUR_BIN_ID_HERE'    && JSONBIN_ID
-  );
+  return true; // credentials are hardcoded
 }
 
 function setSyncStatus(state) {
@@ -1219,11 +1203,7 @@ function mergeSubjectScores(prevSubjects) {
 
 async function loadLeaderboard() {
   if (!isJsonbinConfigured()) {
-    leaderboardCard.innerHTML = `
-      <div class="setup-notice" style="margin:0;">
-        <p><strong>JSONBIN NOT CONFIGURED</strong><br>
-        Add your API key and Bin ID to the CONFIG section of this file to enable the global leaderboard.</p>
-      </div>`;
+    leaderboardCard.innerHTML = '<div style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--muted);">Connecting...</div>';
     return;
   }
   leaderboardCard.innerHTML = '<div class="sync-dot syncing" style="margin:0;">LOADING</div>';
@@ -1642,47 +1622,28 @@ function checkAnswer(opt = null) {
 }
 
 /* =============================================
-   LOGIN / LOGOUT
+   SESSION AUTH
+   Auth is managed by login.html.
+   This page just reads the session from localStorage.
 ============================================= */
-function loginUser() {
-  const v = String(usernameInput.value || '').trim();
-  if (!v)         { usernameInput.focus(); return; }
-  if (v.length < 2) { feedbackBar.textContent = 'Username must be at least 2 characters.'; return; }
-
-  username   = v;
-  isLoggedIn = true;
-  localStorage.setItem('g101_username', username);
-
-  loggedInTag.innerHTML        = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
-  usernameInput.style.display  = 'none';
-  loginBtnRow.style.display    = 'none';
-  subjectSelect.disabled       = false;
-  setSyncStatus('idle');
-
-  syncPlayerToLeaderboard();
-  generateQuestion();
-  updateDisplay();
+function checkAuth() {
+  const authed = localStorage.getItem('g101_authed');
+  const user   = localStorage.getItem('g101_username');
+  if (!authed || !user) {
+    window.location.href = LOGIN_URL;
+    return false;
+  }
+  return true;
 }
 
 function logoutUser() {
   clearTimeout(nextQuestionTimer);
   isAnswering = false;
-  username    = null;
-  isLoggedIn  = false;
+  // Clear auth session
+  localStorage.removeItem('g101_authed');
+  localStorage.removeItem('g101_authhash');
   localStorage.removeItem('g101_username');
-
-  loggedInTag.innerHTML       = '';
-  usernameInput.style.display = '';
-  usernameInput.value         = '';
-  loginBtnRow.style.display   = '';
-  subjectSelect.disabled      = true;
-
-  questionText.textContent    = 'Login to start playing.';
-  optionsGrid.style.display   = 'none';
-  textAnswerRow.style.display = 'none';
-  feedbackBar.textContent     = '';
-  qCounter.textContent        = 'Q — / —';
-  setSyncStatus('idle');
+  window.location.href = LOGIN_URL;
 }
 
 /* =============================================
@@ -1723,44 +1684,29 @@ function onSubjectChange() {
   // Restore saved state from localStorage
   loadLocal();
 
-  // Restore logged-in session
-  if (username) {
-    isLoggedIn = true;
-    usernameInput.style.display = 'none';
-    loginBtnRow.style.display   = 'none';
-    loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
-    subjectSelect.disabled = false;
-    const savedSubject = localStorage.getItem('g101_subject');
-    if (savedSubject) subjectSelect.value = savedSubject;
-  }
+  // Auth guard — redirect to login if no session
+  if (!checkAuth()) return;
 
-  // JSONbin setup check
-  if (!isJsonbinConfigured()) {
-    document.getElementById('setupNotice').style.display = 'block';
-    setSyncStatus('idle');
-  } else {
-    setSyncStatus('idle');
-    loadLeaderboard();
-  }
+  // Session confirmed — read username from localStorage
+  username   = localStorage.getItem('g101_username');
+  isLoggedIn = true;
+  loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
+  subjectSelect.disabled = false;
+  const savedSubject = localStorage.getItem('g101_subject');
+  if (savedSubject) subjectSelect.value = savedSubject;
+
+  // Always configured — load leaderboard immediately
+  setSyncStatus('idle');
+  loadLeaderboard();
 
   // Enter key submits text answers
   answerInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') checkAnswer();
   });
 
-  // Enter key on username input logs in
-  usernameInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') loginUser();
-  });
-
   renderBadges();
   updateDisplay();
-
-  if (isLoggedIn) {
-    generateQuestion();
-  } else {
-    questionText.textContent = 'Enter your username and login to begin.';
-  }
+  generateQuestion();
 })();
 </script>
 </body>
