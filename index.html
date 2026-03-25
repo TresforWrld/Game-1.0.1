@@ -405,7 +405,7 @@ html, body {
   font-size: 0.72rem;
   color: var(--muted);
   letter-spacing: 0.1em;
-  margin-bottom: 20px;
+  margin-top: 8px;
 }
 .loading-dots span {
   display: inline-block;
@@ -618,7 +618,7 @@ html, body {
     <div class="card">
       <div class="rank-block">
         <div class="rank-name" id="rankName">—</div>
-        <div class="rank-sub" id="rankSub">Login to begin</div>
+        <div class="rank-sub" id="rankSub">—</div>
       </div>
       <div class="rank-progress" style="margin-top:12px;">
         <div class="rank-progress-fill" id="rankFill" style="width:0%"></div>
@@ -627,7 +627,7 @@ html, body {
 
     <div class="panel-label">Subject</div>
     <div class="card">
-      <select class="subject-select" id="subjectSelect" disabled onchange="onSubjectChange()"></select>
+      <select class="subject-select" id="subjectSelect" onchange="onSubjectChange()"></select>
       <div id="loadingBar" class="loading-bar" style="display:none; margin-top:10px;">
         <span>Loading questions</span>
         <span class="loading-dots"><span></span><span></span><span></span></span>
@@ -668,7 +668,7 @@ html, body {
       <div class="q-subject-tag" id="qSubjectTag">SELECT SUBJECT</div>
     </div>
 
-    <div class="question-text" id="questionText">Login and select a subject to begin.</div>
+    <div class="question-text" id="questionText"></div>
 
     <div class="options-grid" id="optionsGrid" style="display:none;"></div>
 
@@ -727,9 +727,6 @@ html, body {
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* =============================================
    CONFIG
-   JSONbin: https://jsonbin.io — free account
-   Create a bin with {"players":{}} then paste
-   your Master Key and Bin ID below.
 ============================================= */
 const JSONBIN_KEY = '$2a$10$VJXQzwtVgNhMTIJiiQvpy.hG7XaRD0.H42NyZhKzeLRungeekMmpO';
 const JSONBIN_ID  = '69c2dcb0b7ec241ddc9c73a2';   // game scores / leaderboard bin
@@ -738,23 +735,10 @@ const LOGIN_URL   = "login.html";
 
 /* =============================================
    QUESTION FILE PATHS
-   Questions are loaded from external JSON files.
-   Each file should export an array of objects:
-     { question, options: ["A","B","C","D"], answer }
-   For text-answer (no options), omit options[].
-
-   FALLBACK: If a file can't be fetched, the
-   embedded FALLBACK_QUESTIONS below are used.
-
-   FILE NAMING CONVENTION (relative to this HTML):
-     questions/biology.json
-     questions/chemistry.json
-     ... etc.
-
-   You can change QUESTIONS_BASE_PATH to point
-   anywhere — a CDN, a GitHub Pages path, etc.
+   Files live at: public/questions.json/{subject}.json
+   Falls back to FALLBACK_QUESTIONS if fetch fails.
 ============================================= */
-const QUESTIONS_BASE_PATH = 'questions/';   // trailing slash required
+const QUESTIONS_BASE_PATH = 'public/questions.json/';  // path to question files
 
 /* =============================================
    SUBJECTS
@@ -766,7 +750,7 @@ const QUESTIONS_BASE_PATH = 'questions/';   // trailing slash required
 ============================================= */
 const SUBJECTS = [
   { id: 'math',               label: 'Mathematics',          type: 'math'     },
-  { id: 'advancedmathematics',label: 'Advanced Mathematics', type: 'adv-math' },
+  { id: 'advancedmathematics',label: 'Advanced Mathematics', type: 'mcq'      },
   { id: 'biology',            label: 'Biology',              type: 'mcq'      },
   { id: 'chemistry',          label: 'Chemistry',            type: 'mcq'      },
   { id: 'geography',          label: 'Geography',            type: 'mcq'      },
@@ -1129,7 +1113,7 @@ function isJsonbinConfigured() {
 
 function setSyncStatus(state) {
   syncStatus.className = 'sync-dot ' + state;
-  const labels = { syncing: 'SYNCING', synced: 'SYNCED', idle: 'OFFLINE' };
+  const labels = { syncing: 'SYNCING', synced: 'SYNCED', idle: 'READY' };
   syncStatus.textContent = labels[state] || 'OFFLINE';
 }
 
@@ -1473,7 +1457,7 @@ function generateMCQQuestion() {
   if (Array.isArray(q.options) && q.options.length > 0) {
     const shuffled = shuffle(q.options);
     optionsGrid.innerHTML = shuffled.map(opt =>
-      `<button class="opt-btn" onclick="checkAnswer(this.textContent)">${esc(opt)}</button>`
+      `<button class="opt-btn" data-answer="${esc(opt)}" onclick="checkAnswer(this.dataset.answer)">${esc(opt)}</button>`
     ).join('');
     optionsGrid.style.display  = 'grid';
     textAnswerRow.style.display = 'none';
@@ -1691,9 +1675,10 @@ function onSubjectChange() {
   username   = localStorage.getItem('g101_username');
   isLoggedIn = true;
   loggedInTag.innerHTML = `<div class="logged-in-tag">Signed in as <strong>${esc(username)}</strong></div>`;
-  subjectSelect.disabled = false;
   const savedSubject = localStorage.getItem('g101_subject');
-  if (savedSubject) subjectSelect.value = savedSubject;
+  if (savedSubject && Array.from(subjectSelect.options).some(o => o.value === savedSubject)) {
+    subjectSelect.value = savedSubject;
+  }
 
   // Always configured — load leaderboard immediately
   setSyncStatus('idle');
